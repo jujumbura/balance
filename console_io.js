@@ -8,7 +8,6 @@ function getValues() {
 		logger.trace('logger.getValues');
 		prompt.get('input', function(err, result) {
 			let values = result.input.split(/\s+/);
-			logger.debug('returning values: ' + values);
 			resolve(values);
 		});
 	});

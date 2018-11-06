@@ -1,4 +1,5 @@
 var ActionController = require('./action_controller');
+var logger = require('./logger');
 
 async function main() {
 	console.log('main enter');

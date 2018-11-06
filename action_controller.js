@@ -9,7 +9,7 @@ class ActionController {
 		logger.trace('ActionController.run');
 		let action = actions.createInitialAction();
 		while (action) {
-			action = action.run();
+			action = await action.run();
 		}
 	}
 }
