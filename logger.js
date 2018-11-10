@@ -1,4 +1,4 @@
-var enableTrace = true;
+var enableTrace = false;
 var enableDebug = true;
 
 function trace(message) {
