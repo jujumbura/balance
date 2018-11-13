@@ -1,6 +1,6 @@
 var io = require('./console_io');
 var storage = require('./storage');
-var states = require('./states');
+var generalStates = require('./general_states');
 var logger = require('./logger');
 var Project = require('./project');
 
@@ -21,7 +21,7 @@ class StateController {
 			dirty: false,
 		};
 
-		let state = states.createInitialState();
+		let state = new generalStates.SelectModeState();
 		while (true) {
 			state.context = context;
 

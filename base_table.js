@@ -13,8 +13,6 @@ class BaseTable {
 	assignEntries(entries) {
 		this.entries = entries;
 		this.entryMap = {};
-		console.log('assign');
-		console.log(JSON.stringify(this.entries, null, 2));
 		for (let i = 0; i < entries.length; ++i) {
 			let entry = entries[i];
 			this.entryMap[entry.id] = entry;
@@ -23,7 +21,7 @@ class BaseTable {
 
 	add(params) {
 		let id = generator.generateUUID();
-		let entry = formEntry(id, params);
+		let entry = this.formEntry(id, params);
 		this.entries.push(entry);
 		this.entryMap[id] = entry;
 	}

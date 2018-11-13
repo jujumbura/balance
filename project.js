@@ -1,16 +1,19 @@
 var ProductTable = require('./product_table');
+var GroupTable = require('./group_table');
 
 class Project {
 	constructor() {
 		this.productTable = new ProductTable();
+		this.groupTable = new GroupTable();
+
+		this.tables = [
+			this.productTable,
+			this.groupTable,
+		];
 	}
 
-	retrieveProductEntries() {
-		return this.productTable.retrieveEntries();
-	}
-
-	assignProductEntries(entries) {
-		this.productTable.assignEntries(entries);
+	getTables() {
+		return this.tables;
 	}
 
 	addProduct(productParams) {
@@ -20,6 +23,15 @@ class Project {
 	getAllProducts() {
 		let productDescs = this.productTable.getAll();
 		return productDescs;
+	}
+	
+	addGroup(groupParams) {
+		this.groupTable.add(groupParams);
+	}
+
+	getAllGroups() {
+		let groupDescs = this.groupTable.getAll();
+		return groupDescs;
 	}
 }
 

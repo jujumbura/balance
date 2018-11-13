@@ -1,42 +1,18 @@
-var generator = require('./generator');
+var BaseTable = require('./base_table');
 
-class ProductTable {
+class GroupTable extends BaseTable {
 	constructor() {
-		this.entries = [];
-		this.entryTable = {};
+		super();
 	}
+	
+	getName() { return 'Groups'; }
 
-	getEntries() {
-		return this.entries;
-	}
-
-	setEntries(entries) {
-		this.entries = entries;
-	}
-
-	add(params) {
-		let id = generator.generateUUID();
+	formEntry(id, params) {
 		let entry = {
 			id: id,
 			name: params.name,
 		};
-		this.entries.push(entry);
-	}
-
-	get(id) {
-		let entry = this.entryTable[id];
-		let desc = formDesc(entry);
-		return desc;
-	}
-
-	getAll() {
-		let descs = [];
-		for (let i = 0; i < this.entries.length; ++i) {
-			let entry = this.entries[i];
-			let desc = this.formDesc(entry);
-			descs.push(desc);
-		}
-		return descs;
+		return entry;	
 	}
 
 	formDesc(entry) {
@@ -48,4 +24,4 @@ class ProductTable {
 	}
 }
 
-module.exports = ProductTable;
+module.exports = GroupTable;

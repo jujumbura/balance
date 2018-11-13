@@ -5,6 +5,8 @@ class ProductTable extends BaseTable {
 		super();
 	}
 
+	getName() { return 'Products'; }
+
 	formEntry(id, params) {
 		let entry = {
 			id: id,

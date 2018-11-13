@@ -1,32 +1,6 @@
 var io = require('./console_io');
 var logger = require('./logger');
-
-class BaseState {
-	constructor() {
-		this.context = null;
-	}
-}
-
-class SelectModeState extends BaseState {
-	getMessage() {
-		return 'Select mode: ( products )';
-	}
-	
-	handleInput(values) {
-		let nextState = null;
-		switch(values[0]) {
-			case 'products':
-			case 'p':
-				nextState = new ProductSelectActionState();
-				break;
-			default:
-				io.writeMessage('Unknown mode');
-				nextState = new SelectModeState();
-				break;
-		}
-		return nextState;
-	}
-}
+var BaseState = require('./base_state');
 
 class ProductSelectActionState extends BaseState {
 	getMessage() {
@@ -63,6 +37,42 @@ class ProductAddState extends BaseState {
 	}
 }
 
+class ProductSelectState extends BaseState {
+	getMessage() {
+		return '[Product] Select product: name';
+	}
+	
+	handleInput(values) {
+		let name = values[0];
+		let descs = project.getAllProducts();
+		for (let i = 0; i < descs.length; ++i) {
+			let desc = descs[i];
+			if (desc.name === name) {
+			}
+		}
+
+		// TODO
+
+		return null;
+	}
+}
+
+class ProductEditState extends BaseState {
+	getMessage() {
+		return '[Product] Edit product: name';
+	}
+	
+	handleInput(values) {
+		let params = {
+			name: values[0]
+		}
+		this.context.project.addProduct(params);
+		this.context.dirty = true;
+
+		return null;
+	}
+}
+
 class ProductListState extends BaseState {
 	getMessage() {
 		return '[Product] List products: ';
@@ -79,9 +89,5 @@ class ProductListState extends BaseState {
 	}
 }
 
-function createInitialState() {
-	return new SelectModeState();
-}
-
 module.exports = {};
-module.exports.createInitialState = createInitialState;
+module.exports.ProductSelectActionState = ProductSelectActionState;
