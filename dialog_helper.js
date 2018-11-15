@@ -21,34 +21,102 @@ function checkBack(value) {
 	}
 }
 
-async function choose(message) {
-	io.writeMessage(message);
+async function choose(message, options) {
+	let choiceMessage = message + ': ( ';
+	for (let i = 0; i < options.length; ++i) {
+		let option = options[i];
+		choiceMessage += option.label;
+		if (i < options.length - 1) {
+			choiceMessage += ', ';
+		} else {
+			choiceMessage += ' )';
+		}
+	}
+	io.writeMessage(choiceMessage);
+
+	let result = null;
 	let values = await io.readValues();
 	if (values.length != 1) {
 		io.writeMessage('Expected 1 value');
-		continue;
-	}
-	let value = values[0];
+		return {};
+	} 
 
-	let result = null;
+	let value = values[0];
 	if (checkQuit(value)) {
 		let command = new StateCommand(StateCommand.Type.Quit);
-		result = {
-			command: command
-		};
+		return { command: command };
 	}
-	else if (checkBack(value)) {
+	if (checkBack(value)) {
 		let command = new StateCommand(StateCommand.Type.Back);
-		result = {
-			command: command
-		};
+		return { command: command };
 	}
-	else {
-		result = {
-			choice: value
-		};
+
+	for (let i = 0; i < options.length; ++i) {
+		let option = options[i];
+		if (value === option.label) {
+			return { choice: i };
+		}
 	}
-	return result;
+	return {};
+}
+
+async function add(message, fields) {
+	let addMessage = message + ': ';
+	for (let i = 0; i < fields.length; ++i) {
+		let field = fields[i];
+		if (field.usage == 'r') {
+			addMessage += field.label;
+			addMessage += ' ';
+		}
+	}
+	io.writeMessage(addMessage);
+
+	let values = await io.readValues();
+	
+	if (values.length < 1) {
+		io.writeMessage('Expected at least 1 value');
+		return {};
+	}
+
+	let checkValue = values[0];
+	if (checkQuit(checkValue)) {
+		let command = new StateCommand(StateCommand.Type.Quit);
+		return { command: command };
+	}
+	if (checkBack(checkValue)) {
+		let command = new StateCommand(StateCommand.Type.Back);
+		return { command: command };
+	}
+
+	let fieldValues = [];
+	for (let i = 0; i < fields.length; ++i) {
+		let field = fields[i];
+		if (field.usage == 'r') {
+			let value = null;
+			let skip = false;
+			if (valueIndex < values.length) {
+				value = values[valueIndex];
+				skip = value == '~';
+			}
+			if (!value || skip) {
+				io.writeMessage('Field: ' + field.label + ' is required');
+				return {};
+			}
+
+			fieldValues[i] = values[i];
+		}
+	}
+}
+
+function list(message, fields, descs) {
+	io.writeMessage(message);
+
+	let header = '# ';
+	for (let i = 0; i < fields.length; ++i) {
+		let field = fields[i];
+		header += field.label + ' ';
+	}
+	io.writeMessage(header);
 }
 
 module.exports = {};

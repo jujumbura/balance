@@ -1,6 +1,6 @@
-var io = require('./console_io');
 var storage = require('./storage');
 var generalStates = require('./general_states');
+var StateCommand = require('./state_command');
 var logger = require('./logger');
 var Project = require('./project');
 
@@ -10,7 +10,7 @@ class StateController {
 	}
 
 	async run() {
-		logger.trace('StateController.run');
+		logger.trace('StateController.run begin');
 		
 		let path = '/Users/michael.kron/Projects/balance/projects/TestProject';
 		let project = new Project();
@@ -25,55 +25,33 @@ class StateController {
 		while (true) {
 			state.context = context;
 
-			io.writeMessage(state.getMessage());
-
-			let values = await io.readValues();
-			if (values.length != 1) {
-				io.writeMessage('Expected 1 value');
-				continue;
+			let command = state.run();
+			
+			if (context.dirty) {
+				storage.storeProject(path, project);
+				context.dirty = false;
 			}
-			if (this.checkQuit(values)) {
+			
+			if (command.type == StateCommand.Type.Quit) {
 				break;
-			}
-			if (this.checkBack(values)) {
+			} else if (command.type == StateCommand.Type.Back) {
 				if (this.stateStack.length > 0) {
 					state = this.stateStack.pop();
 				} else {
 					io.writeMessage('Cannot go back farther');
 				}
 				continue;
-			}
-
-			let nextState = state.handleInput(values);
-			if (context.dirty) {
-				storage.storeProject(path, project);
-				context.dirty = false;
-			}
-			if (nextState) {
+			} else if (command.type == StateCommand.Type.Continue) {
+				continue;
+			} else if (command.type == StateCommand.Type.Next {
 				this.stateStack.push(state);
-				state = nextState;
+				state = command.nextState;
+			} else {
+				throw new Error();
 			}
 		}
-	}
 
-	checkQuit(values) {
-		switch (values[0]) {
-			case 'quit':
-			case 'q':
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	checkBack(values) {
-		switch (values[0]) {
-			case 'back':
-			case 'b':
-				return true;
-			default:
-				return false;
-		}
+		logger.trace('StateController.run end');
 	}
 }
 

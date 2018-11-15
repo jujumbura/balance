@@ -1,42 +1,36 @@
 var io = require('./console_io');
 var logger = require('./logger');
-var BaseState = require('./base_state');
+var baseStates = require('./base_states');
 
-class ProductSelectActionState extends BaseState {
-	getMessage() {
-		return '[Product] Select action: ( add, list )';
-	}
-	
-	handleInput(values) {
-		switch(values[0]) {
-			case 'add':
-			case 'a':
-				return new ProductAddState();
-			case 'list':
-			case 'l':
-				return new ProductListState();
-			default:
-				return new ProductSelectActionState();
-		}
+class ProductChooseActionState extends baseStates.ChooseState {
+	constructor() {
+		super();
+		this.message = '[Products] Choose action';
+		this.options = [
+			{ label: 'add', state: new ProductAddState() },
+			{ label: 'list', state: new ProductListState() },
+		];
 	}
 }
 
-class ProductAddState extends BaseState {
-	getMessage() {
-		return '[Product] Add product: name';
+class ProductAddState extends baseStates.AddState {
+	constructor() {
+		super();
+		this.message = '[Products] Add';
+		this.fields = [
+			{ label: 'name', usage: 'r' },
+		];
 	}
-	
-	handleInput(values) {
+
+	handleSubmit(fieldValues) {
 		let params = {
-			name: values[0]
-		}
+			name: fieldValues[0];
+		};
 		this.context.project.addProduct(params);
 		this.context.dirty = true;
-
-		return null;
 	}
 }
-
+/*
 class ProductSelectState extends BaseState {
 	getMessage() {
 		return '[Product] Select product: name';
@@ -72,7 +66,7 @@ class ProductEditState extends BaseState {
 		return null;
 	}
 }
-
+*/
 class ProductListState extends BaseState {
 	getMessage() {
 		return '[Product] List products: ';
