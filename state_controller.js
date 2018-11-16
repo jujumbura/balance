@@ -1,31 +1,31 @@
 var storage = require('./storage');
 var generalStates = require('./general_states');
 var StateCommand = require('./state_command');
-var logger = require('./logger');
 var Project = require('./project');
+var io = require('./console_io');
+var logger = require('./logger');
 
 class StateController {
 	constructor() {
 		this.stateStack = [];
 	}
 
-	async run() {
+	async run(projectPath) {
 		logger.trace('StateController.run begin');
 		
-		let path = '/Users/michael.kron/Projects/balance/projects/TestProject';
 		let project = new Project();
-		storage.loadProject(path, project);
+		storage.loadProject(projectPath, project);
 
 		let context = {
 			project: project,
 			dirty: false,
 		};
 
-		let state = new generalStates.SelectModeState();
+		let state = new generalStates.ChooseModeState();
 		while (true) {
 			state.context = context;
 
-			let command = state.run();
+			let command = await state.run();
 			
 			if (context.dirty) {
 				storage.storeProject(path, project);
@@ -35,6 +35,7 @@ class StateController {
 			if (command.type == StateCommand.Type.Quit) {
 				break;
 			} else if (command.type == StateCommand.Type.Back) {
+        console.log('got back command');
 				if (this.stateStack.length > 0) {
 					state = this.stateStack.pop();
 				} else {
@@ -43,7 +44,7 @@ class StateController {
 				continue;
 			} else if (command.type == StateCommand.Type.Continue) {
 				continue;
-			} else if (command.type == StateCommand.Type.Next {
+			} else if (command.type == StateCommand.Type.Next) {
 				this.stateStack.push(state);
 				state = command.nextState;
 			} else {

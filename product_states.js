@@ -24,7 +24,7 @@ class ProductAddState extends baseStates.AddState {
 
 	handleSubmit(fieldValues) {
 		let params = {
-			name: fieldValues[0];
+			name: fieldValues[0],
 		};
 		this.context.project.addProduct(params);
 		this.context.dirty = true;
@@ -67,7 +67,7 @@ class ProductEditState extends BaseState {
 	}
 }
 */
-class ProductListState extends BaseState {
+class ProductListState extends baseStates.AddState {
 	getMessage() {
 		return '[Product] List products: ';
 	}
@@ -84,4 +84,4 @@ class ProductListState extends BaseState {
 }
 
 module.exports = {};
-module.exports.ProductSelectActionState = ProductSelectActionState;
+module.exports.ProductChooseActionState = ProductChooseActionState;

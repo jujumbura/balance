@@ -10,10 +10,10 @@ class BaseState {
 }
 
 class ChooseState extends BaseState {
-	run() {
-		let result = dialogHelper.choose(this.message, this.options);
+	async run() {
+		let result = await dialogHelper.choose(this.message, this.options);
 		if (result.command) { return result.command; }
-		if (!result.choice) { return new StateCommand(StateCommand.Type.Continue);
+		if (!result.choice) { return new StateCommand(StateCommand.Type.Continue); }
 		
 		let nextState = this.options[result.choice].state;
 		return new StateCommand(StateCommand.Type.Next, nextState);
@@ -21,10 +21,10 @@ class ChooseState extends BaseState {
 }
 
 class AddState extends BaseState {
-	run () {
-		let result = dialogHelper.submit(this.message, this.fields);
+	async run () {
+		let result = await dialogHelper.submit(this.message, this.fields);
 		if (result.command) { return result.command; }
-		if (!result.fieldValues) { return new StateCommand(StateCommand.Type.Continue);
+		if (!result.fieldValues) { return new StateCommand(StateCommand.Type.Continue); }
 
 		this.handleSubmit(result.fieldValues);
 		return new StateCommand(StateCommand.Type.Continue);
@@ -32,7 +32,7 @@ class AddState extends BaseState {
 }
 
 class ListState extends BaseState {
-	run() {
+	async run() {
 		dialogHelper.list(this.fields);
 
 		return new StateCommand(StateCommand.Type.Back);
@@ -42,3 +42,5 @@ class ListState extends BaseState {
 module.exports = {};
 module.exports.BaseState = BaseState;
 module.exports.ChooseState = ChooseState;
+module.exports.AddState = AddState;
+module.exports.ListState = ListState;

@@ -1,5 +1,5 @@
 var io = require('./console_io');
-var stateCommand = require('./state_command');
+var StateCommand = require('./state_command');
 
 function checkQuit(value) {
 	switch (value) {
@@ -35,7 +35,9 @@ async function choose(message, options) {
 	io.writeMessage(choiceMessage);
 
 	let result = null;
+  console.log('before read: ' + io);
 	let values = await io.readValues();
+  console.log('after read: ' + io);
 	if (values.length != 1) {
 		io.writeMessage('Expected 1 value');
 		return {};
@@ -47,7 +49,8 @@ async function choose(message, options) {
 		return { command: command };
 	}
 	if (checkBack(value)) {
-		let command = new StateCommand(StateCommand.Type.Back);
+		console.log('going back');
+    let command = new StateCommand(StateCommand.Type.Back);
 		return { command: command };
 	}
 
@@ -57,6 +60,7 @@ async function choose(message, options) {
 			return { choice: i };
 		}
 	}
+  io.writeMessage('Unknown option: ' + value);
 	return {};
 }
 
