@@ -13,9 +13,11 @@ class ChooseState extends BaseState {
 	async run() {
 		let result = await dialogHelper.choose(this.message, this.options);
 		if (result.command) { return result.command; }
-		if (!result.choice) { return new StateCommand(StateCommand.Type.Continue); }
-		
-		let nextState = this.options[result.choice].state;
+		if (typeof(result.choice) === 'undefined') { return new StateCommand(StateCommand.Type.Continue); }
+	
+		let option = this.options[result.choice];
+		io.writeMessage('-Chose ' + option.label);
+		let nextState = option.state;
 		return new StateCommand(StateCommand.Type.Next, nextState);
 	}
 }
@@ -33,7 +35,8 @@ class AddState extends BaseState {
 
 class ListState extends BaseState {
 	async run() {
-		dialogHelper.list(this.fields);
+		let descs = this.produceDescs();
+		dialogHelper.list(this.message, this.fields, descs);
 
 		return new StateCommand(StateCommand.Type.Back);
 	}

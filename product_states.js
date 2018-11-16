@@ -68,6 +68,14 @@ class ProductEditState extends BaseState {
 }
 */
 class ProductListState extends baseStates.AddState {
+	constructor() {
+		super();
+		this.message = '[Products] List';
+		this.fields = [
+			{ label: 'name', usage: 'r' },
+		];
+	}
+
 	getMessage() {
 		return '[Product] List products: ';
 	}

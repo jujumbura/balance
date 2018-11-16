@@ -28,18 +28,19 @@ class StateController {
 			let command = await state.run();
 			
 			if (context.dirty) {
-				storage.storeProject(path, project);
+				storage.storeProject(projectPath, project);
 				context.dirty = false;
 			}
 			
 			if (command.type == StateCommand.Type.Quit) {
+				io.writeMessage('-Quitting');
 				break;
 			} else if (command.type == StateCommand.Type.Back) {
-        console.log('got back command');
 				if (this.stateStack.length > 0) {
+					io.writeMessage('-Going back');
 					state = this.stateStack.pop();
 				} else {
-					io.writeMessage('Cannot go back farther');
+					io.writeMessage('-Cannot go back farther');
 				}
 				continue;
 			} else if (command.type == StateCommand.Type.Continue) {

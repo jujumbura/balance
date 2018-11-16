@@ -35,9 +35,7 @@ async function choose(message, options) {
 	io.writeMessage(choiceMessage);
 
 	let result = null;
-  console.log('before read: ' + io);
 	let values = await io.readValues();
-  console.log('after read: ' + io);
 	if (values.length != 1) {
 		io.writeMessage('Expected 1 value');
 		return {};
@@ -49,14 +47,14 @@ async function choose(message, options) {
 		return { command: command };
 	}
 	if (checkBack(value)) {
-		console.log('going back');
     let command = new StateCommand(StateCommand.Type.Back);
 		return { command: command };
 	}
 
 	for (let i = 0; i < options.length; ++i) {
 		let option = options[i];
-		if (value === option.label) {
+		if ((value === option.label) || 
+				value == option.label.charAt(0))  {
 			return { choice: i };
 		}
 	}
@@ -64,7 +62,7 @@ async function choose(message, options) {
 	return {};
 }
 
-async function add(message, fields) {
+async function submit(message, fields) {
 	let addMessage = message + ': ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
@@ -78,7 +76,7 @@ async function add(message, fields) {
 	let values = await io.readValues();
 	
 	if (values.length < 1) {
-		io.writeMessage('Expected at least 1 value');
+		io.writeMessage('-Expected at least 1 value');
 		return {};
 	}
 
@@ -98,18 +96,19 @@ async function add(message, fields) {
 		if (field.usage == 'r') {
 			let value = null;
 			let skip = false;
-			if (valueIndex < values.length) {
-				value = values[valueIndex];
+			if (i < values.length) {
+				value = values[i];
 				skip = value == '~';
 			}
 			if (!value || skip) {
-				io.writeMessage('Field: ' + field.label + ' is required');
+				io.writeMessage('-Field: ' + field.label + ' is required');
 				return {};
 			}
 
 			fieldValues[i] = values[i];
 		}
 	}
+	return { fieldValues: fieldValues };
 }
 
 function list(message, fields, descs) {
@@ -125,3 +124,4 @@ function list(message, fields, descs) {
 
 module.exports = {};
 module.exports.choose = choose;
+module.exports.submit = submit;
