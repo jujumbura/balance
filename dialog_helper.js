@@ -120,8 +120,20 @@ function list(message, fields, descs) {
 		header += field.label + ' ';
 	}
 	io.writeMessage(header);
+
+  for (let d = 0; d < descs.length; ++d) {
+    let line = (d + 1).toString() + ' ';
+    for (let i = 0; i < fields.length; ++i) {
+      let desc = descs[d];
+      let field = fields[i];
+      let attr = desc[field.label];
+      line += attr + ' ';
+    }
+    io.writeMessage(line);
+  }
 }
 
 module.exports = {};
 module.exports.choose = choose;
 module.exports.submit = submit;
+module.exports.list = list;

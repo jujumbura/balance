@@ -2,10 +2,14 @@ var io = require('./console_io');
 var logger = require('./logger');
 var baseStates = require('./base_states');
 
+const FIELDS = [
+  { label: 'name', usage: 'r' },
+];
+
 class ProductChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
-		this.message = '[Products] Choose action';
+		this.message = '[Products] Choose';
 		this.options = [
 			{ label: 'add', state: new ProductAddState() },
 			{ label: 'list', state: new ProductListState() },
@@ -16,10 +20,8 @@ class ProductChooseActionState extends baseStates.ChooseState {
 class ProductAddState extends baseStates.AddState {
 	constructor() {
 		super();
-		this.message = '[Products] Add';
-		this.fields = [
-			{ label: 'name', usage: 'r' },
-		];
+		this.message = '[Products-Add] Enter';
+		this.fields = FIELDS;
 	}
 
 	handleSubmit(fieldValues) {
@@ -30,30 +32,10 @@ class ProductAddState extends baseStates.AddState {
 		this.context.dirty = true;
 	}
 }
-/*
-class ProductSelectState extends BaseState {
+
+class ProductEditState extends baseStates.EditState {
 	getMessage() {
-		return '[Product] Select product: name';
-	}
-	
-	handleInput(values) {
-		let name = values[0];
-		let descs = project.getAllProducts();
-		for (let i = 0; i < descs.length; ++i) {
-			let desc = descs[i];
-			if (desc.name === name) {
-			}
-		}
-
-		// TODO
-
-		return null;
-	}
-}
-
-class ProductEditState extends BaseState {
-	getMessage() {
-		return '[Product] Edit product: name';
+		return '[Products-Edit] Modify: name';
 	}
 	
 	handleInput(values) {
@@ -66,28 +48,17 @@ class ProductEditState extends BaseState {
 		return null;
 	}
 }
-*/
-class ProductListState extends baseStates.AddState {
+
+class ProductListState extends baseStates.ListState {
 	constructor() {
 		super();
-		this.message = '[Products] List';
-		this.fields = [
-			{ label: 'name', usage: 'r' },
-		];
-	}
-
-	getMessage() {
-		return '[Product] List products: ';
+		this.message = '[Products-List] ';
+		this.fields = FIELDS;
 	}
 	
-	handleInput(values) {
+	produceDescs() {
 		let productDescs = this.context.project.getAllProducts();
-		for (let i = 0; i < productDescs.length; ++i) {
-			let productDesc = productDescs[i];
-			io.writeMessage(productDesc.name);
-		}
-
-		return null;
+		return productDescs;
 	}
 }
 

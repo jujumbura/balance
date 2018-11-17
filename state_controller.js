@@ -42,6 +42,7 @@ class StateController {
 				} else {
 					io.writeMessage('-Cannot go back farther');
 				}
+        io.writeMessage('');
 				continue;
 			} else if (command.type == StateCommand.Type.Continue) {
 				continue;
@@ -51,6 +52,7 @@ class StateController {
 			} else {
 				throw new Error();
 			}
+      io.writeMessage('');
 		}
 
 		logger.trace('StateController.run end');

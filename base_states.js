@@ -29,14 +29,32 @@ class AddState extends BaseState {
 		if (!result.fieldValues) { return new StateCommand(StateCommand.Type.Continue); }
 
 		this.handleSubmit(result.fieldValues);
-		return new StateCommand(StateCommand.Type.Continue);
+		return new StateCommand(StateCommand.Type.Back);
+	}
+}
+
+class EditState extends BaseState {
+	async run () {
+    // Find ( simple submit, find desc )
+   
+    // Modify ( submit, handle submit )
+    
+    
+    let result = await dialogHalper.select(); // TODO
+
+		result = await dialogHelper.submit(this.message, this.fields);
+		if (result.command) { return result.command; }
+		if (!result.fieldValues) { return new StateCommand(StateCommand.Type.Continue); }
+
+		this.handleSubmit(result.fieldValues);
+		return new StateCommand(StateCommand.Type.Back);
 	}
 }
 
 class ListState extends BaseState {
 	async run() {
 		let descs = this.produceDescs();
-		dialogHelper.list(this.message, this.fields, descs);
+    dialogHelper.list(this.message, this.fields, descs);
 
 		return new StateCommand(StateCommand.Type.Back);
 	}
@@ -46,4 +64,5 @@ module.exports = {};
 module.exports.BaseState = BaseState;
 module.exports.ChooseState = ChooseState;
 module.exports.AddState = AddState;
+module.exports.EditState = EditState;
 module.exports.ListState = ListState;
