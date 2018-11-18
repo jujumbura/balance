@@ -32,6 +32,14 @@ class BaseTable {
 		return desc;
 	}
 
+	update(id, params) {
+		let oldEntry = this.entryMap[id];
+		let index = this.entries.indexOf(oldEntry);
+		let newEntry = this.formEntry(id, params);
+		this.entries[index] = newEntry;
+		this.entryMap[id] = newEntry;
+	}
+
 	getAll() {
 		let descs = [];
 		for (let i = 0; i < this.entries.length; ++i) {

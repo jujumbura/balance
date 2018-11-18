@@ -1,23 +1,16 @@
 var io = require('./console_io');
 var StateCommand = require('./state_command');
 
-function checkQuit(value) {
+function checkCommonCommands(value) {
 	switch (value) {
 		case 'quit':
 		case 'q':
-			return true;
-		default:
-			return false;
-	}
-}
-
-function checkBack(value) {
-	switch (value) {
+			return new StateCommand(StateCommand.Type.Quit);
 		case 'back':
 		case 'b':
-			return true;
+			return new StateCommand(StateCommand.Type.Back);
 		default:
-			return false;
+			return null;
 	}
 }
 
@@ -42,14 +35,8 @@ async function choose(message, options) {
 	} 
 
 	let value = values[0];
-	if (checkQuit(value)) {
-		let command = new StateCommand(StateCommand.Type.Quit);
-		return { command: command };
-	}
-	if (checkBack(value)) {
-    let command = new StateCommand(StateCommand.Type.Back);
-		return { command: command };
-	}
+	let command = checkCommonCommands(value);
+	if (command) { return { command: command } };
 
 	for (let i = 0; i < options.length; ++i) {
 		let option = options[i];
@@ -62,17 +49,34 @@ async function choose(message, options) {
 	return {};
 }
 
-async function submit(message, fields) {
-	let addMessage = message + ': ';
+function printFields(message, fields) {
+	let fieldsMessage = message + ': ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		if (field.usage == 'r') {
-			addMessage += field.label;
-			addMessage += ' ';
+			fieldsMessage += field.label;
+			fieldsMessage += ' ';
 		}
 	}
-	io.writeMessage(addMessage);
+	io.writeMessage(fieldsMessage);
+}
 
+async function submit() {
+	let values = await io.readValues();
+	
+	if (values.length < 1) {
+		io.writeMessage('-Expected 1 value');
+		return {};
+	}
+
+	let value = values[0];
+	let command = checkCommonCommands(value);
+	if (command) { return { command: command } };
+
+	return { value: value };
+}
+
+async function submitFields(fields) {
 	let values = await io.readValues();
 	
 	if (values.length < 1) {
@@ -81,16 +85,10 @@ async function submit(message, fields) {
 	}
 
 	let checkValue = values[0];
-	if (checkQuit(checkValue)) {
-		let command = new StateCommand(StateCommand.Type.Quit);
-		return { command: command };
-	}
-	if (checkBack(checkValue)) {
-		let command = new StateCommand(StateCommand.Type.Back);
-		return { command: command };
-	}
+	let command = checkCommonCommands(checkValue);
+	if (command) { return { command: command } };
 
-	let fieldValues = [];
+	let attrs = [];
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		if (field.usage == 'r') {
@@ -105,13 +103,23 @@ async function submit(message, fields) {
 				return {};
 			}
 
-			fieldValues[i] = values[i];
+			attrs[i] = values[i];
 		}
 	}
-	return { fieldValues: fieldValues };
+	return { attrs: attrs };
 }
 
-function list(message, fields, descs) {
+function printObj(message, fields, obj) {
+	let objMessage = message + ': ';
+	for (let i = 0; i < fields.length; ++i) {
+		let field = fields[i];
+		let attr = obj[field.label];
+		objMessage += attr + ' ';
+	}
+	io.writeMessage(objMessage);
+}
+
+function listObjs(message, fields, objs) {
 	io.writeMessage(message);
 
 	let header = '# ';
@@ -121,12 +129,12 @@ function list(message, fields, descs) {
 	}
 	io.writeMessage(header);
 
-  for (let d = 0; d < descs.length; ++d) {
-    let line = (d + 1).toString() + ' ';
+  for (let j = 0; j < objs.length; ++j) {
+    let line = (j + 1).toString() + ' ';
     for (let i = 0; i < fields.length; ++i) {
-      let desc = descs[d];
+      let obj = objs[j];
       let field = fields[i];
-      let attr = desc[field.label];
+      let attr = obj[field.label];
       line += attr + ' ';
     }
     io.writeMessage(line);
@@ -135,5 +143,8 @@ function list(message, fields, descs) {
 
 module.exports = {};
 module.exports.choose = choose;
+module.exports.printFields = printFields;
 module.exports.submit = submit;
-module.exports.list = list;
+module.exports.submitFields = submitFields;
+module.exports.printObj = printObj;
+module.exports.listObjs = listObjs;

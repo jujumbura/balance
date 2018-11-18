@@ -12,6 +12,7 @@ class ProductChooseActionState extends baseStates.ChooseState {
 		this.message = '[Products] Choose';
 		this.options = [
 			{ label: 'add', state: new ProductAddState() },
+			{ label: 'edit', state: new ProductEditState() },
 			{ label: 'list', state: new ProductListState() },
 		];
 	}
@@ -24,9 +25,9 @@ class ProductAddState extends baseStates.AddState {
 		this.fields = FIELDS;
 	}
 
-	handleSubmit(fieldValues) {
+	handleAdd(attrs) {
 		let params = {
-			name: fieldValues[0],
+			name: attrs[0],
 		};
 		this.context.project.addProduct(params);
 		this.context.dirty = true;
@@ -34,18 +35,24 @@ class ProductAddState extends baseStates.AddState {
 }
 
 class ProductEditState extends baseStates.EditState {
-	getMessage() {
-		return '[Products-Edit] Modify: name';
+	constructor() {
+		super();
+		this.findMessage = '[Products-Edit] Find';
+		this.modifyMessage = '[Products-Edit] Modify';
+		this.fields = FIELDS;
 	}
-	
-	handleInput(values) {
-		let params = {
-			name: values[0]
-		}
-		this.context.project.addProduct(params);
-		this.context.dirty = true;
 
-		return null;
+	findObj(value) {
+		let desc = this.context.project.findProduct(value);
+		return desc;
+	}
+
+	handleModify(obj, attrs) {
+		let params = {
+			name: attrs[0],
+		};
+		this.context.project.updateProduct(obj.id, params);
+		this.context.dirty = true;
 	}
 }
 
@@ -56,7 +63,7 @@ class ProductListState extends baseStates.ListState {
 		this.fields = FIELDS;
 	}
 	
-	produceDescs() {
+	produceObjs() {
 		let productDescs = this.context.project.getAllProducts();
 		return productDescs;
 	}

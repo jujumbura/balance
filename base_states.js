@@ -18,43 +18,45 @@ class ChooseState extends BaseState {
 		let option = this.options[result.choice];
 		io.writeMessage('-Chose ' + option.label);
 		let nextState = option.state;
+
 		return new StateCommand(StateCommand.Type.Next, nextState);
 	}
 }
 
 class AddState extends BaseState {
 	async run () {
-		let result = await dialogHelper.submit(this.message, this.fields);
+		dialogHelper.printFields(this.message, this.fields);
+		let result = await dialogHelper.submitFields(this.fields);
 		if (result.command) { return result.command; }
-		if (!result.fieldValues) { return new StateCommand(StateCommand.Type.Continue); }
+		if (!result.attrs) { return new StateCommand(StateCommand.Type.Continue); }
+		this.handleAdd(result.attrs);
 
-		this.handleSubmit(result.fieldValues);
 		return new StateCommand(StateCommand.Type.Back);
 	}
 }
 
 class EditState extends BaseState {
 	async run () {
-    // Find ( simple submit, find desc )
-   
-    // Modify ( submit, handle submit )
-    
-    
-    let result = await dialogHalper.select(); // TODO
-
-		result = await dialogHelper.submit(this.message, this.fields);
+		io.writeMessage(this.findMessage);
+		let result = await dialogHelper.submit();
 		if (result.command) { return result.command; }
-		if (!result.fieldValues) { return new StateCommand(StateCommand.Type.Continue); }
+		if (typeof(result.value) === 'undefined') { return new StateCommand(StateCommand.Type.Continue); } 
+		let obj = this.findObj(result.value);
 
-		this.handleSubmit(result.fieldValues);
+		dialogHelper.printObj(this.modifyMessage, this.fields, obj);
+		result = await dialogHelper.submitFields(this.fields);
+		if (result.command) { return result.command; }
+		if (typeof(result.attrs) === 'undefined') { return new StateCommand(StateCommand.Type.Continue); }
+		this.handleModify(obj, result.attrs);
+
 		return new StateCommand(StateCommand.Type.Back);
 	}
 }
 
 class ListState extends BaseState {
 	async run() {
-		let descs = this.produceDescs();
-    dialogHelper.list(this.message, this.fields, descs);
+		let objs = this.produceObjs();
+    dialogHelper.listObjs(this.message, this.fields, objs);
 
 		return new StateCommand(StateCommand.Type.Back);
 	}

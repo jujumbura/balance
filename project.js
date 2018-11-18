@@ -20,6 +20,21 @@ class Project {
 		this.productTable.add(productParams);
 	}
 
+	findProduct(name) {
+		let productDescs = this.productTable.getAll();
+		for (let i = 0; i < productDescs.length; ++i) {
+			let productDesc = productDescs[i];
+			if (productDesc.name == name) {
+				return productDesc;
+			}
+		}
+		return null;
+	}
+
+	updateProduct(id, productParams) {
+		this.productTable.update(id, productParams);
+	}
+
 	getAllProducts() {
 		let productDescs = this.productTable.getAll();
 		return productDescs;
