@@ -3,7 +3,7 @@ var io = require('./console_io');
 var dialogHelper = require('./dialog_helper');
 var baseStates = require('./base_states');
 var productStates = require('./product_states');
-//var groupStates = require('./group_states');
+var groupStates = require('./group_states');
 var logger = require('./logger');
 
 class ChooseModeState extends baseStates.ChooseState {
@@ -12,7 +12,7 @@ class ChooseModeState extends baseStates.ChooseState {
 		this.message = '[Main] Choose';
 		this.options = [
 			{ label: 'products', state: new productStates.ProductChooseActionState() },
-			//{ label: 'groups', state: new groupStates.GroupChooseActionState() },
+			{ label: 'groups', state: new groupStates.GroupChooseActionState() },
 		];
 	}
 }

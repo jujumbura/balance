@@ -1,9 +1,11 @@
 var io = require('./console_io');
 var logger = require('./logger');
 var baseStates = require('./base_states');
+var Usage = require('./dialog_helper').Usage;
 
 const FIELDS = [
-  { label: 'name', usage: 'r' },
+  { label: 'name', usage: Usage.REQUIRED },
+  { label: 'groups', usage: Usage.MULTIPLE },
 ];
 
 class ProductChooseActionState extends baseStates.ChooseState {
@@ -50,6 +52,7 @@ class ProductEditState extends baseStates.EditState {
 	handleModify(obj, attrs) {
 		let params = {
 			name: attrs[0],
+			groups: attrs[1],
 		};
 		this.context.project.updateProduct(obj.id, params);
 		this.context.dirty = true;

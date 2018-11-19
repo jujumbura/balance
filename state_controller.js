@@ -44,7 +44,8 @@ class StateController {
 				}
         io.writeMessage('');
 				continue;
-			} else if (command.type == StateCommand.Type.Continue) {
+			} else if (command.type == StateCommand.Type.Retry) {
+        io.writeMessage('');
 				continue;
 			} else if (command.type == StateCommand.Type.Next) {
 				this.stateStack.push(state);

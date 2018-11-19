@@ -15,33 +15,53 @@ class Project {
 	getTables() {
 		return this.tables;
 	}
+	
 
 	addProduct(productParams) {
+		if (productParams.groups) {
+			productParams.groupIds = this.groupTable.findIdsByName(productParams.groups);
+		}
 		this.productTable.add(productParams);
+	}
+	
+	updateProduct(id, productParams) {
+		if (productParams.groups) {
+			productParams.groupIds = this.groupTable.findIdsByName(productParams.groups);
+		}
+		this.productTable.update(id, productParams);
 	}
 
 	findProduct(name) {
-		let productDescs = this.productTable.getAll();
-		for (let i = 0; i < productDescs.length; ++i) {
-			let productDesc = productDescs[i];
-			if (productDesc.name == name) {
-				return productDesc;
-			}
+		let productDesc = this.productTable.getByName(name);
+		if (productDesc.groupIds) {
+			productDesc.groups = this.groupTable.findNamesById(productDesc.groupIds);
 		}
-		return null;
-	}
-
-	updateProduct(id, productParams) {
-		this.productTable.update(id, productParams);
+		return productDesc;
 	}
 
 	getAllProducts() {
 		let productDescs = this.productTable.getAll();
+		for (let i = 0; i < productDescs.length; ++i) {
+			let productDesc = productDescs[i];
+			if (productDesc.groupIds) {
+				productDesc.groups = this.groupTable.findNamesById(productDesc.groupIds);
+			}
+		}
 		return productDescs;
 	}
-	
+
+
 	addGroup(groupParams) {
 		this.groupTable.add(groupParams);
+	}
+
+	findGroup(name) {
+		let groupDesc = this.groupTable.getByName(name);
+		return groupDesc;
+	}
+
+	updateGroup(id, groupParams) {
+		this.groupTable.update(id, groupParams);
 	}
 
 	getAllGroups() {

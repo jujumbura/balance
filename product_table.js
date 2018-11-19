@@ -11,6 +11,7 @@ class ProductTable extends BaseTable {
 		let entry = {
 			id: id,
 			name: params.name,
+			groupIds: params.groupIds,
 		};
 		return entry;	
 	}
@@ -19,6 +20,7 @@ class ProductTable extends BaseTable {
 		let desc = {
 			id: entry.id,
 			name: entry.name,
+			groupIds: entry.groupIds,
 		};
 		return desc;
 	}

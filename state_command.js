@@ -9,7 +9,7 @@ class StateCommand {
 let Type = {
 	Next: 'Next',
 	Back: 'Back',
-	Continue: 'Continue',
+	Retry: 'Retry',
 	Quit: 'Quit',
 };
 

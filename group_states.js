@@ -1,57 +1,74 @@
 var io = require('./console_io');
 var logger = require('./logger');
-var BaseState = require('./base_state');
+var baseStates = require('./base_states');
+var Usage = require('./dialog_helper').Usage;
 
-class GroupSelectActionState extends BaseState {
-	getMessage() {
-		return '[Group] Select action: ( add, list )';
-	}
-	
-	handleInput(values) {
-		switch(values[0]) {
-			case 'add':
-			case 'a':
-				return new GroupAddState();
-			case 'list':
-			case 'l':
-				return new GroupListState();
-			default:
-				return new GroupSelectActionState();
-		}
+const FIELDS = [
+  { label: 'name', usage: Usage.REQUIRED },
+];
+
+class GroupChooseActionState extends baseStates.ChooseState {
+	constructor() {
+		super();
+		this.message = '[Groups] Choose';
+		this.options = [
+			{ label: 'add', state: new GroupAddState() },
+			{ label: 'edit', state: new GroupEditState() },
+			{ label: 'list', state: new GroupListState() },
+		];
 	}
 }
 
-class GroupAddState extends BaseState {
-	getMessage() {
-		return '[Group] Add group: name';
+class GroupAddState extends baseStates.AddState {
+	constructor() {
+		super();
+		this.message = '[Groups-Add] Enter';
+		this.fields = FIELDS;
 	}
-	
-	handleInput(values) {
+
+	handleAdd(attrs) {
 		let params = {
-			name: values[0]
-		}
+			name: attrs[0],
+		};
 		this.context.project.addGroup(params);
 		this.context.dirty = true;
-
-		return null;
 	}
 }
 
-class GroupListState extends BaseState {
-	getMessage() {
-		return '[Group] List groups: ';
+class GroupEditState extends baseStates.EditState {
+	constructor() {
+		super();
+		this.findMessage = '[Groups-Edit] Find';
+		this.modifyMessage = '[Groups-Edit] Modify';
+		this.fields = FIELDS;
+	}
+
+	findObj(value) {
+		let desc = this.context.project.findGroup(value);
+		return desc;
+	}
+
+	handleModify(obj, attrs) {
+		let params = {
+			name: attrs[0],
+		};
+		this.context.project.updateGroup(obj.id, params);
+		this.context.dirty = true;
+	}
+}
+
+class GroupListState extends baseStates.ListState {
+	constructor() {
+		super();
+		this.message = '[Groups-List] ';
+		this.fields = FIELDS;
 	}
 	
-	handleInput(values) {
-		let groupDescs = this.context.project.getAllGroups();
-		for (let i = 0; i < groupDescs.length; ++i) {
-			let groupDesc = groupDescs[i];
-			io.writeMessage(groupDesc.name);
-		}
-
-		return null;
+	produceObjs() {
+		let productDescs = this.context.project.getAllGroups();
+		return productDescs;
 	}
 }
 
 module.exports = {};
-module.exports.GroupSelectActionState = GroupSelectActionState;
+module.exports.GroupChooseActionState = GroupChooseActionState;

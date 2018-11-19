@@ -1,6 +1,12 @@
 var io = require('./console_io');
 var StateCommand = require('./state_command');
 
+const Usage = {
+	REQUIRED: 'r',
+	OPTIONAL: 'o',
+	MULTIPLE: 'm',
+};
+
 function checkCommonCommands(value) {
 	switch (value) {
 		case 'quit':
@@ -53,7 +59,7 @@ function printFields(message, fields) {
 	let fieldsMessage = message + ': ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
-		if (field.usage == 'r') {
+		if (field.usage == Usage.REQUIRED) {
 			fieldsMessage += field.label;
 			fieldsMessage += ' ';
 		}
@@ -91,19 +97,25 @@ async function submitFields(fields) {
 	let attrs = [];
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
-		if (field.usage == 'r') {
-			let value = null;
-			let skip = false;
-			if (i < values.length) {
-				value = values[i];
-				skip = value == '~';
-			}
+		let value = null;
+		let skip = false;
+		if (i < values.length) {
+			value = values[i];
+			skip = value == '~';
+		}
+		if (field.usage == Usage.REQUIRED) {
 			if (!value || skip) {
 				io.writeMessage('-Field: ' + field.label + ' is required');
 				return {};
 			}
 
-			attrs[i] = values[i];
+			attrs[i] = value;
+		}
+		else if (field.usage == Usage.MULTIPLE) {
+			if (value && !skip) {
+				let elems = value.split(',');
+				attrs[i] = elems;
+			}
 		}
 	}
 	return { attrs: attrs };
@@ -114,7 +126,22 @@ function printObj(message, fields, obj) {
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		let attr = obj[field.label];
-		objMessage += attr + ' ';
+		if (field.usage == Usage.REQUIRED) {
+			objMessage += attr + ' ';
+		} else if (field.usage == Usage.MULTIPLE) {
+			if (attr) {
+				for (let k = 0; k < attr.length; ++k) {
+					objMessage += attr[k];
+					if (k < (attr.length - 1)) {
+						objMessage += ',';
+					} else {
+						objMessage += ' ';
+					}
+				}
+			} else {
+				objMessage += '~ ';
+			}
+		}
 	}
 	io.writeMessage(objMessage);
 }
@@ -135,7 +162,22 @@ function listObjs(message, fields, objs) {
       let obj = objs[j];
       let field = fields[i];
       let attr = obj[field.label];
-      line += attr + ' ';
+			if (field.usage == Usage.REQUIRED) {
+      	line += attr + ' ';
+			} else if (field.usage == Usage.MULTIPLE) {
+				if (attr) {
+					for (let k = 0; k < attr.length; ++k) {
+						line += attr[k];
+						if (k < (attr.length - 1)) {
+							line += ',';
+						} else {
+							line += ' ';
+						}
+					}
+				} else {
+					line += '~ ';
+				}
+			}
     }
     io.writeMessage(line);
   }
@@ -148,3 +190,4 @@ module.exports.submit = submit;
 module.exports.submitFields = submitFields;
 module.exports.printObj = printObj;
 module.exports.listObjs = listObjs;
+module.exports.Usage = Usage;

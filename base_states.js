@@ -13,7 +13,7 @@ class ChooseState extends BaseState {
 	async run() {
 		let result = await dialogHelper.choose(this.message, this.options);
 		if (result.command) { return result.command; }
-		if (typeof(result.choice) === 'undefined') { return new StateCommand(StateCommand.Type.Continue); }
+		if (typeof(result.choice) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); }
 	
 		let option = this.options[result.choice];
 		io.writeMessage('-Chose ' + option.label);
@@ -28,7 +28,7 @@ class AddState extends BaseState {
 		dialogHelper.printFields(this.message, this.fields);
 		let result = await dialogHelper.submitFields(this.fields);
 		if (result.command) { return result.command; }
-		if (!result.attrs) { return new StateCommand(StateCommand.Type.Continue); }
+		if (!result.attrs) { return new StateCommand(StateCommand.Type.Retry); }
 		this.handleAdd(result.attrs);
 
 		return new StateCommand(StateCommand.Type.Back);
@@ -40,13 +40,17 @@ class EditState extends BaseState {
 		io.writeMessage(this.findMessage);
 		let result = await dialogHelper.submit();
 		if (result.command) { return result.command; }
-		if (typeof(result.value) === 'undefined') { return new StateCommand(StateCommand.Type.Continue); } 
+		if (typeof(result.value) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); } 
 		let obj = this.findObj(result.value);
+		if (!obj) {
+			io.writeMessage('-Unable to find entry');
+			return new StateCommand(StateCommand.Type.Retry);
+		}
 
 		dialogHelper.printObj(this.modifyMessage, this.fields, obj);
 		result = await dialogHelper.submitFields(this.fields);
 		if (result.command) { return result.command; }
-		if (typeof(result.attrs) === 'undefined') { return new StateCommand(StateCommand.Type.Continue); }
+		if (typeof(result.attrs) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); }
 		this.handleModify(obj, result.attrs);
 
 		return new StateCommand(StateCommand.Type.Back);
