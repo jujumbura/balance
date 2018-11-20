@@ -35,7 +35,7 @@ class AddState extends BaseState {
         this.handleAdd(result.attrs);
         break;
       } catch (e) {
-        if (e instanceof TableError) {
+        if (e instanceof DataError) {
           io.writeMessage(e.message);
         } else {
           throw e;
@@ -68,7 +68,7 @@ class EditState extends BaseState {
         this.handleModify(obj, result.attrs);
         break;
       } catch (e) {
-        if (e instanceof TableError) {
+        if (e instanceof DataError) {
           io.writeMessage(e.message);
         } else {
           throw e;

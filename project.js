@@ -1,5 +1,6 @@
 var ProductTable = require('./product_table');
 var GroupTable = require('./group_table');
+var GroupGraph = require('./group_graph');
 
 class Project {
 	constructor() {
@@ -10,6 +11,8 @@ class Project {
 			this.productTable,
 			this.groupTable,
 		];
+		
+		this.groupGraph = new GroupGraph();
 	}
 
 	getTables() {
@@ -58,8 +61,11 @@ class Project {
 		this.groupTable.add(groupParams);
 	}
 	
-  updateGroup(id, groupParams) {
+  updateGroup(id, groupParams) {	
+		// TODO: clear graph?
 		if (groupParams.parents) {
+			// TODO: set in graph?
+
 			groupParams.parentIds = this.groupTable.findIdsByName(groupParams.parents);
 		}
 		this.groupTable.update(id, groupParams);
