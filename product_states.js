@@ -30,6 +30,7 @@ class ProductAddState extends baseStates.AddState {
 	handleAdd(attrs) {
 		let params = {
 			name: attrs[0],
+			groups: attrs[1],
 		};
 		this.context.project.addProduct(params);
 		this.context.dirty = true;

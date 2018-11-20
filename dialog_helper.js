@@ -62,7 +62,11 @@ function printFields(message, fields) {
 		if (field.usage == Usage.REQUIRED) {
 			fieldsMessage += field.label;
 			fieldsMessage += ' ';
-		}
+		} else if (field.usage == Usage.MULTIPLE) {
+      fieldsMessage += '[';
+      fieldsMessage += field.label;
+      fieldsMessage += ',] ';
+    }
 	}
 	io.writeMessage(fieldsMessage);
 }

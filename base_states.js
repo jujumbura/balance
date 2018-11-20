@@ -2,6 +2,7 @@ var StateCommand = require('./state_command');
 var io = require('./console_io');
 var dialogHelper = require('./dialog_helper');
 var logger = require('./logger');
+var TableError = require('./errors').TableError;
 
 class BaseState {
 	constructor() {
@@ -26,10 +27,21 @@ class ChooseState extends BaseState {
 class AddState extends BaseState {
 	async run () {
 		dialogHelper.printFields(this.message, this.fields);
-		let result = await dialogHelper.submitFields(this.fields);
-		if (result.command) { return result.command; }
-		if (!result.attrs) { return new StateCommand(StateCommand.Type.Retry); }
-		this.handleAdd(result.attrs);
+    while (true) {
+      try {
+        let result = await dialogHelper.submitFields(this.fields);
+        if (result.command) { return result.command; }
+        if (!result.attrs) { return new StateCommand(StateCommand.Type.Retry); }
+        this.handleAdd(result.attrs);
+        break;
+      } catch (e) {
+        if (e instanceof TableError) {
+          io.writeMessage(e.message);
+        } else {
+          throw e;
+        }
+      }
+    }
 
 		return new StateCommand(StateCommand.Type.Back);
 	}
@@ -48,10 +60,21 @@ class EditState extends BaseState {
 		}
 
 		dialogHelper.printObj(this.modifyMessage, this.fields, obj);
-		result = await dialogHelper.submitFields(this.fields);
-		if (result.command) { return result.command; }
-		if (typeof(result.attrs) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); }
-		this.handleModify(obj, result.attrs);
+    while (true) {
+      try {
+        result = await dialogHelper.submitFields(this.fields);
+        if (result.command) { return result.command; }
+		    if (typeof(result.attrs) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); }
+        this.handleModify(obj, result.attrs);
+        break;
+      } catch (e) {
+        if (e instanceof TableError) {
+          io.writeMessage(e.message);
+        } else {
+          throw e;
+        }
+      }
+    }
 
 		return new StateCommand(StateCommand.Type.Back);
 	}

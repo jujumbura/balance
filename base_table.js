@@ -25,7 +25,7 @@ class BaseTable {
 
 	add(params) {
 		if (this.nameEntryMap[params.name]) {
-			throw new TableError('Name already exists in table');
+			throw new TableError('Name: ' + params.name + ' already exists in table');
 		}
 
 		let id = generator.generateUUID();
@@ -47,7 +47,7 @@ class BaseTable {
 	
 	getByName(name) {
 		if (!this.nameEntryMap[name]) {
-			throw new TableError('Name not present in table');
+			throw new TableError('Name: ' + name + ' not present in table');
 		}
 		
 		let entry = this.nameEntryMap[name];
@@ -61,7 +61,7 @@ class BaseTable {
 		}
 		let namedEntry = this.nameEntryMap[params.name];
 		if (namedEntry && namedEntry.id != id) {
-			throw new TableError('Name already exists in table');
+			throw new TableError('Name: ' + params.name + ' already exists in table');
 		}
 		
 		let oldEntry = this.idEntryMap[id];
@@ -88,7 +88,7 @@ class BaseTable {
 		for (let i = 0; i < names.length; ++i) {
 			let name = names[i];
 			if (!this.nameEntryMap[name]) {
-				throw new TableError('Name not present in table');
+				throw new TableError('Name: ' + name + ' not present in table');
 			}
 			
 			let entry = this.nameEntryMap[name];

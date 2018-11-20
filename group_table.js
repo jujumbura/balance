@@ -11,6 +11,7 @@ class GroupTable extends BaseTable {
 		let entry = {
 			id: id,
 			name: params.name,
+			parentIds: params.parentIds,
 		};
 		return entry;	
 	}
@@ -19,6 +20,7 @@ class GroupTable extends BaseTable {
 		let desc = {
 			id: entry.id,
 			name: entry.name,
+      parentIds: entry.parentIds,
 		};
 		return desc;
 	}

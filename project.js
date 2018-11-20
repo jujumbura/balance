@@ -52,20 +52,35 @@ class Project {
 
 
 	addGroup(groupParams) {
+		if (groupParams.parents) {
+			groupParams.parentIds = this.groupTable.findIdsByName(groupParams.parents);
+		}
 		this.groupTable.add(groupParams);
+	}
+	
+  updateGroup(id, groupParams) {
+		if (groupParams.parents) {
+			groupParams.parentIds = this.groupTable.findIdsByName(groupParams.parents);
+		}
+		this.groupTable.update(id, groupParams);
 	}
 
 	findGroup(name) {
 		let groupDesc = this.groupTable.getByName(name);
+		if (groupDesc.parentIds) {
+			groupDesc.parents = this.groupTable.findNamesById(groupDesc.parentIds);
+		}
 		return groupDesc;
-	}
-
-	updateGroup(id, groupParams) {
-		this.groupTable.update(id, groupParams);
 	}
 
 	getAllGroups() {
 		let groupDescs = this.groupTable.getAll();
+		for (let i = 0; i < groupDescs.length; ++i) {
+			let groupDesc = groupDescs[i];
+      if (groupDesc.parentIds) {
+        groupDesc.parents = this.groupTable.findNamesById(groupDesc.parentIds);
+      }
+		}
 		return groupDescs;
 	}
 }

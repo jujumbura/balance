@@ -5,6 +5,7 @@ var Usage = require('./dialog_helper').Usage;
 
 const FIELDS = [
   { label: 'name', usage: Usage.REQUIRED },
+  { label: 'parents', usage: Usage.MULTIPLE },
 ];
 
 class GroupChooseActionState extends baseStates.ChooseState {
@@ -29,6 +30,7 @@ class GroupAddState extends baseStates.AddState {
 	handleAdd(attrs) {
 		let params = {
 			name: attrs[0],
+			parents: attrs[1],
 		};
 		this.context.project.addGroup(params);
 		this.context.dirty = true;
@@ -51,6 +53,7 @@ class GroupEditState extends baseStates.EditState {
 	handleModify(obj, attrs) {
 		let params = {
 			name: attrs[0],
+			parents: attrs[1],
 		};
 		this.context.project.updateGroup(obj.id, params);
 		this.context.dirty = true;
