@@ -15,6 +15,7 @@ class GroupChooseActionState extends baseStates.ChooseState {
 		this.options = [
 			{ label: 'add', state: new GroupAddState() },
 			{ label: 'edit', state: new GroupEditState() },
+			{ label: 'remove', state: new GroupRemoveState() },
 			{ label: 'list', state: new GroupListState() },
 		];
 	}
@@ -33,6 +34,23 @@ class GroupAddState extends baseStates.AddState {
 			parents: attrs[1],
 		};
 		this.context.project.addGroup(params);
+		this.context.dirty = true;
+	}
+}
+
+class GroupRemoveState extends baseStates.RemoveState {
+	constructor() {
+		super();
+		this.findMessage = '[Groups-Remove] Find';
+	}
+
+	findObj(value) {
+		let desc = this.context.project.findGroup(value);
+		return desc;
+	}
+
+	handleRemove(obj) {
+		this.context.project.removeGroup(obj.id);
 		this.context.dirty = true;
 	}
 }

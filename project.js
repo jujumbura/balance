@@ -66,48 +66,55 @@ class Project {
 
 
 	addGroup(groupParams) {
+		let parentIds = null;
 		if (groupParams.parents) {
-			let parentIds = this.groupTable.findIdsByName(groupParams.parents);
+			parentIds = this.groupTable.findIdsByName(groupParams.parents);
       groupParams.parentIds = parentIds;
 		}
+		
 		this.groupTable.add(groupParams);
-   
-    let id = this.groupTable.findIdByName(groupDesc.name);
-    try {
-      this.groupGraph.addGroup(id);
-    } catch (e) {
-      this.groupTable.remove(id);
-      throw e;
-    }
+    let id = this.groupTable.findIdByName(groupParams.name);
+    this.groupGraph.addGroup(id);
 
-    try {
-      this.groupGraph.relateParents(id, groupParams.parentIds);
-    } catch (e) {
-      this.groupTable.remove(id);
-      this.groupGraph.removeGroup(id);
-      throw e;
-    }
+		if (parentIds) {
+			try {
+				this.groupGraph.relateParents(id, parentIds);
+			} catch (e) {
+				this.groupTable.remove(id);
+				this.groupGraph.removeGroup(id);
+				throw e;
+			}
+		}
 	}
 	
   updateGroup(id, groupParams) {	
-    this.groupGraph.clearAllParents(id);
-    // TODO: restore parents if set fails?
+		let oldDesc = this.groupTable.getById(id);
+		console.log('old desc: ' + JSON.stringify(oldDesc, null, 2));
+		let parentIds = null;
 		if (groupParams.parents) {
-			let parentIds = this.groupTable.findIdsByName(groupParams.parents);
-      this.groupGraph.relateParents(id, parentIds);
+			parentIds = this.groupTable.findIdsByName(groupParams.parents);
       groupParams.parentIds = parentIds;
 		}
+    
+		this.groupTable.update(id, groupParams);
+		
+		this.groupGraph.clearAllParents(id);
+		if (parentIds) {
+			try {
+      	this.groupGraph.relateParents(id, parentIds);
+			} catch (e) {
+				this.groupTable.update(id, oldDesc);
+				if (oldDesc.parentIds) {
+					this.groupGraph.relateParents(id, oldDesc.parentIds);
+				}
+				throw e;
+			}
+		}
+	}
 
-		let oldDesc = this.groupTable.getById(id);
-    try {
-		  this.groupTable.update(id, groupParams);
-    } catch (e) {
-      this.groupGraph.clearAllParents(id);
-      if (oldDesc.parentIds) {
-        this.groupGraph.relateParents(oldDesc.parentIds);
-      }
-      throw e;
-    }
+	removeGroup(id) {
+		this.groupTable.remove(id);
+		this.groupGraph.removeGroup(id);
 	}
 
 	findGroup(name) {

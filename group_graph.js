@@ -22,9 +22,9 @@ class GroupGraph {
 		if (!this.vertexMap[id]) {
 			throw new GraphError('Group does not exist in graph');
 		}
-    
+  
+		this.clearAllParents(id);
     delete this.vertexMap[id];
-    // TODO: remove from parents? 
   }
 
   relate(parentId, childId) {
@@ -53,7 +53,7 @@ class GroupGraph {
 		}
     
     let childVert = this.vertexMap[childId];
-		for (parentId in childVert.parentMap) {
+		for (let parentId in childVert.parentMap) {
 			let parentVert = this.vertexMap[parentId];
 			delete parentVert.childMap[childId];
 		}
@@ -72,7 +72,7 @@ class GroupGraph {
 		}
 
 		let parentVert = this.vertexMap[parentId];
-    for (childId in parentVert.childMap) {
+    for (let childId in parentVert.childMap) {
 			if (childId === checkId) {
 				return true;
 			}
@@ -97,7 +97,7 @@ class GroupGraph {
 		}
 		
 		let currentVert = this.vertexMap[currentId];
-    for (childId in currentVert.childMap) {
+    for (let childId in currentVert.childMap) {
       if (visitedSet[childId]) {
 				continue;
 			}
@@ -112,7 +112,7 @@ class GroupGraph {
     visitedSet[currentId] = true;
 		
 		let currentVert = this.vertexMap[currentId];
-    for (childId in currentVert.childMap) {
+    for (let childId in currentVert.childMap) {
       if (visitedSet[childId]) {
 				continue;
 			}
