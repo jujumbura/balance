@@ -7,7 +7,7 @@ class GroupGraph {
 
   addGroup(id) {
 		if (this.vertexMap[id]) {
-			throw new GraphError('Id already exists in graph');
+			throw new GraphError('Group already exists in graph');
 		}
     
 		let vertex = {
@@ -16,6 +16,15 @@ class GroupGraph {
       childMap: {},
     };
     this.vertexMap[id] = vertex;
+  }
+  
+  removeGroup(id) {
+		if (!this.vertexMap[id]) {
+			throw new GraphError('Group does not exist in graph');
+		}
+    
+    delete this.vertexMap[id];
+    // TODO: remove from parents? 
   }
 
   relate(parentId, childId) {
@@ -49,6 +58,12 @@ class GroupGraph {
 			delete parentVert.childMap[childId];
 		}
 		childVert.parentMap = {};
+  }
+
+  relateParents(childId, parentIds) {
+    for (let i = 0; i < parentIds.length; ++i) {
+      this.relate(parentIds[i], childId);
+    }
   }
 
 	isChild(parentId, checkId) {

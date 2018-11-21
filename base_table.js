@@ -35,6 +35,18 @@ class BaseTable {
 		this.nameEntryMap[entry.name] = entry;
 	}
 
+  remove(id) {
+		if (!this.idEntryMap[id]) {
+			throw new TableError('Id not present in table');
+		}
+
+		let entry = this.idEntryMap[id];
+    let index = this.entries.indexOf(entry);
+    delete this.idEntryMap[id];
+    delete this.nameEntryMap[entry.name];
+    this.entries.splice(index, 1);
+  }
+
 	getById(id) {
 		if (!this.idEntryMap[id]) {
 			throw new TableError('Id not present in table');
@@ -82,6 +94,15 @@ class BaseTable {
 		}
 		return descs;
 	}
+
+  findIdByName(name) {
+    if (!this.nameEntryMap[name]) {
+      throw new TableError('Name: ' + name + ' not present in table');
+    }
+
+	  let entry = this.nameEntryMap[name];
+    return entry.id
+  }
 
 	findIdsByName(names) {
 		let ids = [];

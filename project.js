@@ -18,6 +18,17 @@ class Project {
 	getTables() {
 		return this.tables;
 	}
+
+  fixup() {
+		let groupDescs = this.groupTable.getAll();
+		for (let i = 0; i < groupDescs.length; ++i) {
+			let groupDesc = groupDescs[i];
+      this.groupGraph.addGroup(groupDesc.id);
+      if (groupDesc.parentIds) {
+        this.groupGraph.relateParents(groupDesc.id, groupDesc.parentIds);
+      }
+		}
+  }
 	
 
 	addProduct(productParams) {
@@ -56,19 +67,47 @@ class Project {
 
 	addGroup(groupParams) {
 		if (groupParams.parents) {
-			groupParams.parentIds = this.groupTable.findIdsByName(groupParams.parents);
+			let parentIds = this.groupTable.findIdsByName(groupParams.parents);
+      groupParams.parentIds = parentIds;
 		}
 		this.groupTable.add(groupParams);
+   
+    let id = this.groupTable.findIdByName(groupDesc.name);
+    try {
+      this.groupGraph.addGroup(id);
+    } catch (e) {
+      this.groupTable.remove(id);
+      throw e;
+    }
+
+    try {
+      this.groupGraph.relateParents(id, groupParams.parentIds);
+    } catch (e) {
+      this.groupTable.remove(id);
+      this.groupGraph.removeGroup(id);
+      throw e;
+    }
 	}
 	
   updateGroup(id, groupParams) {	
-		// TODO: clear graph?
+    this.groupGraph.clearAllParents(id);
+    // TODO: restore parents if set fails?
 		if (groupParams.parents) {
-			// TODO: set in graph?
-
-			groupParams.parentIds = this.groupTable.findIdsByName(groupParams.parents);
+			let parentIds = this.groupTable.findIdsByName(groupParams.parents);
+      this.groupGraph.relateParents(id, parentIds);
+      groupParams.parentIds = parentIds;
 		}
-		this.groupTable.update(id, groupParams);
+
+		let oldDesc = this.groupTable.getById(id);
+    try {
+		  this.groupTable.update(id, groupParams);
+    } catch (e) {
+      this.groupGraph.clearAllParents(id);
+      if (oldDesc.parentIds) {
+        this.groupGraph.relateParents(oldDesc.parentIds);
+      }
+      throw e;
+    }
 	}
 
 	findGroup(name) {

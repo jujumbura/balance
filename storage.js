@@ -32,6 +32,7 @@ function loadProject(path, project) {
 			let table = tables[i];
 			loadTable(path, table);
 		}
+    project.fixup();
 	}
 }
 
