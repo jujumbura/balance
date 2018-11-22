@@ -1,0 +1,11 @@
+- Probably need to convert the attributes return from submitFields into a map,
+  getting values by array index is cumbersome and risky for the caller
+
+- Come up with common state structure, ie:
+
+[Header]
+until_valid {
+  - prompt
+  input: ...
+}
+> change

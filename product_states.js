@@ -63,12 +63,16 @@ class ProductEditState extends baseStates.EditState {
 class ProductListState extends baseStates.ListState {
 	constructor() {
 		super();
+    this.filterMessage = '[Products-List] Filter';
 		this.message = '[Products-List] ';
-		this.fields = FIELDS;
+    this.filterFields = [
+      { label: 'group', usage: Usage.OPTIONAL },
+    ];
+		this.listFields = FIELDS;
 	}
 	
-	produceObjs() {
-		let productDescs = this.context.project.getAllProducts();
+	produceObjs(attrs) {
+		let productDescs = this.context.project.filterProducts(attrs[0]);
 		return productDescs;
 	}
 }

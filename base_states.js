@@ -100,8 +100,26 @@ class RemoveState extends BaseState {
 
 class ListState extends BaseState {
 	async run() {
-		let objs = this.produceObjs();
-    dialogHelper.listObjs(this.message, this.fields, objs);
+    let attrs = null;
+    if (this.filterFields) {
+		  dialogHelper.printFields(this.filterMessage, this.filterFields);
+      let result = await dialogHelper.submitFields(this.filterFields);
+      if (result.command) { return result.command; }
+      if (typeof(result.attrs) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); }
+      attrs = result.attrs;
+    }
+
+    try {
+		  let objs = this.produceObjs(attrs);
+      dialogHelper.listObjs(this.message, this.listFields, objs);
+    } catch (e) {
+      if (e instanceof DataError) {
+        io.writeMessage(e.message);
+        return new StateCommand(StateCommand.Type.Retry);
+      } else {
+        throw e;
+      }
+    }
 
 		return new StateCommand(StateCommand.Type.Back);
 	}

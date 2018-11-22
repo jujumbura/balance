@@ -59,10 +59,14 @@ function printFields(message, fields) {
 	let fieldsMessage = message + ': ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
-		if (field.usage == Usage.REQUIRED) {
+		if (field.usage === Usage.REQUIRED) {
 			fieldsMessage += field.label;
 			fieldsMessage += ' ';
-		} else if (field.usage == Usage.MULTIPLE) {
+		} else if (field.usage === Usage.OPTIONAL) {
+      fieldsMessage += '[';
+      fieldsMessage += field.label;
+      fieldsMessage += '] ';
+		} else if (field.usage === Usage.MULTIPLE) {
       fieldsMessage += '[';
       fieldsMessage += field.label;
       fieldsMessage += ',] ';
@@ -107,15 +111,19 @@ async function submitFields(fields) {
 			value = values[i];
 			skip = value == '~';
 		}
-		if (field.usage == Usage.REQUIRED) {
+		if (field.usage === Usage.REQUIRED) {
 			if (!value || skip) {
 				io.writeMessage('-Field: ' + field.label + ' is required');
 				return {};
 			}
-
 			attrs[i] = value;
 		}
-		else if (field.usage == Usage.MULTIPLE) {
+    else if (field.usage === Usage.OPTIONAL) {
+      if (value && !skip) {
+        attrs[i] = value;
+      }
+    }
+		else if (field.usage === Usage.MULTIPLE) {
 			if (value && !skip) {
 				let elems = value.split(',');
 				attrs[i] = elems;
@@ -166,9 +174,16 @@ function listObjs(message, fields, objs) {
       let obj = objs[j];
       let field = fields[i];
       let attr = obj[field.label];
-			if (field.usage == Usage.REQUIRED) {
+			if (field.usage === Usage.REQUIRED) {
       	line += attr + ' ';
-			} else if (field.usage == Usage.MULTIPLE) {
+      } else if (field.usage === Usage.OPTIONAL) {
+		    if (attr) {
+          line += attr;
+          line += ' ';
+        } else {
+          line += '~ ';
+        }
+      } else if (field.usage === Usage.MULTIPLE) {
 				if (attr) {
 					for (let k = 0; k < attr.length; ++k) {
 						line += attr[k];

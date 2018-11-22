@@ -34,6 +34,7 @@ class StateController {
 			
 			if (command.type == StateCommand.Type.Quit) {
 				io.writeMessage('-Quitting');
+        io.writeMessage('');
 				break;
 			} else if (command.type == StateCommand.Type.Back) {
 				if (this.stateStack.length > 0) {

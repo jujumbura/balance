@@ -24,6 +24,9 @@ class Project {
 		for (let i = 0; i < groupDescs.length; ++i) {
 			let groupDesc = groupDescs[i];
       this.groupGraph.addGroup(groupDesc.id);
+		}
+		for (let i = 0; i < groupDescs.length; ++i) {
+			let groupDesc = groupDescs[i];
       if (groupDesc.parentIds) {
         this.groupGraph.relateParents(groupDesc.id, groupDesc.parentIds);
       }
@@ -63,6 +66,31 @@ class Project {
 		}
 		return productDescs;
 	}
+
+  filterProducts(group) {
+    let productDescs = this.getAllProducts();
+
+    let filteredDescs;
+    if (group) {
+      let groupId = this.groupTable.findIdByName(group);
+      let groupIdSet = this.groupGraph.getDescendentSet(groupId);
+      filteredDescs = [];
+      for (let i = 0; i < productDescs.length; ++i) {
+        let productDesc = productDescs[i];
+        if (productDesc.groupIds) {
+          for (let j = 0; j < productDesc.groupIds.length; ++j) {
+            let groupId = productDesc.groupIds[j];
+            if (groupIdSet[groupId]) {
+              filteredDescs.push(productDesc);
+            }
+          }
+        }
+      }
+    } else {
+      filteredDescs = productDescs;
+    }
+    return filteredDescs;
+  }
 
 
 	addGroup(groupParams) {

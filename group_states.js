@@ -82,7 +82,7 @@ class GroupListState extends baseStates.ListState {
 	constructor() {
 		super();
 		this.message = '[Groups-List] ';
-		this.fields = FIELDS;
+		this.listFields = FIELDS;
 	}
 	
 	produceObjs() {
