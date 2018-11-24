@@ -3,9 +3,16 @@
 
 - Come up with common state structure, ie:
 
-[Header]
-until_valid {
-  - prompt
-  input: ...
-}
-> change
+	[Header]
+	until_valid {
+		- prompt
+		input: ...
+	}
+	::change
+	> transition
+
+- Rework input parsing so that whitespace can be handled between quotes ( walk the string )
+
+- Format list output with aligned columns
+
+- Prompt user before making changes to data ( yes no )

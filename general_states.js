@@ -9,7 +9,7 @@ var logger = require('./logger');
 class ChooseModeState extends baseStates.ChooseState {
 	constructor() {
 		super();
-		this.message = '[Main] Choose';
+		this.header = 'Main';
 		this.options = [
 			{ label: 'products', state: new productStates.ProductChooseActionState() },
 			{ label: 'groups', state: new groupStates.GroupChooseActionState() },

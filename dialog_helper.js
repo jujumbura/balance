@@ -1,5 +1,7 @@
 var io = require('./console_io');
 var StateCommand = require('./state_command');
+var AbortError = require('./errors').AbortError;
+var InputError = require('./errors').InputError;
 
 const Usage = {
 	REQUIRED: 'r',
@@ -7,21 +9,19 @@ const Usage = {
 	MULTIPLE: 'm',
 };
 
-function checkCommonCommands(value) {
+function checkAbort(value) {
 	switch (value) {
 		case 'quit':
 		case 'q':
-			return new StateCommand(StateCommand.Type.Quit);
+			throw new AbortError(AbortError.Type.QUIT);
 		case 'back':
 		case 'b':
-			return new StateCommand(StateCommand.Type.Back);
-		default:
-			return null;
+			throw new AbortError(AbortError.Type.BACK);
 	}
 }
 
-async function choose(message, options) {
-	let choiceMessage = message + ': ( ';
+function printOptions(message, options) {
+	let choiceMessage = '- ' + message + ': ( ';
 	for (let i = 0; i < options.length; ++i) {
 		let option = options[i];
 		choiceMessage += option.label;
@@ -32,31 +32,28 @@ async function choose(message, options) {
 		}
 	}
 	io.writeMessage(choiceMessage);
+}
 
-	let result = null;
+async function chooseOption(options) {
 	let values = await io.readValues();
 	if (values.length != 1) {
-		io.writeMessage('Expected 1 value');
-		return {};
+		throw new InputError('Expected 1 value');
 	} 
-
 	let value = values[0];
-	let command = checkCommonCommands(value);
-	if (command) { return { command: command } };
+	checkAbort(value);
 
 	for (let i = 0; i < options.length; ++i) {
 		let option = options[i];
 		if ((value === option.label) || 
 				value == option.label.charAt(0))  {
-			return { choice: i };
+			return i;
 		}
 	}
-  io.writeMessage('Unknown option: ' + value);
-	return {};
+	throw new InputError('Unknown option: ' + value);
 }
 
 function printFields(message, fields) {
-	let fieldsMessage = message + ': ';
+	let fieldsMessage = '- ' + message + ': ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		if (field.usage === Usage.REQUIRED) {
@@ -77,30 +74,22 @@ function printFields(message, fields) {
 
 async function submit() {
 	let values = await io.readValues();
-	
 	if (values.length < 1) {
-		io.writeMessage('-Expected 1 value');
-		return {};
+		throw new InputError('Expected 1 value');
 	}
-
 	let value = values[0];
-	let command = checkCommonCommands(value);
-	if (command) { return { command: command } };
+	checkAbort(value);
 
-	return { value: value };
+	return value;
 }
 
 async function submitFields(fields) {
 	let values = await io.readValues();
-	
 	if (values.length < 1) {
-		io.writeMessage('-Expected at least 1 value');
-		return {};
+		throw new InputError('Expected at least 1 value');
 	}
-
 	let checkValue = values[0];
-	let command = checkCommonCommands(checkValue);
-	if (command) { return { command: command } };
+	checkAbort(checkValue);
 
 	let attrs = [];
 	for (let i = 0; i < fields.length; ++i) {
@@ -113,8 +102,7 @@ async function submitFields(fields) {
 		}
 		if (field.usage === Usage.REQUIRED) {
 			if (!value || skip) {
-				io.writeMessage('-Field: ' + field.label + ' is required');
-				return {};
+				throw new InputError('Field: ' + field.label + ' is required');
 			}
 			attrs[i] = value;
 		}
@@ -130,7 +118,7 @@ async function submitFields(fields) {
 			}
 		}
 	}
-	return { attrs: attrs };
+	return attrs;
 }
 
 function printObj(message, fields, obj) {
@@ -158,10 +146,9 @@ function printObj(message, fields, obj) {
 	io.writeMessage(objMessage);
 }
 
-function listObjs(message, fields, objs) {
-	io.writeMessage(message);
-
-	let header = '# ';
+function listObjs(fields, objs) {
+	let header = '    ';
+  header += '# ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		header += field.label + ' ';
@@ -169,7 +156,8 @@ function listObjs(message, fields, objs) {
 	io.writeMessage(header);
 
   for (let j = 0; j < objs.length; ++j) {
-    let line = (j + 1).toString() + ' ';
+    let line = '    ';
+    line += (j + 1).toString() + ' ';
     for (let i = 0; i < fields.length; ++i) {
       let obj = objs[j];
       let field = fields[i];
@@ -203,7 +191,8 @@ function listObjs(message, fields, objs) {
 }
 
 module.exports = {};
-module.exports.choose = choose;
+module.exports.printOptions = printOptions;
+module.exports.chooseOption = chooseOption;
 module.exports.printFields = printFields;
 module.exports.submit = submit;
 module.exports.submitFields = submitFields;

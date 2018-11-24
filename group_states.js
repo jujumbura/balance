@@ -11,7 +11,7 @@ const FIELDS = [
 class GroupChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
-		this.message = '[Groups] Choose';
+		this.header = 'Groups';
 		this.options = [
 			{ label: 'add', state: new GroupAddState() },
 			{ label: 'edit', state: new GroupEditState() },
@@ -24,7 +24,7 @@ class GroupChooseActionState extends baseStates.ChooseState {
 class GroupAddState extends baseStates.AddState {
 	constructor() {
 		super();
-		this.message = '[Groups-Add] Enter';
+		this.header = 'Groups-Add';
 		this.fields = FIELDS;
 	}
 
@@ -38,28 +38,10 @@ class GroupAddState extends baseStates.AddState {
 	}
 }
 
-class GroupRemoveState extends baseStates.RemoveState {
-	constructor() {
-		super();
-		this.findMessage = '[Groups-Remove] Find';
-	}
-
-	findObj(value) {
-		let desc = this.context.project.findGroup(value);
-		return desc;
-	}
-
-	handleRemove(obj) {
-		this.context.project.removeGroup(obj.id);
-		this.context.dirty = true;
-	}
-}
-
 class GroupEditState extends baseStates.EditState {
 	constructor() {
 		super();
-		this.findMessage = '[Groups-Edit] Find';
-		this.modifyMessage = '[Groups-Edit] Modify';
+		this.header = 'Groups-Edit';
 		this.fields = FIELDS;
 	}
 
@@ -78,10 +60,27 @@ class GroupEditState extends baseStates.EditState {
 	}
 }
 
+class GroupRemoveState extends baseStates.RemoveState {
+	constructor() {
+		super();
+		this.header = 'Groups-Remove';
+	}
+
+	findObj(value) {
+		let desc = this.context.project.findGroup(value);
+		return desc;
+	}
+
+	handleRemove(obj) {
+		this.context.project.removeGroup(obj.id);
+		this.context.dirty = true;
+	}
+}
+
 class GroupListState extends baseStates.ListState {
 	constructor() {
 		super();
-		this.message = '[Groups-List] ';
+		this.header = 'Groups-List';
 		this.listFields = FIELDS;
 	}
 	

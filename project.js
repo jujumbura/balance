@@ -47,6 +47,10 @@ class Project {
 		}
 		this.productTable.update(id, productParams);
 	}
+	
+  removeProduct(id) {
+		this.productTable.remove(id);
+	}
 
 	findProduct(name) {
 		let productDesc = this.productTable.getByName(name);
@@ -117,7 +121,6 @@ class Project {
 	
   updateGroup(id, groupParams) {	
 		let oldDesc = this.groupTable.getById(id);
-		console.log('old desc: ' + JSON.stringify(oldDesc, null, 2));
 		let parentIds = null;
 		if (groupParams.parents) {
 			parentIds = this.groupTable.findIdsByName(groupParams.parents);

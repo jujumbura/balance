@@ -11,10 +11,11 @@ const FIELDS = [
 class ProductChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
-		this.message = '[Products] Choose';
+		this.header = 'Products';
 		this.options = [
 			{ label: 'add', state: new ProductAddState() },
 			{ label: 'edit', state: new ProductEditState() },
+			{ label: 'remove', state: new ProductRemoveState() },
 			{ label: 'list', state: new ProductListState() },
 		];
 	}
@@ -23,7 +24,7 @@ class ProductChooseActionState extends baseStates.ChooseState {
 class ProductAddState extends baseStates.AddState {
 	constructor() {
 		super();
-		this.message = '[Products-Add] Enter';
+		this.header = 'Products-Add';
 		this.fields = FIELDS;
 	}
 
@@ -40,8 +41,7 @@ class ProductAddState extends baseStates.AddState {
 class ProductEditState extends baseStates.EditState {
 	constructor() {
 		super();
-		this.findMessage = '[Products-Edit] Find';
-		this.modifyMessage = '[Products-Edit] Modify';
+		this.header = 'Products-Edit';
 		this.fields = FIELDS;
 	}
 
@@ -60,11 +60,27 @@ class ProductEditState extends baseStates.EditState {
 	}
 }
 
+class ProductRemoveState extends baseStates.RemoveState {
+	constructor() {
+		super();
+		this.header = 'Products-Remove';
+	}
+
+	findObj(value) {
+		let desc = this.context.project.findProduct(value);
+		return desc;
+	}
+
+	handleRemove(obj) {
+		this.context.project.removeProduct(obj.id);
+		this.context.dirty = true;
+	}
+}
+
 class ProductListState extends baseStates.ListState {
 	constructor() {
 		super();
-    this.filterMessage = '[Products-List] Filter';
-		this.message = '[Products-List] ';
+    this.header = 'Products-List';
     this.filterFields = [
       { label: 'group', usage: Usage.OPTIONAL },
     ];

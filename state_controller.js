@@ -4,6 +4,7 @@ var StateCommand = require('./state_command');
 var Project = require('./project');
 var io = require('./console_io');
 var logger = require('./logger');
+var AbortError = require('./errors').AbortError;
 
 class StateController {
 	constructor() {
@@ -25,34 +26,49 @@ class StateController {
 		while (true) {
 			state.context = context;
 
-			let command = await state.run();
+			let command = null;
+			try {
+				command = await state.run();
+			} catch (e) {
+       	if (e instanceof AbortError) {
+					if (e.type === AbortError.Type.QUIT) {
+						command = new StateCommand(StateCommand.Type.QUIT); 
+					} else if (e.type === AbortError.Type.BACK) {
+						command = new StateCommand(StateCommand.Type.BACK); 
+					} else {
+						throw e;
+					}
+        } else {
+          throw e;
+        }
+			}
 			
 			if (context.dirty) {
 				storage.storeProject(projectPath, project);
 				context.dirty = false;
 			}
 			
-			if (command.type == StateCommand.Type.Quit) {
-				io.writeMessage('-Quitting');
-        io.writeMessage('');
+			if (command.type === StateCommand.Type.QUIT) {
+				io.writeMessage('> quitting');
+				io.writeMessage('');
 				break;
-			} else if (command.type == StateCommand.Type.Back) {
+			} else if (command.type === StateCommand.Type.BACK) {
 				if (this.stateStack.length > 0) {
-					io.writeMessage('-Going back');
+					io.writeMessage('> going back');
 					state = this.stateStack.pop();
 				} else {
-					io.writeMessage('-Cannot go back farther');
+					io.writeMessage('> cannot go back, returning');
 				}
+				io.writeMessage('');
+				continue;
+			} else if (command.type == StateCommand.Type.RETRY) {
         io.writeMessage('');
 				continue;
-			} else if (command.type == StateCommand.Type.Retry) {
-        io.writeMessage('');
-				continue;
-			} else if (command.type == StateCommand.Type.Next) {
+			} else if (command.type == StateCommand.Type.NEXT) {
 				this.stateStack.push(state);
 				state = command.nextState;
 			} else {
-				throw new Error();
+				throw new Error('Unhandled command: ' + command.type);
 			}
       io.writeMessage('');
 		}

@@ -116,7 +116,7 @@ class GroupGraph {
       if (visitedSet[childId]) {
 				continue;
 			}
-			getDescendentSetImpl(childId, visitedSet);
+			this.getDescendentSetImpl(childId, visitedSet);
     }
 	}
 }

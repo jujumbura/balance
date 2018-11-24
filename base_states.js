@@ -2,126 +2,163 @@ var StateCommand = require('./state_command');
 var io = require('./console_io');
 var dialogHelper = require('./dialog_helper');
 var logger = require('./logger');
+var InputError = require('./errors').InputError;
 var DataError = require('./errors').DataError;
 
 class BaseState {
 	constructor() {
 		this.context = null;
 	}
+
+	writeHeader(message) {
+		io.writeMessage('[' + message + ']');
+	}
+
+	writeRequest(message) {
+		io.writeMessage('- ' + message);
+	}
+
+  writeChange(message) {
+    io.writeMessage('* ' + message);
+  }
+
+	writeTransition(message) {
+		io.writeMessage('> ' + message);
+	}
+
+  writeError(message) {
+    io.writeMessage('! ' + message);
+  }
 }
 
 class ChooseState extends BaseState {
 	async run() {
-		let result = await dialogHelper.choose(this.message, this.options);
-		if (result.command) { return result.command; }
-		if (typeof(result.choice) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); }
-	
-		let option = this.options[result.choice];
-		io.writeMessage('-Chose ' + option.label);
-		let nextState = option.state;
+		this.writeHeader(this.header);
 
-		return new StateCommand(StateCommand.Type.Next, nextState);
+		let choice = -1;
+		while (true) {
+			try {
+				dialogHelper.printOptions('choose', this.options);
+				choice = await dialogHelper.chooseOption(this.options);
+				break;
+			} catch (e) {
+				if (e instanceof InputError) {
+					this.writeError(e.message);
+				} else { throw e; }
+			}
+		}
+
+		let option = this.options[choice];
+		this.writeTransition('entering ' + option.label);
+		return new StateCommand(StateCommand.Type.NEXT, option.state);
 	}
 }
 
 class AddState extends BaseState {
-	async run () {
-		dialogHelper.printFields(this.message, this.fields);
+  async run () {
+		this.writeHeader(this.header);
+		
     while (true) {
       try {
-        let result = await dialogHelper.submitFields(this.fields);
-        if (result.command) { return result.command; }
-        if (!result.attrs) { return new StateCommand(StateCommand.Type.Retry); }
-        this.handleAdd(result.attrs);
+        dialogHelper.printFields('add', this.fields);
+        let attrs = await dialogHelper.submitFields(this.fields);
+        this.handleAdd(attrs);
         break;
-      } catch (e) {
-        if (e instanceof DataError) {
-          io.writeMessage(e.message);
-        } else {
-          throw e;
-        }
-      }
+			} catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+			}
     }
+    this.writeChange('added entry');
 
-		return new StateCommand(StateCommand.Type.Back);
+		return new StateCommand(StateCommand.Type.BACK);
 	}
 }
 
 class EditState extends BaseState {
 	async run () {
-		io.writeMessage(this.findMessage);
-		let result = await dialogHelper.submit();
-		if (result.command) { return result.command; }
-		if (typeof(result.value) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); } 
-		let obj = this.findObj(result.value);
-		if (!obj) {
-			io.writeMessage('-Unable to find entry');
-			return new StateCommand(StateCommand.Type.Retry);
-		}
-
-		dialogHelper.printObj(this.modifyMessage, this.fields, obj);
+		this.writeHeader(this.header);
+	
+    let obj = null;
     while (true) {
       try {
-        result = await dialogHelper.submitFields(this.fields);
-        if (result.command) { return result.command; }
-		    if (typeof(result.attrs) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); }
-        this.handleModify(obj, result.attrs);
+        this.writeRequest('find: name');
+        let value = await dialogHelper.submit();
+        obj = this.findObj(value);
         break;
-      } catch (e) {
-        if (e instanceof DataError) {
-          io.writeMessage(e.message);
-        } else {
-          throw e;
-        }
-      }
+			} catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+			}
     }
 
-		return new StateCommand(StateCommand.Type.Back);
+    while (true) {
+      try {
+		    dialogHelper.printObj('modify', this.fields, obj);
+        let attrs = await dialogHelper.submitFields(this.fields);
+        this.handleModify(obj, attrs);
+        break;
+      } catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+      }
+    }
+    this.writeChange('modified entry');
+
+		return new StateCommand(StateCommand.Type.BACK);
 	}
 }
 
 class RemoveState extends BaseState {
 	async run () {
-		io.writeMessage(this.findMessage);
-		let result = await dialogHelper.submit();
-		if (result.command) { return result.command; }
-		if (typeof(result.value) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); } 
-		let obj = this.findObj(result.value);
-		if (!obj) {
-			io.writeMessage('-Unable to find entry');
-			return new StateCommand(StateCommand.Type.Retry);
-		}
+		this.writeHeader(this.header);
+		
+    while (true) {
+      try {
+        this.writeRequest('find: name');
+        let value = await dialogHelper.submit();
+        let obj = this.findObj(value);
+		    this.handleRemove(obj);
+        break;
+      } catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+      }
+    }
+    this.writeChange('removed entry');
 
-		this.handleRemove(obj);
-
-		return new StateCommand(StateCommand.Type.Back);
+		return new StateCommand(StateCommand.Type.BACK);
 	}
 }
 
 class ListState extends BaseState {
-	async run() {
-    let attrs = null;
-    if (this.filterFields) {
-		  dialogHelper.printFields(this.filterMessage, this.filterFields);
-      let result = await dialogHelper.submitFields(this.filterFields);
-      if (result.command) { return result.command; }
-      if (typeof(result.attrs) === 'undefined') { return new StateCommand(StateCommand.Type.Retry); }
-      attrs = result.attrs;
-    }
+  async run() {
+    this.writeHeader(this.header);
+	   
+		let objs = null;
+		while (true) {
+			try {
+				let attrs = null;
+				if (this.filterFields) {
+				  dialogHelper.printFields('filter', this.filterFields);
+					attrs = await dialogHelper.submitFields(this.filterFields);
+				}
+		  	objs = this.produceObjs(attrs);
+				break;
+			} catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					io.writeError(e.message);
+				} else { throw e; }
+			}
+		}
+      
+		dialogHelper.listObjs(this.listFields, objs);
 
-    try {
-		  let objs = this.produceObjs(attrs);
-      dialogHelper.listObjs(this.message, this.listFields, objs);
-    } catch (e) {
-      if (e instanceof DataError) {
-        io.writeMessage(e.message);
-        return new StateCommand(StateCommand.Type.Retry);
-      } else {
-        throw e;
-      }
-    }
-
-		return new StateCommand(StateCommand.Type.Back);
+		return new StateCommand(StateCommand.Type.BACK);
 	}
 }
 
