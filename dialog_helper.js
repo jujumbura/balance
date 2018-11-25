@@ -91,7 +91,7 @@ async function submitFields(fields) {
 	let checkValue = values[0];
 	checkAbort(checkValue);
 
-	let attrs = [];
+	let attrMap = {};
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		let value = null;
@@ -104,21 +104,21 @@ async function submitFields(fields) {
 			if (!value || skip) {
 				throw new InputError('Field: ' + field.label + ' is required');
 			}
-			attrs[i] = value;
+			attrMap[field.label] = value;
 		}
     else if (field.usage === Usage.OPTIONAL) {
       if (value && !skip) {
-        attrs[i] = value;
+        attrMap[field.label] = value;
       }
     }
 		else if (field.usage === Usage.MULTIPLE) {
 			if (value && !skip) {
 				let elems = value.split(',');
-				attrs[i] = elems;
+				attrMap[field.label] = elems;
 			}
 		}
 	}
-	return attrs;
+	return attrMap;
 }
 
 function printObj(message, fields, obj) {

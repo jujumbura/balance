@@ -28,10 +28,10 @@ class GroupAddState extends baseStates.AddState {
 		this.fields = FIELDS;
 	}
 
-	handleAdd(attrs) {
+	handleAdd(attrMap) {
 		let params = {
-			name: attrs[0],
-			parents: attrs[1],
+			name: attrMap['name'],
+			parents: attrMap['parents'],
 		};
 		this.context.project.addGroup(params);
 		this.context.dirty = true;
@@ -50,10 +50,10 @@ class GroupEditState extends baseStates.EditState {
 		return desc;
 	}
 
-	handleModify(obj, attrs) {
+	handleModify(obj, attrMap) {
 		let params = {
-			name: attrs[0],
-			parents: attrs[1],
+			name: attrMap['name'],
+			parents: attrMap['parents'],
 		};
 		this.context.project.updateGroup(obj.id, params);
 		this.context.dirty = true;

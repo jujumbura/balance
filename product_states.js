@@ -28,10 +28,10 @@ class ProductAddState extends baseStates.AddState {
 		this.fields = FIELDS;
 	}
 
-	handleAdd(attrs) {
+	handleAdd(attrMap) {
 		let params = {
-			name: attrs[0],
-			groups: attrs[1],
+			name: attrMap['name'],
+			groups: attrMap['groups'],
 		};
 		this.context.project.addProduct(params);
 		this.context.dirty = true;
@@ -50,10 +50,10 @@ class ProductEditState extends baseStates.EditState {
 		return desc;
 	}
 
-	handleModify(obj, attrs) {
+	handleModify(obj, attrMap) {
 		let params = {
-			name: attrs[0],
-			groups: attrs[1],
+			name: attrMap['name'],
+			groups: attrMap['groups'],
 		};
 		this.context.project.updateProduct(obj.id, params);
 		this.context.dirty = true;
@@ -87,8 +87,8 @@ class ProductListState extends baseStates.ListState {
 		this.listFields = FIELDS;
 	}
 	
-	produceObjs(attrs) {
-		let productDescs = this.context.project.filterProducts(attrs[0]);
+	produceObjs(attrMap) {
+		let productDescs = this.context.project.filterProducts(attrMap['group']);
 		return productDescs;
 	}
 }

@@ -61,8 +61,8 @@ class AddState extends BaseState {
     while (true) {
       try {
         dialogHelper.printFields('add', this.fields);
-        let attrs = await dialogHelper.submitFields(this.fields);
-        this.handleAdd(attrs);
+        let attrMap = await dialogHelper.submitFields(this.fields);
+        this.handleAdd(attrMap);
         break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -97,8 +97,8 @@ class EditState extends BaseState {
     while (true) {
       try {
 		    dialogHelper.printObj('modify', this.fields, obj);
-        let attrs = await dialogHelper.submitFields(this.fields);
-        this.handleModify(obj, attrs);
+        let attrMap = await dialogHelper.submitFields(this.fields);
+        this.handleModify(obj, attrMap);
         break;
       } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -142,12 +142,12 @@ class ListState extends BaseState {
 		let objs = null;
 		while (true) {
 			try {
-				let attrs = null;
+				let attrMap = null;
 				if (this.filterFields) {
 				  dialogHelper.printFields('filter', this.filterFields);
-					attrs = await dialogHelper.submitFields(this.filterFields);
+					attrMap = await dialogHelper.submitFields(this.filterFields);
 				}
-		  	objs = this.produceObjs(attrs);
+		  	objs = this.produceObjs(attrMap);
 				break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
