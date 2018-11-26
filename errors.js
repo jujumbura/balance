@@ -31,9 +31,16 @@ class GraphError extends DataError {
 	}
 }
 
+class ConversionError extends DataError {
+	constructor(message) {
+		super(message);
+	}
+}
+
 module.exports = {};
 module.exports.InputError = InputError;
 module.exports.AbortError = AbortError;
 module.exports.DataError = DataError;
 module.exports.TableError = TableError;
 module.exports.GraphError = GraphError;
+module.exports.ConversionError = ConversionError;

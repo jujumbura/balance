@@ -151,7 +151,7 @@ class ListState extends BaseState {
 				break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
-					io.writeError(e.message);
+					this.writeError(e.message);
 				} else { throw e; }
 			}
 		}

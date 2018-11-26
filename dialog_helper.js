@@ -9,6 +9,11 @@ const Usage = {
 	MULTIPLE: 'm',
 };
 
+const Type = {
+  NUMBER: 'n',
+  DATE: 'd',
+};
+
 function checkAbort(value) {
 	switch (value) {
 		case 'quit':
@@ -18,6 +23,72 @@ function checkAbort(value) {
 		case 'b':
 			throw new AbortError(AbortError.Type.BACK);
 	}
+}
+
+function parseField(field, value) {
+  if (field.type == Type.NUMBER) {
+    let attr = parseFloat(value);
+    if (!isFinite(attr)) {
+      throw new InputError('Invalid number: ' + value);
+    }
+    return attr;
+  } else if (field.type == Type.DATE) {
+    let attr = new Date(value);
+    if (isNaN(d)) {
+      throw new InputError('Invalid date: ' + value);
+    }
+    return attr;
+  } else {
+    return value;
+  }
+}
+
+function formatAttr(field, attr) {
+  if (field.type == Type.DATE) {
+    let date = attr;
+    let dateStr = `${date.getMonth()}/${date.getDay()}/${date.getYear()}`;
+    let hourStr = date.getHours();
+    let minuteStr = date.getMinutes().toString().padStart(2, '0');
+    let str = `${dateStr} ${hourStr}:${minuteStr}`;
+    return str;
+  } else {
+    return attr.toString();
+  }
+}
+
+function formatObj(fields, obj) {
+  let str = '';
+  for (let i = 0; i < fields.length; ++i) {
+    let field = fields[i];
+    let attr = obj[field.label];
+    let attrStr = null;
+    if (field.usage === Usage.REQUIRED) {
+      attrStr = formatAttr(field, attr);
+    } else if (field.usage === Usage.OPTIONAL) {
+      if (attr) {
+        attrStr = formatAttr(field, attr);
+      } else {
+        attrStr = '~';
+      }
+    } else if (field.usage === Usage.MULTIPLE) {
+      if (attr) {
+        // TODO: use format attr here?
+        attrStr = '';
+        for (let k = 0; k < attr.length; ++k) {
+          attrStr += attr[k];
+          if (k < (attr.length - 1)) {
+            attrStr += ',';
+          } else {
+            attrStr += ' ';
+          }
+        }
+      } else {
+        attrStr += '~ ';
+      }
+    }
+    str += attrStr.padEnd(field.width, ' ');
+  }
+  return str;
 }
 
 function printOptions(message, options) {
@@ -104,11 +175,11 @@ async function submitFields(fields) {
 			if (!value || skip) {
 				throw new InputError('Field: ' + field.label + ' is required');
 			}
-			attrMap[field.label] = value;
+			attrMap[field.label] = parseField(field, value);
 		}
     else if (field.usage === Usage.OPTIONAL) {
       if (value && !skip) {
-        attrMap[field.label] = value;
+        attrMap[field.label] = parseField(field, value);
       }
     }
 		else if (field.usage === Usage.MULTIPLE) {
@@ -123,27 +194,8 @@ async function submitFields(fields) {
 
 function printObj(message, fields, obj) {
 	let objMessage = message + ': ';
-	for (let i = 0; i < fields.length; ++i) {
-		let field = fields[i];
-		let attr = obj[field.label];
-		if (field.usage == Usage.REQUIRED) {
-			objMessage += attr + ' ';
-		} else if (field.usage == Usage.MULTIPLE) {
-			if (attr) {
-				for (let k = 0; k < attr.length; ++k) {
-					objMessage += attr[k];
-					if (k < (attr.length - 1)) {
-						objMessage += ',';
-					} else {
-						objMessage += ' ';
-					}
-				}
-			} else {
-				objMessage += '~ ';
-			}
-		}
-	}
-	io.writeMessage(objMessage);
+	objMessage += formatObj(fields, obj);
+  io.writeMessage(objMessage);
 }
 
 function listObjs(fields, objs) {
@@ -151,41 +203,15 @@ function listObjs(fields, objs) {
   header += '# ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
-		header += field.label + ' ';
+		header += field.label.padEnd(field.width, ' ');
 	}
 	io.writeMessage(header);
 
   for (let j = 0; j < objs.length; ++j) {
     let line = '    ';
+    let obj = objs[j];
     line += (j + 1).toString() + ' ';
-    for (let i = 0; i < fields.length; ++i) {
-      let obj = objs[j];
-      let field = fields[i];
-      let attr = obj[field.label];
-			if (field.usage === Usage.REQUIRED) {
-      	line += attr + ' ';
-      } else if (field.usage === Usage.OPTIONAL) {
-		    if (attr) {
-          line += attr;
-          line += ' ';
-        } else {
-          line += '~ ';
-        }
-      } else if (field.usage === Usage.MULTIPLE) {
-				if (attr) {
-					for (let k = 0; k < attr.length; ++k) {
-						line += attr[k];
-						if (k < (attr.length - 1)) {
-							line += ',';
-						} else {
-							line += ' ';
-						}
-					}
-				} else {
-					line += '~ ';
-				}
-			}
-    }
+    line += formatObj(fields, obj);
     io.writeMessage(line);
   }
 }
@@ -199,3 +225,4 @@ module.exports.submitFields = submitFields;
 module.exports.printObj = printObj;
 module.exports.listObjs = listObjs;
 module.exports.Usage = Usage;
+module.exports.Type = Type;

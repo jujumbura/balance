@@ -15,24 +15,32 @@ class BaseTable {
 	assignEntries(entries) {
 		this.entries = entries;
 		this.idEntryMap = {};
-		this.nameEntryMap = {};
+		if (this.named) {
+      this.nameEntryMap = {};
+    }
 		for (let i = 0; i < entries.length; ++i) {
 			let entry = entries[i];
 			this.idEntryMap[entry.id] = entry;
-			this.nameEntryMap[entry.name] = entry;
+      if (entry.name) {
+			  this.nameEntryMap[entry.name] = entry;
+      }
 		}
 	}
 
 	add(params) {
-		if (this.nameEntryMap[params.name]) {
-			throw new TableError('Name: ' + params.name + ' already exists in table');
-		}
+    if (this.named) {
+      if (this.nameEntryMap[params.name]) {
+        throw new TableError('Name: ' + params.name + ' already exists in table');
+      }
+    }
 
 		let id = generator.generateUUID();
 		let entry = this.formEntry(id, params);
 		this.entries.push(entry);
 		this.idEntryMap[id] = entry;
-		this.nameEntryMap[entry.name] = entry;
+		if (this.named) {
+      this.nameEntryMap[entry.name] = entry;
+    }
 	}
 
   remove(id) {
@@ -43,7 +51,9 @@ class BaseTable {
 		let entry = this.idEntryMap[id];
     let index = this.entries.indexOf(entry);
     delete this.idEntryMap[id];
-    delete this.nameEntryMap[entry.name];
+    if (this.named) {
+      delete this.nameEntryMap[entry.name];
+    }
     this.entries.splice(index, 1);
   }
 
@@ -71,18 +81,24 @@ class BaseTable {
 		if (!this.idEntryMap[id]) {
 			throw new TableError('Id not present in table');
 		}
-		let namedEntry = this.nameEntryMap[params.name];
-		if (namedEntry && namedEntry.id != id) {
-			throw new TableError('Name: ' + params.name + ' already exists in table');
-		}
+    if (this.named) {
+      let namedEntry = this.nameEntryMap[params.name];
+      if (namedEntry && namedEntry.id != id) {
+        throw new TableError('Name: ' + params.name + ' already exists in table');
+      }
+    }
 		
 		let oldEntry = this.idEntryMap[id];
-		delete this.nameEntryMap[oldEntry.name];
+		if (this.named) {
+      delete this.nameEntryMap[oldEntry.name];
+    }
 		let index = this.entries.indexOf(oldEntry);
 		let newEntry = this.formEntry(id, params);
 		this.entries[index] = newEntry;
 		this.idEntryMap[id] = newEntry;
-		this.nameEntryMap[newEntry.name] = newEntry;
+		if (this.named) {
+      this.nameEntryMap[newEntry.name] = newEntry;
+    }
 	}
 
 	getAll() {
@@ -116,6 +132,15 @@ class BaseTable {
 			ids.push(entry.id);
 		}
 		return ids;
+	}
+	
+  findNameById(id) {
+    if (!this.idEntryMap[id]) {
+      throw new TableError('Id not present in table');
+    }
+    
+    let entry = this.idEntryMap[id];
+		return entry.name;
 	}
 	
 	findNamesById(ids) {

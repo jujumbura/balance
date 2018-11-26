@@ -21,8 +21,9 @@
 
 - Prompt user before making changes to data ( yes no )
 
+- Swap to "proxy" for the params/descs/objs used for data in the different components
 
-
+- Use "string-similar" library for close matches on find/edit
 
 
 ==Layout==
