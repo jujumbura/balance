@@ -10,6 +10,7 @@ const Usage = {
 };
 
 const Type = {
+  STRING: 's',
   NUMBER: 'n',
   DATE: 'd',
 };
@@ -83,7 +84,7 @@ function formatObj(fields, obj) {
           }
         }
       } else {
-        attrStr += '~ ';
+        attrStr = '~';
       }
     }
     str += attrStr.padEnd(field.width, ' ');

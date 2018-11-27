@@ -88,10 +88,10 @@ class ItemListState extends baseStates.ListState {
 		super();
     this.header = 'Items-List';
     this.filterFields = [
-      { label: 'product', usage: Usage.OPTIONAL },
+      { label: 'product',   usage: Usage.OPTIONAL },
     ];
 		this.listFields = [
-      { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 10 },
+      { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
       { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
       { label: 'remain',    usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
       { label: 'acquired',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },

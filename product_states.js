@@ -2,6 +2,7 @@ var io = require('./console_io');
 var logger = require('./logger');
 var baseStates = require('./base_states');
 var Usage = require('./dialog_helper').Usage;
+var Type = require('./dialog_helper').Type;
 
 const FIELDS = [
   { label: 'name', usage: Usage.REQUIRED },
@@ -82,9 +83,12 @@ class ProductListState extends baseStates.ListState {
 		super();
     this.header = 'Products-List';
     this.filterFields = [
-      { label: 'group', usage: Usage.OPTIONAL },
+      { label: 'group',   usage: Usage.OPTIONAL },
     ];
-		this.listFields = FIELDS;
+		this.listFields = [
+      { label: 'name',    usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
+      { label: 'groups',  usage: Usage.MULTIPLE, type: Type.STRING, width: 40 },
+    ];
 	}
 	
 	produceObjs(attrMap) {
