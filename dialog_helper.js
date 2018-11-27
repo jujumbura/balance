@@ -57,11 +57,11 @@ function formatAttr(field, attr) {
   }
 }
 
-function formatObj(fields, obj) {
+function formatProxy(fields, proxy) {
   let str = '';
   for (let i = 0; i < fields.length; ++i) {
     let field = fields[i];
-    let attr = obj[field.label];
+    let attr = proxy[field.label];
     let attrStr = null;
     if (field.usage === Usage.REQUIRED) {
       attrStr = formatAttr(field, attr);
@@ -87,7 +87,11 @@ function formatObj(fields, obj) {
         attrStr = '~';
       }
     }
-    str += attrStr.padEnd(field.width, ' ');
+    if (field.width) {
+      str += attrStr.padEnd(field.width, ' ');
+    } else {
+      str += attrStr + ' ';
+    }
   }
   return str;
 }
@@ -193,26 +197,26 @@ async function submitFields(fields) {
 	return attrMap;
 }
 
-function printObj(message, fields, obj) {
-	let objMessage = message + ': ';
-	objMessage += formatObj(fields, obj);
-  io.writeMessage(objMessage);
+function printProxy(message, fields, proxy) {
+	let proxyMessage = message + ': ';
+	proxyMessage += formatProxy(fields, proxy);
+  io.writeMessage(proxyMessage);
 }
 
-function listObjs(fields, objs) {
+function listProxys(fields, proxys) {
 	let header = '    ';
-  header += '# ';
+  header += '#   ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		header += field.label.padEnd(field.width, ' ');
 	}
 	io.writeMessage(header);
 
-  for (let j = 0; j < objs.length; ++j) {
+  for (let j = 0; j < proxys.length; ++j) {
     let line = '    ';
-    let obj = objs[j];
-    line += (j + 1).toString() + ' ';
-    line += formatObj(fields, obj);
+    let proxy = proxys[j];
+    line += (j + 1).toString().padEnd(4, ' ');
+    line += formatProxy(fields, proxy);
     io.writeMessage(line);
   }
 }
@@ -223,7 +227,7 @@ module.exports.chooseOption = chooseOption;
 module.exports.printFields = printFields;
 module.exports.submit = submit;
 module.exports.submitFields = submitFields;
-module.exports.printObj = printObj;
-module.exports.listObjs = listObjs;
+module.exports.printProxy = printProxy;
+module.exports.listProxys = listProxys;
 module.exports.Usage = Usage;
 module.exports.Type = Type;

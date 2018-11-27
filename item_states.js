@@ -30,16 +30,16 @@ class ItemAddState extends baseStates.AddState {
 	}
 
 	handleAdd(attrMap) {
-		let params = {
+		let proxy = {
 			product: attrMap['product'],
 			quantity: attrMap['quantity'],
 			remain: attrMap['remain'],
 			acquired: attrMap['acquired'],
 		};
-    if (!params.quantity) { params.quantity = 1 }
-    if (!params.remain) { params.remain = params.quantity; }
-    if (!params.acquired) { params.acquired = new Date(); }
-		this.context.project.addItem(params);
+    if (!proxy.quantity) { proxy.quantity = 1 }
+    if (!proxy.remain) { proxy.remain = proxy.quantity; }
+    if (!proxy.acquired) { proxy.acquired = new Date(); }
+		this.context.project.addItem(proxy);
 		this.context.dirty = true;
 	}
 }
@@ -51,17 +51,17 @@ class ItemEditState extends baseStates.EditState {
 		this.fields = FIELDS;
 	}
 
-	findObj(value) {
+	findProxy(value) {
 		let desc = this.context.project.findItem(value);
 		return desc;
 	}
 
-	handleModify(obj, attrMap) {
-		let params = {
+	handleModify(proxy, attrMap) {
+		let proxy = {
 			name: attrMap['name'],
 			groups: attrMap['groups'],
 		};
-		this.context.project.updateItem(obj.id, params);
+		this.context.project.updateItem(proxy.id, proxy);
 		this.context.dirty = true;
 	}
 }
@@ -72,13 +72,13 @@ class ItemRemoveState extends baseStates.RemoveState {
 		this.header = 'Items-Remove';
 	}
 
-	findObj(value) {
+	findProxy(value) {
 		let desc = this.context.project.findItem(value);
 		return desc;
 	}
 
-	handleRemove(obj) {
-		this.context.project.removeItem(obj.id);
+	handleRemove(proxy) {
+		this.context.project.removeItem(proxy.id);
 		this.context.dirty = true;
 	}
 }
@@ -99,9 +99,9 @@ class ItemListState extends baseStates.ListState {
     ];
 	}
 	
-	produceObjs(attrMap) {
-		let itemDescs = this.context.project.filterItems(attrMap['product']);
-		return itemDescs;
+	produceProxys(attrMap) {
+		let itemProxys = this.context.project.filterItems(attrMap['product']);
+		return itemProxys;
 	}
 }
 

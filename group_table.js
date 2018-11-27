@@ -3,26 +3,28 @@ var BaseTable = require('./base_table');
 class GroupTable extends BaseTable {
 	constructor() {
 		super();
+
+    this.named = true;
 	}
 	
 	getName() { return 'Groups'; }
 
-	formEntry(id, params) {
+	formEntry(id, proxy) {
 		let entry = {
 			id: id,
-			name: params.name,
-			parentIds: params.parentIds,
+			name: proxy.name,
+			parentIds: proxy.parentIds,
 		};
 		return entry;	
 	}
 
-	formDesc(entry) {
-		let desc = {
+	formProxy(entry) {
+		let proxy = {
 			id: entry.id,
 			name: entry.name,
       parentIds: entry.parentIds,
 		};
-		return desc;
+		return proxy;
 	}
 }
 

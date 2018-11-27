@@ -19,12 +19,19 @@
 
 - Format list output with aligned columns
 
+[ DONE ]
+
 - Prompt user before making changes to data ( yes no )
 
 - Swap to "proxy" for the params/descs/objs used for data in the different components
 
+[ DONE ]
+
 - Use "string-similar" library for close matches on find/edit
 
+- Handle the case where a group was removed that contains products ( remove id on product entries? )
+
+- Fix date print
 
 ==Layout==
 

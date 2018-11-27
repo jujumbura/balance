@@ -27,15 +27,15 @@ class BaseTable {
 		}
 	}
 
-	add(params) {
+	add(proxy) {
     if (this.named) {
-      if (this.nameEntryMap[params.name]) {
-        throw new TableError('Name: ' + params.name + ' already exists in table');
+      if (this.nameEntryMap[proxy.name]) {
+        throw new TableError('Name: ' + proxy.name + ' already exists in table');
       }
     }
 
 		let id = generator.generateUUID();
-		let entry = this.formEntry(id, params);
+		let entry = this.formEntry(id, proxy);
 		this.entries.push(entry);
 		this.idEntryMap[id] = entry;
 		if (this.named) {
@@ -63,8 +63,8 @@ class BaseTable {
 		}
 
 		let entry = this.idEntryMap[id];
-		let desc = this.formDesc(entry);
-		return desc;
+		let proxy = this.formProxy(entry);
+		return proxy;
 	}
 	
 	getByName(name) {
@@ -73,18 +73,18 @@ class BaseTable {
 		}
 		
 		let entry = this.nameEntryMap[name];
-		let desc = this.formDesc(entry);
-		return desc;
+		let proxy = this.formProxy(entry);
+		return proxy;
 	}
 
-	update(id, params) {
+	update(id, proxy) {
 		if (!this.idEntryMap[id]) {
 			throw new TableError('Id not present in table');
 		}
     if (this.named) {
-      let namedEntry = this.nameEntryMap[params.name];
+      let namedEntry = this.nameEntryMap[proxy.name];
       if (namedEntry && namedEntry.id != id) {
-        throw new TableError('Name: ' + params.name + ' already exists in table');
+        throw new TableError('Name: ' + proxy.name + ' already exists in table');
       }
     }
 		
@@ -93,7 +93,7 @@ class BaseTable {
       delete this.nameEntryMap[oldEntry.name];
     }
 		let index = this.entries.indexOf(oldEntry);
-		let newEntry = this.formEntry(id, params);
+		let newEntry = this.formEntry(id, proxy);
 		this.entries[index] = newEntry;
 		this.idEntryMap[id] = newEntry;
 		if (this.named) {
@@ -102,13 +102,13 @@ class BaseTable {
 	}
 
 	getAll() {
-		let descs = [];
+		let proxys = [];
 		for (let i = 0; i < this.entries.length; ++i) {
 			let entry = this.entries[i];
-			let desc = this.formDesc(entry);
-			descs.push(desc);
+			let proxy = this.formProxy(entry);
+			proxys.push(proxy);
 		}
-		return descs;
+		return proxys;
 	}
 
   findIdByName(name) {

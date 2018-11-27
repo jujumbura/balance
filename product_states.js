@@ -4,20 +4,15 @@ var baseStates = require('./base_states');
 var Usage = require('./dialog_helper').Usage;
 var Type = require('./dialog_helper').Type;
 
-const FIELDS = [
-  { label: 'name', usage: Usage.REQUIRED },
-  { label: 'groups', usage: Usage.MULTIPLE },
-];
-
 class ProductChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
 		this.header = 'Products';
 		this.options = [
-			{ label: 'add', state: new ProductAddState() },
-			{ label: 'edit', state: new ProductEditState() },
-			{ label: 'remove', state: new ProductRemoveState() },
-			{ label: 'list', state: new ProductListState() },
+			{ label: 'add',     state: new ProductAddState() },
+			{ label: 'edit',    state: new ProductEditState() },
+			{ label: 'remove',  state: new ProductRemoveState() },
+			{ label: 'list',    state: new ProductListState() },
 		];
 	}
 }
@@ -26,15 +21,18 @@ class ProductAddState extends baseStates.AddState {
 	constructor() {
 		super();
 		this.header = 'Products-Add';
-		this.fields = FIELDS;
+		this.fields = [
+      { label: 'name',    usage: Usage.REQUIRED },
+      { label: 'groups',  usage: Usage.MULTIPLE },
+    ];
 	}
 
 	handleAdd(attrMap) {
-		let params = {
+		let proxy = {
 			name: attrMap['name'],
 			groups: attrMap['groups'],
 		};
-		this.context.project.addProduct(params);
+		this.context.project.addProduct(proxy);
 		this.context.dirty = true;
 	}
 }
@@ -43,20 +41,23 @@ class ProductEditState extends baseStates.EditState {
 	constructor() {
 		super();
 		this.header = 'Products-Edit';
-		this.fields = FIELDS;
+		this.fields = [
+      { label: 'name',    usage: Usage.REQUIRED },
+      { label: 'groups',  usage: Usage.MULTIPLE },
+    ];
 	}
 
-	findObj(value) {
+	findProxy(value) {
 		let desc = this.context.project.findProduct(value);
 		return desc;
 	}
 
-	handleModify(obj, attrMap) {
-		let params = {
+	handleModify(proxy, attrMap) {
+		let proxy = {
 			name: attrMap['name'],
 			groups: attrMap['groups'],
 		};
-		this.context.project.updateProduct(obj.id, params);
+		this.context.project.updateProduct(proxy.id, proxy);
 		this.context.dirty = true;
 	}
 }
@@ -67,13 +68,13 @@ class ProductRemoveState extends baseStates.RemoveState {
 		this.header = 'Products-Remove';
 	}
 
-	findObj(value) {
+	findProxy(value) {
 		let desc = this.context.project.findProduct(value);
 		return desc;
 	}
 
-	handleRemove(obj) {
-		this.context.project.removeProduct(obj.id);
+	handleRemove(proxy) {
+		this.context.project.removeProduct(proxy.id);
 		this.context.dirty = true;
 	}
 }
@@ -91,9 +92,9 @@ class ProductListState extends baseStates.ListState {
     ];
 	}
 	
-	produceObjs(attrMap) {
-		let productDescs = this.context.project.filterProducts(attrMap['group']);
-		return productDescs;
+	produceProxys(attrMap) {
+		let proxys = this.context.project.filterProducts(attrMap['group']);
+		return proxys;
 	}
 }
 

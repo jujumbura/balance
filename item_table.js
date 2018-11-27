@@ -7,20 +7,20 @@ class ItemTable extends BaseTable {
 
 	getName() { return 'Items'; }
 
-	formEntry(id, params) {
+	formEntry(id, proxy) {
 		let entry = {
 			id: id,
-			productId: params.productId,
-      quantity: params.quantity,
-      remain: params.remain,
-      acquireDate: params.acquireDate,
-      disposeDate: params.disposeDate,
+			productId: proxy.productId,
+      quantity: proxy.quantity,
+      remain: proxy.remain,
+      acquireDate: proxy.acquireDate,
+      disposeDate: proxy.disposeDate,
 		};
 		return entry;	
 	}
 
-	formDesc(entry) {
-		let desc = {
+	formProxy(entry) {
+		let proxy = {
 			id: entry.id,
 			productId: entry.productId,
       quantity: entry.quantity,
@@ -28,7 +28,7 @@ class ItemTable extends BaseTable {
       acquireDate: entry.acquireDate,
       disposeDate: entry.disposeDate,
 		};
-		return desc;
+		return proxy;
 	}
 }
 

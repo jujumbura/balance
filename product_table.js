@@ -3,26 +3,28 @@ var BaseTable = require('./base_table');
 class ProductTable extends BaseTable {
 	constructor() {
 		super();
+   
+    this.named = true;
 	}
 
 	getName() { return 'Products'; }
 
-	formEntry(id, params) {
+	formEntry(id, proxy) {
 		let entry = {
 			id: id,
-			name: params.name,
-			groupIds: params.groupIds,
+			name: proxy.name,
+			groupIds: proxy.groupIds,
 		};
 		return entry;	
 	}
 
-	formDesc(entry) {
-		let desc = {
+	formProxy(entry) {
+		let proxy = {
 			id: entry.id,
 			name: entry.name,
 			groupIds: entry.groupIds,
 		};
-		return desc;
+		return proxy;
 	}
 }
 

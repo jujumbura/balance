@@ -23,29 +23,29 @@ class Project {
 	}
 
   fixup() {
-		let groupDescs = this.groupTable.getAll();
-		for (let i = 0; i < groupDescs.length; ++i) {
-			let groupDesc = groupDescs[i];
-      this.groupGraph.addGroup(groupDesc.id);
+		let groupProxys = this.groupTable.getAll();
+		for (let i = 0; i < groupProxys.length; ++i) {
+			let groupProxy = groupProxys[i];
+      this.groupGraph.addGroup(groupProxy.id);
 		}
-		for (let i = 0; i < groupDescs.length; ++i) {
-			let groupDesc = groupDescs[i];
-      if (groupDesc.parentIds) {
-        this.groupGraph.relateParents(groupDesc.id, groupDesc.parentIds);
+		for (let i = 0; i < groupProxys.length; ++i) {
+			let groupProxy = groupProxys[i];
+      if (groupProxy.parentIds) {
+        this.groupGraph.relateParents(groupProxy.id, groupProxy.parentIds);
       }
 		}
   }
 	
   
-  addGroup(groupParams) {
+  addGroup(groupProxy) {
 		let parentIds = null;
-		if (groupParams.parents) {
-			parentIds = this.groupTable.findIdsByName(groupParams.parents);
-      groupParams.parentIds = parentIds;
+		if (groupProxy.parents) {
+			parentIds = this.groupTable.findIdsByName(groupProxy.parents);
+      groupProxy.parentIds = parentIds;
 		}
 		
-		this.groupTable.add(groupParams);
-    let id = this.groupTable.findIdByName(groupParams.name);
+		this.groupTable.add(groupProxy);
+    let id = this.groupTable.findIdByName(groupProxy.name);
     this.groupGraph.addGroup(id);
 
 		if (parentIds) {
@@ -59,24 +59,24 @@ class Project {
 		}
 	}
 	
-  updateGroup(id, groupParams) {	
-		let oldDesc = this.groupTable.getById(id);
+  updateGroup(id, groupProxy) {	
+		let oldProxy = this.groupTable.getById(id);
 		let parentIds = null;
-		if (groupParams.parents) {
-			parentIds = this.groupTable.findIdsByName(groupParams.parents);
-      groupParams.parentIds = parentIds;
+		if (groupProxy.parents) {
+			parentIds = this.groupTable.findIdsByName(groupProxy.parents);
+      groupProxy.parentIds = parentIds;
 		}
     
-		this.groupTable.update(id, groupParams);
+		this.groupTable.update(id, groupProxy);
 		
 		this.groupGraph.clearAllParents(id);
 		if (parentIds) {
 			try {
       	this.groupGraph.relateParents(id, parentIds);
 			} catch (e) {
-				this.groupTable.update(id, oldDesc);
-				if (oldDesc.parentIds) {
-					this.groupGraph.relateParents(id, oldDesc.parentIds);
+				this.groupTable.update(id, oldProxy);
+				if (oldProxy.parentIds) {
+					this.groupGraph.relateParents(id, oldProxy.parentIds);
 				}
 				throw e;
 			}
@@ -89,37 +89,37 @@ class Project {
 	}
 
 	findGroup(name) {
-		let groupDesc = this.groupTable.getByName(name);
-		if (groupDesc.parentIds) {
-			groupDesc.parents = this.groupTable.findNamesById(groupDesc.parentIds);
+		let groupProxy = this.groupTable.getByName(name);
+		if (groupProxy.parentIds) {
+			groupProxy.parents = this.groupTable.findNamesById(groupProxy.parentIds);
 		}
-		return groupDesc;
+		return groupProxy;
 	}
 
 	getAllGroups() {
-		let groupDescs = this.groupTable.getAll();
-		for (let i = 0; i < groupDescs.length; ++i) {
-			let groupDesc = groupDescs[i];
-      if (groupDesc.parentIds) {
-        groupDesc.parents = this.groupTable.findNamesById(groupDesc.parentIds);
+		let groupProxys = this.groupTable.getAll();
+		for (let i = 0; i < groupProxys.length; ++i) {
+			let groupProxy = groupProxys[i];
+      if (groupProxy.parentIds) {
+        groupProxy.parents = this.groupTable.findNamesById(groupProxy.parentIds);
       }
 		}
-		return groupDescs;
+		return groupProxys;
 	}
 	
 
-	addProduct(productParams) {
-		if (productParams.groups) {
-			productParams.groupIds = this.groupTable.findIdsByName(productParams.groups);
+	addProduct(productProxy) {
+		if (productProxy.groups) {
+			productProxy.groupIds = this.groupTable.findIdsByName(productProxy.groups);
 		}
-		this.productTable.add(productParams);
+		this.productTable.add(productProxy);
 	}
 	
-	updateProduct(id, productParams) {
-		if (productParams.groups) {
-			productParams.groupIds = this.groupTable.findIdsByName(productParams.groups);
+	updateProduct(id, productProxy) {
+		if (productProxy.groups) {
+			productProxy.groupIds = this.groupTable.findIdsByName(productProxy.groups);
 		}
-		this.productTable.update(id, productParams);
+		this.productTable.update(id, productProxy);
 	}
 	
   removeProduct(id) {
@@ -127,101 +127,92 @@ class Project {
 	}
 
 	findProduct(name) {
-		let productDesc = this.productTable.getByName(name);
-		if (productDesc.groupIds) {
-			productDesc.groups = this.groupTable.findNamesById(productDesc.groupIds);
+		let productProxy = this.productTable.getByName(name);
+		if (productProxy.groupIds) {
+			productProxy.groups = this.groupTable.findNamesById(productProxy.groupIds);
 		}
-		return productDesc;
+		return productProxy;
 	}
 
 	getAllProducts() {
-		let productDescs = this.productTable.getAll();
-		for (let i = 0; i < productDescs.length; ++i) {
-			let productDesc = productDescs[i];
-			if (productDesc.groupIds) {
-				productDesc.groups = this.groupTable.findNamesById(productDesc.groupIds);
+		let productProxys = this.productTable.getAll();
+		for (let i = 0; i < productProxys.length; ++i) {
+			let productProxy = productProxys[i];
+			if (productProxy.groupIds) {
+				productProxy.groups = this.groupTable.findNamesById(productProxy.groupIds);
 			}
 		}
-		return productDescs;
+		return productProxys;
 	}
 
   filterProducts(group) {
-    let productDescs = this.getAllProducts();
+    let productProxys = this.getAllProducts();
 
-    let filteredDescs;
+    let filteredProxys;
     if (group) {
       let groupId = this.groupTable.findIdByName(group);
-      let groupIdSet = this.groupGraph.getDescendentSet(groupId);
-      filteredDescs = [];
-      for (let i = 0; i < productDescs.length; ++i) {
-        let productDesc = productDescs[i];
-        if (productDesc.groupIds) {
-          for (let j = 0; j < productDesc.groupIds.length; ++j) {
-            let groupId = productDesc.groupIds[j];
+      let groupIdSet = this.groupGraph.getProxyendentSet(groupId);
+      filteredProxys = [];
+      for (let i = 0; i < productProxys.length; ++i) {
+        let productProxy = productProxys[i];
+        if (productProxy.groupIds) {
+          for (let j = 0; j < productProxy.groupIds.length; ++j) {
+            let groupId = productProxy.groupIds[j];
             if (groupIdSet[groupId]) {
-              filteredDescs.push(productDesc);
+              filteredProxys.push(productProxy);
             }
           }
         }
       }
     } else {
-      filteredDescs = productDescs;
+      filteredProxys = productProxys;
     }
-    return filteredDescs;
+    return filteredProxys;
   }
 
 
-	addItem(itemParams) {
-		itemParams.productId = this.productTable.findIdByName(itemParams.product);
-    itemParams.quantity = itemParams.quantity;
-    itemParams.remain = itemParams.remain;
-    itemParams.acquireDate = itemParams.acquired.toISOString();
-    if (itemParams.discarded) {
-      itemParams.discardDate = itemParams.discarded.toISOString();
+	addItem(itemProxy) {
+		itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
+    itemProxy.quantity = itemProxy.quantity;
+    itemProxy.remain = itemProxy.remain;
+    itemProxy.acquireDate = itemProxy.acquired.toISOString();
+    if (itemProxy.discarded) {
+      itemProxy.discardDate = itemProxy.discarded.toISOString();
     }
-    console.log(JSON.stringify(itemParams, null, 2));
 
-		this.itemTable.add(itemParams);
+		this.itemTable.add(itemProxy);
 	}
 	
   getAllItems() {
-		let itemDescs = this.itemTable.getAll();
-		for (let i = 0; i < itemDescs.length; ++i) {
-			let itemDesc = itemDescs[i];
-			itemDesc.product = this.productTable.findNameById(itemDesc.productId);
-      itemDesc.acquired = new Date(itemDesc.acquireDate);
-      if (itemDesc.discardDate) {
-        itemDesc.discarded = new Date(itemDesc.discardDate);
+		let itemProxys = this.itemTable.getAll();
+		for (let i = 0; i < itemProxys.length; ++i) {
+			let itemProxy = itemProxys[i];
+			itemProxy.product = this.productTable.findNameById(itemProxy.productId);
+      itemProxy.acquired = new Date(itemProxy.acquireDate);
+      if (itemProxy.discardDate) {
+        itemProxy.discarded = new Date(itemProxy.discardDate);
       }
 		}
-		return itemDescs;
+		return itemProxys;
 	}
   
-  filterItems(group) {
-    let itemDescs = this.getAllItems();
-/*
-    let filteredDescs;
-    if (group) {
-      let groupId = this.groupTable.findIdByName(group);
-      let groupIdSet = this.groupGraph.getDescendentSet(groupId);
-      filteredDescs = [];
-      for (let i = 0; i < itemDescs.length; ++i) {
-        let itemDesc = itemDescs[i];
-        if (itemDesc.groupIds) {
-          for (let j = 0; j < itemDesc.groupIds.length; ++j) {
-            let groupId = itemDesc.groupIds[j];
-            if (groupIdSet[groupId]) {
-              filteredDescs.push(itemDesc);
-            }
-          }
+  filterItems(product) {
+    let itemProxys = this.getAllItems();
+    
+    let filteredProxys;
+    if (product) {
+      let productId = this.productTable.findIdByName(product);
+      filteredProxys = [];
+      for (let i = 0; i < itemProxys.length; ++i) {
+        let itemProxy = itemProxys[i];
+        if (itemProxy.productId === productId) {
+          filteredProxys.push(itemProxy);
         }
       }
     } else {
-      filteredDescs = itemDescs;
+      filteredProxys = itemProxys;
     }
-    return filteredDescs;
-    */
-    return itemDescs;
+    return filteredProxys;
   }
 }
 

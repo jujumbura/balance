@@ -80,12 +80,12 @@ class EditState extends BaseState {
 	async run () {
 		this.writeHeader(this.header);
 	
-    let obj = null;
+    let proxy = null;
     while (true) {
       try {
         this.writeRequest('find: name');
         let value = await dialogHelper.submit();
-        obj = this.findObj(value);
+        proxy = this.findProxy(value);
         break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -96,9 +96,9 @@ class EditState extends BaseState {
 
     while (true) {
       try {
-		    dialogHelper.printObj('modify', this.fields, obj);
+		    dialogHelper.printProxy('modify', this.fields, proxy);
         let attrMap = await dialogHelper.submitFields(this.fields);
-        this.handleModify(obj, attrMap);
+        this.handleModify(proxy, attrMap);
         break;
       } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -120,8 +120,8 @@ class RemoveState extends BaseState {
       try {
         this.writeRequest('find: name');
         let value = await dialogHelper.submit();
-        let obj = this.findObj(value);
-		    this.handleRemove(obj);
+        let proxy = this.findProxy(value);
+		    this.handleRemove(proxy);
         break;
       } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -139,7 +139,7 @@ class ListState extends BaseState {
   async run() {
     this.writeHeader(this.header);
 	   
-		let objs = null;
+		let proxys = null;
 		while (true) {
 			try {
 				let attrMap = null;
@@ -147,7 +147,7 @@ class ListState extends BaseState {
 				  dialogHelper.printFields('filter', this.filterFields);
 					attrMap = await dialogHelper.submitFields(this.filterFields);
 				}
-		  	objs = this.produceObjs(attrMap);
+		  	proxys = this.produceProxys(attrMap);
 				break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -156,7 +156,7 @@ class ListState extends BaseState {
 			}
 		}
       
-		dialogHelper.listObjs(this.listFields, objs);
+		dialogHelper.listProxys(this.listFields, proxys);
 
 		return new StateCommand(StateCommand.Type.BACK);
 	}
