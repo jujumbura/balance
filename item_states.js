@@ -10,7 +10,7 @@ class ItemChooseActionState extends baseStates.ChooseState {
 		this.header = 'Items';
 		this.options = [
 			{ label: 'add', state: new ItemAddState() },
-	//		{ label: 'edit', state: new ItemEditState() },
+			{ label: 'edit', state: new ItemEditState() },
 	//		{ label: 'remove', state: new ItemRemoveState() },
 			{ label: 'list', state: new ItemListState() },
 		];
@@ -43,7 +43,7 @@ class ItemAddState extends baseStates.AddState {
 		this.context.dirty = true;
 	}
 }
-/*
+
 class ItemEditState extends baseStates.EditState {
 	constructor() {
 		super();
@@ -65,7 +65,7 @@ class ItemEditState extends baseStates.EditState {
 		this.context.dirty = true;
 	}
 }
-
+/*
 class ItemRemoveState extends baseStates.RemoveState {
 	constructor() {
 		super();

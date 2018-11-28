@@ -47,7 +47,10 @@ function parseField(field, value) {
 function formatAttr(field, attr) {
   if (field.type == Type.DATE) {
     let date = attr;
-    let dateStr = `${date.getMonth()}/${date.getDay()}/${date.getYear()}`;
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let year = date.getFullYear();
+    let dateStr = `${month}/${day}/${year}`;
     let hourStr = date.getHours();
     let minuteStr = date.getMinutes().toString().padStart(2, '0');
     let str = `${dateStr} ${hourStr}:${minuteStr}`;

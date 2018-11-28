@@ -111,6 +111,15 @@ class BaseTable {
 		return proxys;
 	}
 
+  getAllIds() {
+    let ids = [];
+		for (let i = 0; i < this.entries.length; ++i) {
+			let entry = this.entries[i];
+			ids.push(entry.id);
+		}
+    return ids;
+  }
+
   findIdByName(name) {
     if (!this.nameEntryMap[name]) {
       throw new TableError('Name: ' + name + ' not present in table');

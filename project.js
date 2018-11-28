@@ -183,6 +183,16 @@ class Project {
 		this.itemTable.add(itemProxy);
 	}
 	
+  findItems(product) {
+		let itemProxys = this.getAllItems();
+		for (let i = 0; i < itemProxys.length; ++i) {
+      if (product) {
+      } else {
+      }
+    }
+		return itemProxys;
+	}
+	
   getAllItems() {
 		let itemProxys = this.itemTable.getAll();
 		for (let i = 0; i < itemProxys.length; ++i) {
