@@ -38,10 +38,11 @@ class ItemAddState extends baseStates.AddState {
 
 	handleAdd(attrMap) {
 		let proxy = {
-			product: attrMap['product'],
-			quantity: attrMap['quantity'],
-			remain: attrMap['remain'],
-			acquired: attrMap['acquired'],
+			product: attrMap.product,
+			quantity: attrMap.quantity,
+			remain: attrMap.remain,
+			acquired: attrMap.acquired,
+      discarded: attrMap.discarded,
 		};
     if (!proxy.quantity) { proxy.quantity = 1 }
     if (!proxy.remain) { proxy.remain = proxy.quantity; }
@@ -66,10 +67,11 @@ class ItemEditState extends baseStates.EditState {
 	}
 
 	handleModify(proxy, attrMap) {
-		let proxy = {
-			name: attrMap.name,
-			groups: attrMap.groups,
-		};
+    if (attrMap.product) { proxy.product = attrMap.product; }
+    if (!isNaN(attrMap.quantity)) { proxy.quantity = attrMap.quantity; }
+    if (!isNaN(attrMap.remain)) { proxy.remain = attrMap.remain; }
+    if (attrMap.acquired) { proxy.acquired = attrMap.acquired; }
+    if (attrMap.discarded) { proxy.discarded = attrMap.discarded; }
 		this.context.project.updateItem(proxy.id, proxy);
 		this.context.dirty = true;
 	}

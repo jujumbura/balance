@@ -173,9 +173,9 @@ class Project {
 
 	addItem(itemProxy) {
 		itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
-    itemProxy.quantity = itemProxy.quantity;
-    itemProxy.remain = itemProxy.remain;
-    itemProxy.acquireDate = itemProxy.acquired.toISOString();
+    if (itemProxy.acquired) {
+      itemProxy.acquireDate = itemProxy.acquired.toISOString();
+    }
     if (itemProxy.discarded) {
       itemProxy.discardDate = itemProxy.discarded.toISOString();
     }
@@ -214,6 +214,18 @@ class Project {
     }
     return filteredProxys;
   }
+	
+  updateItem(id, itemProxy) {
+		itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
+    if (itemProxy.acquired) {
+      itemProxy.acquireDate = itemProxy.acquired.toISOString();
+    }
+    if (itemProxy.discarded) {
+      itemProxy.discardDate = itemProxy.discarded.toISOString();
+    }
+		
+    this.itemTable.update(id, itemProxy);
+	}
 }
 
 module.exports = Project;

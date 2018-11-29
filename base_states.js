@@ -2,11 +2,13 @@ var StateCommand = require('./state_command');
 var io = require('./console_io');
 var dialogHelper = require('./dialog_helper');
 var logger = require('./logger');
+var Usage = require('./dialog_helper').Usage;
+var Type = require('./dialog_helper').Type;
 var InputError = require('./errors').InputError;
 var DataError = require('./errors').DataError;
 
 const SELECT_FIELDS = [ 
-  { label: 'index', usage: Usage.REQUIRED, type: Type.NUMBER },
+  { label: 'number', usage: Usage.REQUIRED, type: Type.NUMBER },
 ];
 
 class BaseState {
@@ -88,7 +90,7 @@ class EditState extends BaseState {
     while (true) {
       try {
 				dialogHelper.printFields('filter', this.filterFields);
-				attrMap = await dialogHelper.submitFields(this.filterFields);
+				let attrMap = await dialogHelper.submitFields(this.filterFields);
         proxys = this.filterProxys(attrMap);
         break;
 			} catch (e) {
@@ -103,8 +105,9 @@ class EditState extends BaseState {
     while (true) {
       try {
 				dialogHelper.printFields('select', SELECT_FIELDS);
-				attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
-        proxy = proxys[attrMap.index];
+				let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
+        let index = attrMap.number - 1;
+        proxy = proxys[index];
         break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -115,8 +118,8 @@ class EditState extends BaseState {
 
     while (true) {
       try {
-		    dialogHelper.printProxy('modify', this.fields, proxy);
-        let attrMap = await dialogHelper.submitFields(this.fields);
+		    dialogHelper.printProxy('modify', this.modifyFields, proxy);
+        let attrMap = await dialogHelper.submitFields(this.modifyFields);
         this.handleModify(proxy, attrMap);
         break;
       } catch (e) {

@@ -35,7 +35,7 @@ function parseField(field, value) {
     return attr;
   } else if (field.type == Type.DATE) {
     let attr = new Date(value);
-    if (isNaN(d)) {
+    if (isNaN(attr)) {
       throw new InputError('Invalid date: ' + value);
     }
     return attr;
@@ -69,7 +69,7 @@ function formatProxy(fields, proxy) {
     if (field.usage === Usage.REQUIRED) {
       attrStr = formatAttr(field, attr);
     } else if (field.usage === Usage.OPTIONAL) {
-      if (attr) {
+      if (typeof(attr) !== 'undefined') {
         attrStr = formatAttr(field, attr);
       } else {
         attrStr = '~';
