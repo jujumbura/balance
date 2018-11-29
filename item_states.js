@@ -4,6 +4,18 @@ var baseStates = require('./base_states');
 var Usage = require('./dialog_helper').Usage;
 var Type = require('./dialog_helper').Type;
 
+const ALL_FIELDS = [
+  { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
+  { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
+  { label: 'remain',    usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
+  { label: 'acquired',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
+  { label: 'discarded', usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
+];
+
+const FILTER_FIELDS = [
+  { label: 'product',   usage: Usage.OPTIONAL, type: Type.STRING },
+];
+
 class ItemChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
@@ -21,12 +33,7 @@ class ItemAddState extends baseStates.AddState {
 	constructor() {
 		super();
 		this.header = 'Items-Add';
-		this.fields = [
-      { label: 'product', usage: Usage.REQUIRED },
-      { label: 'quantity', usage: Usage.OPTIONAL, type: Type.NUMBER },
-      { label: 'remain', usage: Usage.OPTIONAL, type: Type.NUMBER },
-      { label: 'acquired', usage: Usage.OPTIONAL, type: Type.DATE },
-    ];
+		this.fields = ALL_FIELDS;
 	}
 
 	handleAdd(attrMap) {
@@ -48,18 +55,20 @@ class ItemEditState extends baseStates.EditState {
 	constructor() {
 		super();
 		this.header = 'Items-Edit';
-		this.fields = FIELDS;
+		this.filterFields = FILTER_FIELDS;
+    this.listFields = ALL_FIELDS;
+    this.modifyFields = ALL_FIELDS;
 	}
 
-	findProxy(value) {
-		let desc = this.context.project.findItem(value);
-		return desc;
+	filterProxys(attrMap) {
+		let proxys = this.context.project.filterItems(attrMap.product);
+		return proxys;
 	}
 
 	handleModify(proxy, attrMap) {
 		let proxy = {
-			name: attrMap['name'],
-			groups: attrMap['groups'],
+			name: attrMap.name,
+			groups: attrMap.groups,
 		};
 		this.context.project.updateItem(proxy.id, proxy);
 		this.context.dirty = true;
@@ -87,20 +96,12 @@ class ItemListState extends baseStates.ListState {
 	constructor() {
 		super();
     this.header = 'Items-List';
-    this.filterFields = [
-      { label: 'product',   usage: Usage.OPTIONAL },
-    ];
-		this.listFields = [
-      { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
-      { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
-      { label: 'remain',    usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
-      { label: 'acquired',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
-      { label: 'discarded', usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
-    ];
+		this.filterFields = FILTER_FIELDS;
+		this.listFields = ALL_FIELDS;
 	}
 	
 	produceProxys(attrMap) {
-		let itemProxys = this.context.project.filterItems(attrMap['product']);
+		let itemProxys = this.context.project.filterItems(attrMap.product);
 		return itemProxys;
 	}
 }

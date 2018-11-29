@@ -5,6 +5,10 @@ var logger = require('./logger');
 var InputError = require('./errors').InputError;
 var DataError = require('./errors').DataError;
 
+const SELECT_FIELDS = [ 
+  { label: 'index', usage: Usage.REQUIRED, type: Type.NUMBER },
+];
+
 class BaseState {
 	constructor() {
 		this.context = null;
@@ -80,12 +84,27 @@ class EditState extends BaseState {
 	async run () {
 		this.writeHeader(this.header);
 	
+    let proxys = null;
+    while (true) {
+      try {
+				dialogHelper.printFields('filter', this.filterFields);
+				attrMap = await dialogHelper.submitFields(this.filterFields);
+        proxys = this.filterProxys(attrMap);
+        break;
+			} catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+			}
+    }
+   
+		dialogHelper.listProxys(this.listFields, proxys);
     let proxy = null;
     while (true) {
       try {
-        this.writeRequest('find: name');
-        let value = await dialogHelper.submit();
-        proxy = this.findProxy(value);
+				dialogHelper.printFields('select', SELECT_FIELDS);
+				attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
+        proxy = proxys[attrMap.index];
         break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
