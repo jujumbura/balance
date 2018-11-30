@@ -109,7 +109,7 @@ function formatProxy(fields, proxy) {
 }
 
 function printOptions(message, options) {
-	let choiceMessage = '- ' + message + ': ( ';
+	let choiceMessage = message + ': ( ';
 	for (let i = 0; i < options.length; ++i) {
 		let option = options[i];
 		choiceMessage += option.label;
@@ -134,14 +134,14 @@ async function chooseOption(options) {
 		let option = options[i];
 		if ((value === option.label) || 
 				value == option.label.charAt(0))  {
-			return i;
+			return option.label;
 		}
 	}
 	throw new InputError('Unknown option: ' + value);
 }
 
 function printFields(message, fields) {
-	let fieldsMessage = '- ' + message + ': ';
+	let fieldsMessage = message + ': ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		if (field.usage === Usage.REQUIRED) {

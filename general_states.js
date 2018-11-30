@@ -12,10 +12,15 @@ class ChooseModeState extends baseStates.ChooseState {
 		super();
 		this.header = 'Main';
 		this.options = [
-			{ label: 'groups', state: new groupStates.GroupChooseActionState() },
-			{ label: 'products', state: new productStates.ProductChooseActionState() },
-			{ label: 'items', state: new itemStates.ItemChooseActionState() },
+			{ label: 'groups' },
+			{ label: 'products' },
+			{ label: 'items' },
 		];
+    this.stateMap = {
+		  groups: new groupStates.GroupChooseActionState(),
+			products: new productStates.ProductChooseActionState(),
+			items: new itemStates.ItemChooseActionState(),
+    };
 	}
 }
 

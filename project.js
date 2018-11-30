@@ -218,7 +218,7 @@ class Project {
     let filteredProxys;
     let productId;
     if (product) {
-      this.productTable.findIdByName(product);
+      productId = this.productTable.findIdByName(product);
     }
     filteredProxys = [];
     for (let i = 0; i < itemProxys.length; ++i) {

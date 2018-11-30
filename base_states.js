@@ -7,6 +7,15 @@ var Type = require('./dialog_helper').Type;
 var InputError = require('./errors').InputError;
 var DataError = require('./errors').DataError;
 
+const Confirm = {
+  YES: 'yes',
+  NO: 'no',
+};
+const CONFIRM_OPTIONS = [
+  { label: Confirm.YES },
+  { label: Confirm.NO },
+];
+
 const SELECT_FIELDS = [ 
   { label: 'number', usage: Usage.REQUIRED, type: Type.NUMBER },
 ];
@@ -44,7 +53,7 @@ class ChooseState extends BaseState {
 		let choice = -1;
 		while (true) {
 			try {
-				dialogHelper.printOptions('choose', this.options);
+				dialogHelper.printOptions('? choose', this.options);
 				choice = await dialogHelper.chooseOption(this.options);
 				break;
 			} catch (e) {
@@ -54,9 +63,9 @@ class ChooseState extends BaseState {
 			}
 		}
 
-		let option = this.options[choice];
-		this.writeTransition('entering ' + option.label);
-		return new StateCommand(StateCommand.Type.NEXT, option.state);
+		this.writeTransition('entering ' + choice);
+		let state = this.stateMap[choice];
+		return new StateCommand(StateCommand.Type.NEXT, state);
 	}
 }
 
@@ -66,8 +75,9 @@ class AddState extends BaseState {
 		
     while (true) {
       try {
-        dialogHelper.printFields('add', this.fields);
-        let attrMap = await dialogHelper.submitFields(this.fields);
+        dialogHelper.printFields('? add', this.addFields);
+        let attrMap = await dialogHelper.submitFields(this.addFields);
+		    dialogHelper.printProxy('- new', this.displayFields, attrMap);
         this.handleAdd(attrMap);
         break;
 			} catch (e) {
@@ -89,7 +99,7 @@ class EditState extends BaseState {
     let proxys = null;
     while (true) {
       try {
-				dialogHelper.printFields('filter', this.filterFields);
+				dialogHelper.printFields('? filter', this.filterFields);
 				let attrMap = await dialogHelper.submitFields(this.filterFields);
         proxys = this.filterProxys(attrMap);
         break;
@@ -104,7 +114,7 @@ class EditState extends BaseState {
     let proxy = null;
     while (true) {
       try {
-				dialogHelper.printFields('select', SELECT_FIELDS);
+				dialogHelper.printFields('? select', SELECT_FIELDS);
 				let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
         let index = attrMap.number - 1;
         proxy = proxys[index];
@@ -118,10 +128,10 @@ class EditState extends BaseState {
 
     while (true) {
       try {
-		    dialogHelper.printProxy('old', this.displayFields, proxy);
+		    dialogHelper.printProxy('- old', this.displayFields, proxy);
         let attrMap = await dialogHelper.submitFields(this.modifyFields, true);
         this.handleModify(proxy, attrMap);
-		    dialogHelper.printProxy('new', this.displayFields, proxy);
+		    dialogHelper.printProxy('- new', this.displayFields, proxy);
         break;
       } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -142,7 +152,7 @@ class RemoveState extends BaseState {
     let proxys = null;
     while (true) {
       try {
-				dialogHelper.printFields('filter', this.filterFields);
+				dialogHelper.printFields('? filter', this.filterFields);
 				let attrMap = await dialogHelper.submitFields(this.filterFields);
         proxys = this.filterProxys(attrMap);
         break;
@@ -157,10 +167,16 @@ class RemoveState extends BaseState {
     let proxy = null;
     while (true) {
       try {
-				dialogHelper.printFields('select', SELECT_FIELDS);
+				dialogHelper.printFields('? select', SELECT_FIELDS);
 				let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
         let index = attrMap.number - 1;
         proxy = proxys[index];
+        dialogHelper.printProxy('- remove', this.removeFields, proxy);
+				dialogHelper.printOptions('? confirm', CONFIRM_OPTIONS);
+				let choice = await dialogHelper.chooseOption(CONFIRM_OPTIONS);
+        if (choice != Confirm.YES) {
+          continue;
+        }
         break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -169,7 +185,6 @@ class RemoveState extends BaseState {
 			}
     }
 
-    dialogHelper.printProxy('remove', this.removeFields, proxy);
     this.handleRemove(proxy);
     this.writeChange('removed entry');
 
@@ -186,7 +201,7 @@ class ListState extends BaseState {
 			try {
 				let attrMap = null;
 				if (this.filterFields) {
-				  dialogHelper.printFields('filter', this.filterFields);
+				  dialogHelper.printFields('? filter', this.filterFields);
 					attrMap = await dialogHelper.submitFields(this.filterFields);
 				}
 		  	proxys = this.produceProxys(attrMap);

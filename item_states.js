@@ -22,11 +22,17 @@ class ItemChooseActionState extends baseStates.ChooseState {
 		super();
 		this.header = 'Items';
 		this.options = [
-			{ label: 'add', state: new ItemAddState() },
-			{ label: 'edit', state: new ItemEditState() },
-			{ label: 'remove', state: new ItemRemoveState() },
-			{ label: 'list', state: new ItemListState() },
+			{ label: 'add' },
+			{ label: 'edit' },
+			{ label: 'remove' },
+			{ label: 'list' },
 		];
+		this.stateMap = {
+			add: new ItemAddState(),
+			edit: new ItemEditState(),
+			remove: new ItemRemoveState(),
+			list: new ItemListState(),
+    };
 	}
 }
 
@@ -34,7 +40,8 @@ class ItemAddState extends baseStates.AddState {
 	constructor() {
 		super();
 		this.header = 'Items-Add';
-		this.fields = ALL_FIELDS;
+		this.addFields = ALL_FIELDS;
+    this.displayFields = ALL_FIELDS;
 	}
 
 	handleAdd(attrMap) {
