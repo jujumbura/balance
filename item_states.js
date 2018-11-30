@@ -9,11 +9,12 @@ const ALL_FIELDS = [
   { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'remain',    usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'acquired',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
-  { label: 'discarded', usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
+  { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
 ];
 
 const FILTER_FIELDS = [
   { label: 'product',   usage: Usage.OPTIONAL, type: Type.STRING },
+  { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.BOOL },
 ];
 
 class ItemChooseActionState extends baseStates.ChooseState {
@@ -23,7 +24,7 @@ class ItemChooseActionState extends baseStates.ChooseState {
 		this.options = [
 			{ label: 'add', state: new ItemAddState() },
 			{ label: 'edit', state: new ItemEditState() },
-	//		{ label: 'remove', state: new ItemRemoveState() },
+			{ label: 'remove', state: new ItemRemoveState() },
 			{ label: 'list', state: new ItemListState() },
 		];
 	}
@@ -42,10 +43,10 @@ class ItemAddState extends baseStates.AddState {
 			quantity: attrMap.quantity,
 			remain: attrMap.remain,
 			acquired: attrMap.acquired,
-      discarded: attrMap.discarded,
+      disposed: attrMap.disposed,
 		};
-    if (!proxy.quantity) { proxy.quantity = 1 }
-    if (!proxy.remain) { proxy.remain = proxy.quantity; }
+    if (isNaN(proxy.quantity)) { proxy.quantity = 1 }
+    if (isNaN(proxy.remain)) { proxy.remain = proxy.quantity; }
     if (!proxy.acquired) { proxy.acquired = new Date(); }
 		this.context.project.addItem(proxy);
 		this.context.dirty = true;
@@ -57,12 +58,12 @@ class ItemEditState extends baseStates.EditState {
 		super();
 		this.header = 'Items-Edit';
 		this.filterFields = FILTER_FIELDS;
-    this.listFields = ALL_FIELDS;
     this.modifyFields = ALL_FIELDS;
+    this.displayFields = ALL_FIELDS;
 	}
 
 	filterProxys(attrMap) {
-		let proxys = this.context.project.filterItems(attrMap.product);
+		let proxys = this.context.project.filterItems(attrMap.product, attrMap.disposed);
 		return proxys;
 	}
 
@@ -71,21 +72,24 @@ class ItemEditState extends baseStates.EditState {
     if (!isNaN(attrMap.quantity)) { proxy.quantity = attrMap.quantity; }
     if (!isNaN(attrMap.remain)) { proxy.remain = attrMap.remain; }
     if (attrMap.acquired) { proxy.acquired = attrMap.acquired; }
-    if (attrMap.discarded) { proxy.discarded = attrMap.discarded; }
+    if (attrMap.disposed) { proxy.disposed = attrMap.disposed; }
 		this.context.project.updateItem(proxy.id, proxy);
 		this.context.dirty = true;
 	}
 }
-/*
+
 class ItemRemoveState extends baseStates.RemoveState {
 	constructor() {
 		super();
 		this.header = 'Items-Remove';
+		this.filterFields = FILTER_FIELDS;
+    this.listFields = ALL_FIELDS;
+    this.removeFields = ALL_FIELDS;
 	}
 
-	findProxy(value) {
-		let desc = this.context.project.findItem(value);
-		return desc;
+	filterProxys(attrMap) {
+		let proxys = this.context.project.filterItems(attrMap.product, attrMap.disposed);
+		return proxys;
 	}
 
 	handleRemove(proxy) {
@@ -93,7 +97,7 @@ class ItemRemoveState extends baseStates.RemoveState {
 		this.context.dirty = true;
 	}
 }
-*/
+
 class ItemListState extends baseStates.ListState {
 	constructor() {
 		super();
@@ -103,7 +107,7 @@ class ItemListState extends baseStates.ListState {
 	}
 	
 	produceProxys(attrMap) {
-		let itemProxys = this.context.project.filterItems(attrMap.product);
+		let itemProxys = this.context.project.filterItems(attrMap.product, attrMap.disposed);
 		return itemProxys;
 	}
 }

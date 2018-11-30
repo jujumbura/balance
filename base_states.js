@@ -100,7 +100,7 @@ class EditState extends BaseState {
 			}
     }
    
-		dialogHelper.listProxys(this.listFields, proxys);
+		dialogHelper.listProxys(this.displayFields, proxys);
     let proxy = null;
     while (true) {
       try {
@@ -118,9 +118,10 @@ class EditState extends BaseState {
 
     while (true) {
       try {
-		    dialogHelper.printProxy('modify', this.modifyFields, proxy);
-        let attrMap = await dialogHelper.submitFields(this.modifyFields);
+		    dialogHelper.printProxy('old', this.displayFields, proxy);
+        let attrMap = await dialogHelper.submitFields(this.modifyFields, true);
         this.handleModify(proxy, attrMap);
+		    dialogHelper.printProxy('new', this.displayFields, proxy);
         break;
       } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -137,20 +138,39 @@ class EditState extends BaseState {
 class RemoveState extends BaseState {
 	async run () {
 		this.writeHeader(this.header);
-		
+	
+    let proxys = null;
     while (true) {
       try {
-        this.writeRequest('find: name');
-        let value = await dialogHelper.submit();
-        let proxy = this.findProxy(value);
-		    this.handleRemove(proxy);
+				dialogHelper.printFields('filter', this.filterFields);
+				let attrMap = await dialogHelper.submitFields(this.filterFields);
+        proxys = this.filterProxys(attrMap);
         break;
-      } catch (e) {
+			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
 					this.writeError(e.message);
 				} else { throw e; }
-      }
+			}
     }
+   
+		dialogHelper.listProxys(this.listFields, proxys);
+    let proxy = null;
+    while (true) {
+      try {
+				dialogHelper.printFields('select', SELECT_FIELDS);
+				let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
+        let index = attrMap.number - 1;
+        proxy = proxys[index];
+        break;
+			} catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+			}
+    }
+
+    dialogHelper.printProxy('remove', this.removeFields, proxy);
+    this.handleRemove(proxy);
     this.writeChange('removed entry');
 
 		return new StateCommand(StateCommand.Type.BACK);

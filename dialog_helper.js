@@ -12,6 +12,7 @@ const Usage = {
 const Type = {
   STRING: 's',
   NUMBER: 'n',
+  BOOL: 'b',
   DATE: 'd',
 };
 
@@ -33,6 +34,14 @@ function parseField(field, value) {
       throw new InputError('Invalid number: ' + value);
     }
     return attr;
+  } else if (field.type == Type.BOOL) {
+    if (value === 'true') {
+      return true;
+    } else if (value === 'false') {
+      return false;
+    } else {
+      throw new InputError('Invalid bool: ' + value);
+    }
   } else if (field.type == Type.DATE) {
     let attr = new Date(value);
     if (isNaN(attr)) {
@@ -162,7 +171,7 @@ async function submit() {
 	return value;
 }
 
-async function submitFields(fields) {
+async function submitFields(fields, forceOptional) {
 	let values = await io.readValues();
 	if (values.length < 1) {
 		throw new InputError('Expected at least 1 value');
@@ -179,13 +188,13 @@ async function submitFields(fields) {
 			value = values[i];
 			skip = value == '~';
 		}
-		if (field.usage === Usage.REQUIRED) {
+		if ((field.usage === Usage.REQUIRED) && !forceOptional) {
 			if (!value || skip) {
 				throw new InputError('Field: ' + field.label + ' is required');
 			}
 			attrMap[field.label] = parseField(field, value);
 		}
-    else if (field.usage === Usage.OPTIONAL) {
+    else if ((field.usage === Usage.OPTIONAL) || forceOptional) {
       if (value && !skip) {
         attrMap[field.label] = parseField(field, value);
       }

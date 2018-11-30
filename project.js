@@ -176,56 +176,63 @@ class Project {
     if (itemProxy.acquired) {
       itemProxy.acquireDate = itemProxy.acquired.toISOString();
     }
-    if (itemProxy.discarded) {
-      itemProxy.discardDate = itemProxy.discarded.toISOString();
+    if (itemProxy.disposed) {
+      itemProxy.disposeDate = itemProxy.disposed.toISOString();
     }
 
 		this.itemTable.add(itemProxy);
 	}
-	
-  getAllItems() {
-		let itemProxys = this.itemTable.getAll();
-		for (let i = 0; i < itemProxys.length; ++i) {
-			let itemProxy = itemProxys[i];
-			itemProxy.product = this.productTable.findNameById(itemProxy.productId);
-      itemProxy.acquired = new Date(itemProxy.acquireDate);
-      if (itemProxy.discardDate) {
-        itemProxy.discarded = new Date(itemProxy.discardDate);
-      }
-		}
-		return itemProxys;
-	}
-  
-  filterItems(product) {
-    let itemProxys = this.getAllItems();
-    
-    let filteredProxys;
-    if (product) {
-      let productId = this.productTable.findIdByName(product);
-      filteredProxys = [];
-      for (let i = 0; i < itemProxys.length; ++i) {
-        let itemProxy = itemProxys[i];
-        if (itemProxy.productId === productId) {
-          filteredProxys.push(itemProxy);
-        }
-      }
-    } else {
-      filteredProxys = itemProxys;
-    }
-    return filteredProxys;
-  }
 	
   updateItem(id, itemProxy) {
 		itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
     if (itemProxy.acquired) {
       itemProxy.acquireDate = itemProxy.acquired.toISOString();
     }
-    if (itemProxy.discarded) {
-      itemProxy.discardDate = itemProxy.discarded.toISOString();
+    if (itemProxy.disposed) {
+      itemProxy.disposeDate = itemProxy.disposed.toISOString();
     }
 		
     this.itemTable.update(id, itemProxy);
 	}
+  
+  removeItem(id) {
+		this.itemTable.remove(id);
+	}
+  
+  getAllItems() {
+		let itemProxys = this.itemTable.getAll();
+		for (let i = 0; i < itemProxys.length; ++i) {
+			let itemProxy = itemProxys[i];
+			itemProxy.product = this.productTable.findNameById(itemProxy.productId);
+      itemProxy.acquired = new Date(itemProxy.acquireDate);
+      if (itemProxy.disposeDate) {
+        itemProxy.disposed = new Date(itemProxy.disposeDate);
+      }
+		}
+		return itemProxys;
+	}
+  
+  filterItems(product, disposed) {
+    let itemProxys = this.getAllItems();
+    
+    let filteredProxys;
+    let productId;
+    if (product) {
+      this.productTable.findIdByName(product);
+    }
+    filteredProxys = [];
+    for (let i = 0; i < itemProxys.length; ++i) {
+      let itemProxy = itemProxys[i];
+      if (!disposed && itemProxy.disposed) {
+        continue;
+      }
+      if (product && (itemProxy.productId !== productId)) {
+        continue
+      }
+      filteredProxys.push(itemProxy);
+    }
+    return filteredProxys;
+  }
 }
 
 module.exports = Project;
