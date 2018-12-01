@@ -44,7 +44,7 @@ class ItemAddState extends baseStates.AddState {
     this.displayFields = ALL_FIELDS;
 	}
 
-	handleAdd(attrMap) {
+  formProxy(attrMap) {
 		let proxy = {
 			product: attrMap.product,
 			quantity: attrMap.quantity,
@@ -55,6 +55,10 @@ class ItemAddState extends baseStates.AddState {
     if (isNaN(proxy.quantity)) { proxy.quantity = 1 }
     if (isNaN(proxy.remain)) { proxy.remain = proxy.quantity; }
     if (!proxy.acquired) { proxy.acquired = new Date(); }
+    return proxy;
+  }
+
+	handleAdd(proxy) {
 		this.context.project.addItem(proxy);
 		this.context.dirty = true;
 	}
@@ -74,12 +78,17 @@ class ItemEditState extends baseStates.EditState {
 		return proxys;
 	}
 
-	handleModify(proxy, attrMap) {
-    if (attrMap.product) { proxy.product = attrMap.product; }
-    if (!isNaN(attrMap.quantity)) { proxy.quantity = attrMap.quantity; }
-    if (!isNaN(attrMap.remain)) { proxy.remain = attrMap.remain; }
-    if (attrMap.acquired) { proxy.acquired = attrMap.acquired; }
-    if (attrMap.disposed) { proxy.disposed = attrMap.disposed; }
+  formProxy(proxy, attrMap) {
+    let newProxy = Object.assign({}, proxy);
+    if (attrMap.product) { newProxy.product = attrMap.product; }
+    if (!isNaN(attrMap.quantity)) { newProxy.quantity = attrMap.quantity; }
+    if (!isNaN(attrMap.remain)) { newProxy.remain = attrMap.remain; }
+    if (attrMap.acquired) { newProxy.acquired = attrMap.acquired; }
+    if (attrMap.disposed) { newProxy.disposed = attrMap.disposed; }
+    return newProxy;
+  }
+
+	handleModify(proxy) {
 		this.context.project.updateItem(proxy.id, proxy);
 		this.context.dirty = true;
 	}
@@ -113,7 +122,7 @@ class ItemListState extends baseStates.ListState {
 		this.listFields = ALL_FIELDS;
 	}
 	
-	produceProxys(attrMap) {
+	filterProxys(attrMap) {
 		let itemProxys = this.context.project.filterItems(attrMap.product, attrMap.disposed);
 		return itemProxys;
 	}

@@ -140,14 +140,14 @@ async function chooseOption(options) {
 	throw new InputError('Unknown option: ' + value);
 }
 
-function printFields(message, fields) {
+function printFields(message, fields, forceOptional) {
 	let fieldsMessage = message + ': ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
-		if (field.usage === Usage.REQUIRED) {
+		if ((field.usage === Usage.REQUIRED) && !forceOptional) {
 			fieldsMessage += field.label;
 			fieldsMessage += ' ';
-		} else if (field.usage === Usage.OPTIONAL) {
+		} else if ((field.usage === Usage.OPTIONAL) || forceOptional) {
       fieldsMessage += '[';
       fieldsMessage += field.label;
       fieldsMessage += '] ';

@@ -44,6 +44,12 @@ class BaseState {
   writeError(message) {
     io.writeMessage('! ' + message);
   }
+
+  async checkConfirm() {
+    dialogHelper.printOptions('? confirm', CONFIRM_OPTIONS);
+    let choice = await dialogHelper.chooseOption(CONFIRM_OPTIONS);
+    return choice === Confirm.YES;
+  }
 }
 
 class ChooseState extends BaseState {
@@ -77,8 +83,10 @@ class AddState extends BaseState {
       try {
         dialogHelper.printFields('? add', this.addFields);
         let attrMap = await dialogHelper.submitFields(this.addFields);
-		    dialogHelper.printProxy('- new', this.displayFields, attrMap);
-        this.handleAdd(attrMap);
+		    let proxy = this.formProxy(attrMap);
+        dialogHelper.printProxy('- new', this.displayFields, proxy);
+        if (!await this.checkConfirm()) { continue; }
+        this.handleAdd(proxy);
         break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -110,28 +118,35 @@ class EditState extends BaseState {
 			}
     }
    
-		dialogHelper.listProxys(this.displayFields, proxys);
     let proxy = null;
-    while (true) {
-      try {
-				dialogHelper.printFields('? select', SELECT_FIELDS);
-				let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
-        let index = attrMap.number - 1;
-        proxy = proxys[index];
-        break;
-			} catch (e) {
-				if (e instanceof InputError || e instanceof DataError) {
-					this.writeError(e.message);
-				} else { throw e; }
-			}
+    if (proxys.length === 1) {
+      proxy = proxys[0];
+    } else {
+      while (true) {
+        try {
+		      dialogHelper.listProxys(this.displayFields, proxys);
+          dialogHelper.printFields('? select', SELECT_FIELDS);
+          let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
+          let index = attrMap.number - 1;
+          proxy = proxys[index];
+          break;
+        } catch (e) {
+          if (e instanceof InputError || e instanceof DataError) {
+            this.writeError(e.message);
+          } else { throw e; }
+        }
+      }
     }
 
     while (true) {
       try {
 		    dialogHelper.printProxy('- old', this.displayFields, proxy);
+        dialogHelper.printFields('? modify', this.modifyFields, true);
         let attrMap = await dialogHelper.submitFields(this.modifyFields, true);
-        this.handleModify(proxy, attrMap);
-		    dialogHelper.printProxy('- new', this.displayFields, proxy);
+		    let newProxy = this.formProxy(proxy, attrMap);
+        dialogHelper.printProxy('- new', this.displayFields, newProxy);
+        if (!await this.checkConfirm()) { continue; }
+        this.handleModify(newProxy);
         break;
       } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -163,29 +178,38 @@ class RemoveState extends BaseState {
 			}
     }
    
-		dialogHelper.listProxys(this.listFields, proxys);
     let proxy = null;
+    if (proxys.length === 1) {
+      proxy = proxys[0];
+    } else {
+      while (true) {
+        try {
+          dialogHelper.listProxys(this.listFields, proxys);
+          dialogHelper.printFields('? select', SELECT_FIELDS);
+          let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
+          let index = attrMap.number - 1;
+          proxy = proxys[index];
+          break;
+        } catch (e) {
+          if (e instanceof InputError || e instanceof DataError) {
+            this.writeError(e.message);
+          } else { throw e; }
+        }
+      }
+    }
+
     while (true) {
       try {
-				dialogHelper.printFields('? select', SELECT_FIELDS);
-				let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
-        let index = attrMap.number - 1;
-        proxy = proxys[index];
         dialogHelper.printProxy('- remove', this.removeFields, proxy);
-				dialogHelper.printOptions('? confirm', CONFIRM_OPTIONS);
-				let choice = await dialogHelper.chooseOption(CONFIRM_OPTIONS);
-        if (choice != Confirm.YES) {
-          continue;
-        }
+        if (!await this.checkConfirm()) { continue; }
+        this.handleRemove(proxy);
         break;
-			} catch (e) {
+      } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
 					this.writeError(e.message);
 				} else { throw e; }
-			}
+      }
     }
-
-    this.handleRemove(proxy);
     this.writeChange('removed entry');
 
 		return new StateCommand(StateCommand.Type.BACK);
@@ -204,7 +228,7 @@ class ListState extends BaseState {
 				  dialogHelper.printFields('? filter', this.filterFields);
 					attrMap = await dialogHelper.submitFields(this.filterFields);
 				}
-		  	proxys = this.produceProxys(attrMap);
+		  	proxys = this.filterProxys(attrMap);
 				break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
