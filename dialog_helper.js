@@ -144,17 +144,17 @@ function printFields(message, fields, forceOptional) {
 	let fieldsMessage = message + ': ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
-		if ((field.usage === Usage.REQUIRED) && !forceOptional) {
+		if (field.usage === Usage.MULTIPLE) {
+      fieldsMessage += '[';
+      fieldsMessage += field.label;
+      fieldsMessage += ',] ';
+    } else if ((field.usage === Usage.REQUIRED) && !forceOptional) {
 			fieldsMessage += field.label;
 			fieldsMessage += ' ';
 		} else if ((field.usage === Usage.OPTIONAL) || forceOptional) {
       fieldsMessage += '[';
       fieldsMessage += field.label;
       fieldsMessage += '] ';
-		} else if (field.usage === Usage.MULTIPLE) {
-      fieldsMessage += '[';
-      fieldsMessage += field.label;
-      fieldsMessage += ',] ';
     }
 	}
 	io.writeMessage(fieldsMessage);
@@ -188,23 +188,21 @@ async function submitFields(fields, forceOptional) {
 			value = values[i];
 			skip = value == '~';
 		}
-		if ((field.usage === Usage.REQUIRED) && !forceOptional) {
-			if (!value || skip) {
-				throw new InputError('Field: ' + field.label + ' is required');
-			}
-			attrMap[field.label] = parseField(field, value);
-		}
-    else if ((field.usage === Usage.OPTIONAL) || forceOptional) {
-      if (value && !skip) {
-        attrMap[field.label] = parseField(field, value);
-      }
-    }
-		else if (field.usage === Usage.MULTIPLE) {
+		if (field.usage === Usage.MULTIPLE) {
 			if (value && !skip) {
 				let elems = value.split(',');
 				attrMap[field.label] = elems;
 			}
-		}
+		} else if ((field.usage === Usage.REQUIRED) && !forceOptional) {
+			if (!value || skip) {
+				throw new InputError('Field: ' + field.label + ' is required');
+			}
+			attrMap[field.label] = parseField(field, value);
+		} else if ((field.usage === Usage.OPTIONAL) || forceOptional) {
+      if (value && !skip) {
+        attrMap[field.label] = parseField(field, value);
+      }
+    }
 	}
 	return attrMap;
 }

@@ -10,7 +10,7 @@ const ALL_FIELDS = [
 ];
 
 const FIND_FIELDS = [
-  { label: 'name',   usage: Usage.REQUIRED, type: Type.STRING },
+  { label: 'name',    usage: Usage.REQUIRED, type: Type.STRING },
 ];
 
 const FILTER_FIELDS = [
