@@ -1,69 +1,33 @@
 var GraphError = require('./errors').GraphError;
 
+class AddGroupChange {
+  constructor(table, id) { this.graph = graph; this.id = id; }
+
+  check() { this.graph.checkAddGroup_(this.id); }
+
+  execute() { this.graph.executeAddGroup_(this.id); }
+}
+
+class RemoveGroupChange {
+  constructor(table, id) { this.graph = graph; this.id = id; }
+
+  check() { this.graph.checkRemoveGroup_(this.id); }
+
+  execute() { this.graph.executeRemoveGroup_(this.id); }
+}
+
+class SetParentsChange {
+  constructor(table, childId, parentIds) { 
+      this.graph = graph; this.childId = childId; this.parentIds = parentIds; }
+
+  check() { this.graph.checkSetParents_(this.childId, this.parentIds); }
+
+  execute() { this.graph.executeSetParents_(this.childId, this.parentIds); }
+}
+
 class GroupGraph {
   constructor() {
     this.vertexMap = {}
-  }
-
-  addGroup(id) {
-		if (this.vertexMap[id]) {
-			throw new GraphError('Group already exists in graph');
-		}
-    
-		let vertex = {
-      id: id,
-			parentMap: {},
-      childMap: {},
-    };
-    this.vertexMap[id] = vertex;
-  }
-  
-  removeGroup(id) {
-		if (!this.vertexMap[id]) {
-			throw new GraphError('Group does not exist in graph');
-		}
-  
-		this.clearAllParents(id);
-    delete this.vertexMap[id];
-  }
-
-  relate(parentId, childId) {
-		if (!this.vertexMap[parentId]) {
-			throw new GraphError('Parent does not exist in graph');
-		}
-		if (!this.vertexMap[childId]) {
-			throw new GraphError('Child does not exist in graph');
-		}
-		if (this.isChild(parentId, childId)) {
-			throw new GraphError('Desired parent already has child');
-		}
-    if (this.isDescendent(childId, parentId)) {
-      throw new GraphError('Desired parent is a descendent of child');
-    }
-
-    let parentVert = this.vertexMap[parentId];
-    let childVert = this.vertexMap[childId];
-    parentVert.childMap[childId] = childVert;
-		childVert.parentMap[parentId] = parentVert;
-  }
-
-  clearAllParents(childId) {
-		if (!this.vertexMap[childId]) {
-			throw new GraphError('Child does not exist in graph');
-		}
-    
-    let childVert = this.vertexMap[childId];
-		for (let parentId in childVert.parentMap) {
-			let parentVert = this.vertexMap[parentId];
-			delete parentVert.childMap[childId];
-		}
-		childVert.parentMap = {};
-  }
-
-  relateParents(childId, parentIds) {
-    for (let i = 0; i < parentIds.length; ++i) {
-      this.relate(parentIds[i], childId);
-    }
   }
 
 	isChild(parentId, checkId) {
@@ -119,6 +83,64 @@ class GroupGraph {
 			this.getDescendentSetImpl(childId, visitedSet);
     }
 	}
+  
+  checkAddGroup_(id) {
+		if (this.vertexMap[id]) {
+			throw new GraphError('Group already exists in graph');
+		}
+  }
+   
+  executeAddGroup_(id) {
+		let vertex = {
+      id: id,
+			parentMap: {},
+      childMap: {},
+    };
+    this.vertexMap[id] = vertex;
+  }
+  
+  checkRemoveGroup_(id) {
+		if (!this.vertexMap[id]) {
+			throw new GraphError('Group does not exist in graph');
+		}
+  }
+
+  executeRemoveGroup_(id) {
+		this.clearAllParents(id);
+    delete this.vertexMap[id];
+  }
+  
+  checkSetParents_(childId, parentIds) {
+		if (!this.vertexMap[childId]) {
+			throw new GraphError('Child does not exist in graph');
+		}
+    parentIds.foreach(parentId => {
+      if (!this.vertexMap[parentId]) {
+        throw new GraphError('Parent does not exist in graph');
+      }
+      if (this.isChild(parentId, childId)) {
+        throw new GraphError('Desired parent already has child');
+      }
+      if (this.isDescendent(childId, parentId)) {
+        throw new GraphError('Desired parent is a descendent of child');
+      }
+    });
+  }
+
+  executeSetParents_(childId, parentIds) {
+    let childVert = this.vertexMap[childId];
+		for (let parentId in childVert.parentMap) {
+			let parentVert = this.vertexMap[parentId];
+			delete parentVert.childMap[childId];
+		}
+		childVert.parentMap = {};
+		
+    for (let parentId in childVert.parentMap) {
+      let parentVert = this.vertexMap[parentId];
+      parentVert.childMap[childId] = childVert;
+      childVert.parentMap[parentId] = parentVert;
+		}
+  }
 }
 
 module.exports = GroupGraph;

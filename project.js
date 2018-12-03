@@ -1,3 +1,4 @@
+var changes = require('./changes.js');
 var GroupTable = require('./group_table');
 var ProductTable = require('./product_table');
 var ItemTable = require('./item_table');

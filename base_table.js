@@ -1,6 +1,31 @@
 var generator = require('./generator');
 var TableError = require('./errors').TableError;
 
+class AddChange {
+  constructor(table, proxy) { this.table = table; this.proxy = proxy; }
+
+  check() { this.table.checkAdd_(this.proxy); }
+
+  execute() { this.table.executeAdd_(this.proxy); }
+}
+
+class UpdateChange {
+  constructor(table, id, proxy) { 
+      this.table = table; this.id = id; this.proxy = proxy; }
+
+  check() { this.table.checkUdate_(this.id, this.proxy); }
+
+  execute() { this.table.executeUpdate_(this.id, this.proxy); }
+}
+
+class RemoveChange {
+  constructor(table, id) { this.table = table; this.id = id; }
+
+  check() { this.table.checkRemove_(this.id); }
+
+  execute() { this.table.executeRemove_(this.id); }
+}
+
 class BaseTable {
 	constructor() {
 		this.entries = [];
@@ -27,36 +52,21 @@ class BaseTable {
 		}
 	}
 
-	add(proxy) {
-    if (this.named) {
-      if (this.nameEntryMap[proxy.name]) {
-        throw new TableError('Name: ' + proxy.name + ' already exists in table');
-      }
-    }
-
-		let id = generator.generateUUID();
-		let entry = this.formEntry(id, proxy);
-		this.entries.push(entry);
-		this.idEntryMap[id] = entry;
-		if (this.named) {
-      this.nameEntryMap[entry.name] = entry;
-    }
+	makeAddChange(proxy) {
+    let change = new AddChange(this, proxy);
+    return change;
+	}
+	
+  makeUpdateChange(id, proxy) {
+    let change = new UpdateChange(this, id, proxy);
+    return change;
 	}
 
-  remove(id) {
-		if (!this.idEntryMap[id]) {
-			throw new TableError('Id not present in table');
-		}
-
-		let entry = this.idEntryMap[id];
-    let index = this.entries.indexOf(entry);
-    delete this.idEntryMap[id];
-    if (this.named) {
-      delete this.nameEntryMap[entry.name];
-    }
-    this.entries.splice(index, 1);
+  makeRemoveChange(id) {
+    let change = new RemoveChange(this, id);
+    return change;
   }
-
+  
 	getById(id) {
 		if (!this.idEntryMap[id]) {
 			throw new TableError('Id not present in table');
@@ -165,6 +175,65 @@ class BaseTable {
 		}
 		return names;
 	}
+
+  checkAdd_(proxy) {
+    if (this.named) {
+      if (this.nameEntryMap[proxy.name]) {
+        throw new TableError('Name: ' + proxy.name + ' already exists in table');
+      }
+    }
+  }
+
+  executeAdd_(proxy) {
+    let id = generator.generateUUID();
+    let entry = this.formEntry(id, proxy);
+    this.entries.push(entry);
+    this.idEntryMap[id] = entry;
+    if (this.named) {
+      this.nameEntryMap[entry.name] = entry;
+    }
+  }
+  
+  checkUpdate_(id, proxy) {
+		if (!this.idEntryMap[id]) {
+			throw new TableError('Id not present in table');
+		}
+    if (this.named) {
+      let namedEntry = this.nameEntryMap[proxy.name];
+      if (namedEntry && namedEntry.id != id) {
+        throw new TableError('Name: ' + proxy.name + ' already exists in table');
+      }
+    }
+		
+  executeUpdate_(id, proxy) {
+		let oldEntry = this.idEntryMap[id];
+		if (this.named) {
+      delete this.nameEntryMap[oldEntry.name];
+    }
+		let index = this.entries.indexOf(oldEntry);
+		let newEntry = this.formEntry(id, proxy);
+		this.entries[index] = newEntry;
+		this.idEntryMap[id] = newEntry;
+		if (this.named) {
+      this.nameEntryMap[newEntry.name] = newEntry;
+    }
+	}
+
+  checkRemove_(id) {
+		if (!this.idEntryMap[id]) {
+			throw new TableError('Id not present in table');
+		}
+  }
+
+  executeRemove_(id) {
+		let entry = this.idEntryMap[id];
+    let index = this.entries.indexOf(entry);
+    delete this.idEntryMap[id];
+    if (this.named) {
+      delete this.nameEntryMap[entry.name];
+    }
+    this.entries.splice(index, 1);
+  }
 }
 
 module.exports = BaseTable;
