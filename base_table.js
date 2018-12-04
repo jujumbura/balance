@@ -204,6 +204,7 @@ class BaseTable {
         throw new TableError('Name: ' + proxy.name + ' already exists in table');
       }
     }
+  }
 		
   executeUpdate_(id, proxy) {
 		let oldEntry = this.idEntryMap[id];

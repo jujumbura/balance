@@ -1,4 +1,4 @@
-var changes = require('./changes.js');
+var change_helper = require('./change_helper.js');
 var GroupTable = require('./group_table');
 var ProductTable = require('./product_table');
 var ItemTable = require('./item_table');
@@ -25,16 +25,17 @@ class Project {
 
   fixup() {
 		let groupProxys = this.groupTable.getAll();
-		for (let i = 0; i < groupProxys.length; ++i) {
-			let groupProxy = groupProxys[i];
-      this.groupGraph.addGroup(groupProxy.id);
-		}
-		for (let i = 0; i < groupProxys.length; ++i) {
-			let groupProxy = groupProxys[i];
-      if (groupProxy.parentIds) {
-        this.groupGraph.relateParents(groupProxy.id, groupProxy.parentIds);
-      }
-		}
+    let addChanges = [];
+    let parentChanges = [];
+    groupProxys.forEach(groupProxy => {
+      addChanges.push(this.groupGraph.makeAddGroupChange(
+        groupProxy.id));
+      parentChanges.push(this.groupGraph.makeSetParentsChange(
+        groupProxy.id, groupProxy.parentIds));
+    });
+
+    change_helper.runChanges(addChanges);
+    change_helper.runChanges(parentChanges);
   }
 	
   
@@ -44,20 +45,16 @@ class Project {
 			parentIds = this.groupTable.findIdsByName(groupProxy.parents);
       groupProxy.parentIds = parentIds;
 		}
-		
-		this.groupTable.add(groupProxy);
+	
+    let changes = []
+		changes.push(this.groupTable.makeAddChange(groupProxy));
     let id = this.groupTable.findIdByName(groupProxy.name);
-    this.groupGraph.addGroup(id);
+    changes.push(this.groupGraph.makeAddGroupChange(id));
+    if (parentIds) {
+      changes.push(this.groupGraph.makeSetParentsChange(id, parentIds));
+    }
 
-		if (parentIds) {
-			try {
-				this.groupGraph.relateParents(id, parentIds);
-			} catch (e) {
-				this.groupTable.remove(id);
-				this.groupGraph.removeGroup(id);
-				throw e;
-			}
-		}
+    change_helper.runChanges(changes);
 	}
 	
   updateGroup(id, groupProxy) {	

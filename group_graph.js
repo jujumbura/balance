@@ -1,7 +1,7 @@
 var GraphError = require('./errors').GraphError;
 
 class AddGroupChange {
-  constructor(table, id) { this.graph = graph; this.id = id; }
+  constructor(graph, id) { this.graph = graph; this.id = id; }
 
   check() { this.graph.checkAddGroup_(this.id); }
 
@@ -9,7 +9,7 @@ class AddGroupChange {
 }
 
 class RemoveGroupChange {
-  constructor(table, id) { this.graph = graph; this.id = id; }
+  constructor(graph, id) { this.graph = graph; this.id = id; }
 
   check() { this.graph.checkRemoveGroup_(this.id); }
 
@@ -17,7 +17,7 @@ class RemoveGroupChange {
 }
 
 class SetParentsChange {
-  constructor(table, childId, parentIds) { 
+  constructor(graph, childId, parentIds) { 
       this.graph = graph; this.childId = childId; this.parentIds = parentIds; }
 
   check() { this.graph.checkSetParents_(this.childId, this.parentIds); }
@@ -29,6 +29,21 @@ class GroupGraph {
   constructor() {
     this.vertexMap = {}
   }
+	
+  makeAddGroupChange(id) {
+    let change = new AddGroupChange(this, id);
+    return change;
+	}
+  
+  makeRemoveGroupChange(id) {
+    let change = new RemoveGroupChange(this, id);
+    return change;
+	}
+  
+  makeSetParentsChange(childId, parentIds) {
+    let change = new RemoveGroupChange(this, childId, parentIds);
+    return change;
+	}
 
 	isChild(parentId, checkId) {
 		if (!this.vertexMap[parentId]) {
@@ -106,7 +121,7 @@ class GroupGraph {
   }
 
   executeRemoveGroup_(id) {
-		this.clearAllParents(id);
+		this.executeSetParents_(id, []);
     delete this.vertexMap[id];
   }
   
