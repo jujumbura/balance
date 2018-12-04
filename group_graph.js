@@ -41,7 +41,7 @@ class GroupGraph {
 	}
   
   makeSetParentsChange(childId, parentIds) {
-    let change = new RemoveGroupChange(this, childId, parentIds);
+		let change = new SetParentsChange(this, childId, parentIds);
     return change;
 	}
 

@@ -1,4 +1,3 @@
-var generator = require('./generator');
 var TableError = require('./errors').TableError;
 
 class AddChange {
@@ -57,8 +56,8 @@ class BaseTable {
     return change;
 	}
 	
-  makeUpdateChange(id, proxy) {
-    let change = new UpdateChange(this, id, proxy);
+  makeUpdateChange(proxy) {
+    let change = new UpdateChange(this, proxy);
     return change;
 	}
 
@@ -85,30 +84,6 @@ class BaseTable {
 		let entry = this.nameEntryMap[name];
 		let proxy = this.formProxy(entry);
 		return proxy;
-	}
-
-	update(id, proxy) {
-		if (!this.idEntryMap[id]) {
-			throw new TableError('Id not present in table');
-		}
-    if (this.named) {
-      let namedEntry = this.nameEntryMap[proxy.name];
-      if (namedEntry && namedEntry.id != id) {
-        throw new TableError('Name: ' + proxy.name + ' already exists in table');
-      }
-    }
-		
-		let oldEntry = this.idEntryMap[id];
-		if (this.named) {
-      delete this.nameEntryMap[oldEntry.name];
-    }
-		let index = this.entries.indexOf(oldEntry);
-		let newEntry = this.formEntry(id, proxy);
-		this.entries[index] = newEntry;
-		this.idEntryMap[id] = newEntry;
-		if (this.named) {
-      this.nameEntryMap[newEntry.name] = newEntry;
-    }
 	}
 
 	getAll() {
@@ -177,6 +152,9 @@ class BaseTable {
 	}
 
   checkAdd_(proxy) {
+		if (this.idEntryMap[proxy.id]) {
+			throw new TableError('Id already exists in table');
+		}
     if (this.named) {
       if (this.nameEntryMap[proxy.name]) {
         throw new TableError('Name: ' + proxy.name + ' already exists in table');
@@ -185,17 +163,16 @@ class BaseTable {
   }
 
   executeAdd_(proxy) {
-    let id = generator.generateUUID();
-    let entry = this.formEntry(id, proxy);
+    let entry = this.formEntry(proxy.id, proxy);
     this.entries.push(entry);
-    this.idEntryMap[id] = entry;
+    this.idEntryMap[entry.id] = entry;
     if (this.named) {
       this.nameEntryMap[entry.name] = entry;
     }
   }
   
-  checkUpdate_(id, proxy) {
-		if (!this.idEntryMap[id]) {
+  checkUpdate_(proxy) {
+		if (!this.idEntryMap[proxy.id]) {
 			throw new TableError('Id not present in table');
 		}
     if (this.named) {
@@ -206,15 +183,15 @@ class BaseTable {
     }
   }
 		
-  executeUpdate_(id, proxy) {
-		let oldEntry = this.idEntryMap[id];
+  executeUpdate_(proxy) {
+		let oldEntry = this.idEntryMap[proxy.id];
 		if (this.named) {
       delete this.nameEntryMap[oldEntry.name];
     }
 		let index = this.entries.indexOf(oldEntry);
-		let newEntry = this.formEntry(id, proxy);
+		let newEntry = this.formEntry(proxy.id, proxy);
 		this.entries[index] = newEntry;
-		this.idEntryMap[id] = newEntry;
+		this.idEntryMap[newEntry.id] = newEntry;
 		if (this.named) {
       this.nameEntryMap[newEntry.name] = newEntry;
     }

@@ -1,3 +1,4 @@
+var generator = require('./generator');
 var change_helper = require('./change_helper.js');
 var GroupTable = require('./group_table');
 var ProductTable = require('./product_table');
@@ -30,8 +31,10 @@ class Project {
     groupProxys.forEach(groupProxy => {
       addChanges.push(this.groupGraph.makeAddGroupChange(
         groupProxy.id));
-      parentChanges.push(this.groupGraph.makeSetParentsChange(
-        groupProxy.id, groupProxy.parentIds));
+			if (groupProxy.parentIds) {
+				parentChanges.push(this.groupGraph.makeSetParentsChange(
+					groupProxy.id, groupProxy.parentIds));
+			}
     });
 
     change_helper.runChanges(addChanges);
@@ -40,6 +43,8 @@ class Project {
 	
   
   addGroup(groupProxy) {
+    let id = generator.generateUUID();
+		groupProxy.id = id;
 		let parentIds = null;
 		if (groupProxy.parents) {
 			parentIds = this.groupTable.findIdsByName(groupProxy.parents);
@@ -48,7 +53,6 @@ class Project {
 	
     let changes = []
 		changes.push(this.groupTable.makeAddChange(groupProxy));
-    let id = this.groupTable.findIdByName(groupProxy.name);
     changes.push(this.groupGraph.makeAddGroupChange(id));
     if (parentIds) {
       changes.push(this.groupGraph.makeSetParentsChange(id, parentIds));
