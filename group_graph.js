@@ -3,26 +3,27 @@ var GraphError = require('./errors').GraphError;
 class AddGroupChange {
   constructor(graph, id) { this.graph = graph; this.id = id; }
 
-  check() { this.graph.checkAddGroup_(this.id); }
+  apply() { this.graph.addGroup_(this.id); }
 
-  execute() { this.graph.executeAddGroup_(this.id); }
+  revert() { this.table.removeGroup_(this.id); }
 }
 
 class RemoveGroupChange {
   constructor(graph, id) { this.graph = graph; this.id = id; }
 
-  check() { this.graph.checkRemoveGroup_(this.id); }
+  apply() { this.graph.removeGroup_(this.id); }
 
-  execute() { this.graph.executeRemoveGroup_(this.id); }
+  revert() { this.table.addGroup_(this.id); }
 }
 
 class SetParentsChange {
-  constructor(graph, childId, parentIds) { 
-      this.graph = graph; this.childId = childId; this.parentIds = parentIds; }
+  constructor(graph, childId, oldParentIds, newParentIds) { 
+      this.graph = graph; this.childId = childId; 
+      this.oldParentIds = oldParentIds; this.newParentIds = newParentIds; }
 
-  check() { this.graph.checkSetParents_(this.childId, this.parentIds); }
+  apply() { this.graph.setParents_(this.childId, this.newParentIds); }
 
-  execute() { this.graph.executeSetParents_(this.childId, this.parentIds); }
+  revert() { this.graph.setParents_(this.childId, this.oldParentIds); }
 }
 
 class GroupGraph {
@@ -41,9 +42,23 @@ class GroupGraph {
 	}
   
   makeSetParentsChange(childId, parentIds) {
-		let change = new SetParentsChange(this, childId, parentIds);
+		let oldParentIds = this.getParents(childId);
+    let change = new SetParentsChange(this, childId, oldParentIds, newParentIds);
     return change;
 	}
+
+  getParents(childId) {
+		if (!this.vertexMap[childId]) {
+			throw new GraphError('Child does not exist in graph');
+		}
+
+    let childVert = this.vertexMap[childId];
+    let parentIds = [];
+    for (let parentId in childVert.parentMap) {
+      parentIds.push(parentId);
+    }
+    return parentIds;
+  }
 
 	isChild(parentId, checkId) {
 		if (!this.vertexMap[parentId]) {
@@ -99,14 +114,12 @@ class GroupGraph {
     }
 	}
   
-  checkAddGroup_(id) {
+  addGroup_(id) {
 		if (this.vertexMap[id]) {
 			throw new GraphError('Group already exists in graph');
 		}
-  }
-   
-  executeAddGroup_(id) {
-		let vertex = {
+		
+    let vertex = {
       id: id,
 			parentMap: {},
       childMap: {},
@@ -114,22 +127,19 @@ class GroupGraph {
     this.vertexMap[id] = vertex;
   }
   
-  checkRemoveGroup_(id) {
+  removeGroup_(id) {
 		if (!this.vertexMap[id]) {
 			throw new GraphError('Group does not exist in graph');
 		}
-  }
-
-  executeRemoveGroup_(id) {
-		this.executeSetParents_(id, []);
+		
     delete this.vertexMap[id];
   }
   
-  checkSetParents_(childId, parentIds) {
+  setParents_(childId, parentIds) {
 		if (!this.vertexMap[childId]) {
 			throw new GraphError('Child does not exist in graph');
 		}
-    parentIds.foreach(parentId => {
+    parentIds.forEach(parentId => {
       if (!this.vertexMap[parentId]) {
         throw new GraphError('Parent does not exist in graph');
       }
@@ -140,9 +150,7 @@ class GroupGraph {
         throw new GraphError('Desired parent is a descendent of child');
       }
     });
-  }
-
-  executeSetParents_(childId, parentIds) {
+    
     let childVert = this.vertexMap[childId];
 		for (let parentId in childVert.parentMap) {
 			let parentVert = this.vertexMap[parentId];

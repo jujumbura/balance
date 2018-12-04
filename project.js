@@ -26,19 +26,14 @@ class Project {
 
   fixup() {
 		let groupProxys = this.groupTable.getAll();
-    let addChanges = [];
-    let parentChanges = [];
     groupProxys.forEach(groupProxy => {
-      addChanges.push(this.groupGraph.makeAddGroupChange(
-        groupProxy.id));
-			if (groupProxy.parentIds) {
-				parentChanges.push(this.groupGraph.makeSetParentsChange(
-					groupProxy.id, groupProxy.parentIds));
-			}
+      this.groupGraph.addGroup_(groupProxy.id);
     });
-
-    change_helper.runChanges(addChanges);
-    change_helper.runChanges(parentChanges);
+    groupProxys.forEach(groupProxy => {
+      if (groupProxy.parentIds) {
+        this.groupGraph.setParents_(groupProxy.id, groupProxy.parentIds);
+      }
+    });
   }
 	
   
@@ -57,7 +52,6 @@ class Project {
     if (parentIds) {
       changes.push(this.groupGraph.makeSetParentsChange(id, parentIds));
     }
-
     change_helper.runChanges(changes);
 	}
 	
