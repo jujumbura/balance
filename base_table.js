@@ -9,7 +9,7 @@ class AddChange {
 }
 
 class RemoveChange {
-  constructor(table, id) { this.table = table; this.proxy = proxy; }
+  constructor(table, proxy) { this.table = table; this.proxy = proxy; }
 
   apply() { this.table.remove_(this.proxy.id); }
 
@@ -57,7 +57,8 @@ class BaseTable {
 	}
 	
   makeRemoveChange(id) {
-    let change = new RemoveChange(this, id);
+    let proxy = this.getById(id);
+    let change = new RemoveChange(this, proxy);
     return change;
   }
   

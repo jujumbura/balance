@@ -56,7 +56,8 @@ class Project {
 	}
 	
   updateGroup(id, groupProxy) {	
-		let oldProxy = this.groupTable.getById(id);
+		/*
+    let oldProxy = this.groupTable.getById(id);
 		let parentIds = null;
 		if (groupProxy.parents) {
 			parentIds = this.groupTable.findIdsByName(groupProxy.parents);
@@ -77,11 +78,17 @@ class Project {
 				throw e;
 			}
 		}
+    */
 	}
 
 	removeGroup(id) {
-		this.groupTable.remove(id);
-		this.groupGraph.removeGroup(id);
+    let parentIds = [];
+    
+    let changes = []
+    changes.push(this.groupGraph.makeSetParentsChange(id, parentIds));
+    changes.push(this.groupGraph.makeRemoveGroupChange(id));
+		changes.push(this.groupTable.makeRemoveChange(id));
+    change_helper.runChanges(changes);
 	}
 
 	findGroup(name) {
@@ -102,6 +109,29 @@ class Project {
 		}
 		return groupProxys;
 	}
+  
+  filterGroups(group) {
+    let groupProxys = this.getAllGroups();
+
+    let groupIdSet = null;
+    if (group) {
+      let groupId = this.groupTable.findIdByName(group);
+      groupIdSet = this.groupGraph.getProxyendentSet(groupId);
+    } 
+    let filteredProxys = [];
+    groupProxys.forEach(groupProxy => {
+      if (group) {
+        if (!groupProxy.parentIds) { 
+          continue; // Is correct?
+        }
+        if (!this.groupGraph.areAnyDependents(groupId, groupProxy.parentIds)) {
+          continue; 
+        }
+      }
+      filteredProxys.push(groupProxy);
+    });
+    return filteredProxys;
+  }
 	
 
 	addProduct(productProxy) {

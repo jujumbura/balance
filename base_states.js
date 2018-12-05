@@ -89,9 +89,8 @@ class AddState extends BaseState {
         this.handleAdd(proxy);
         break;
 			} catch (e) {
-				if (e instanceof InputError || e instanceof DataError) {
+        if (e instanceof InputError || e instanceof DataError) {
 					this.writeError(e.message);
-          throw e;
 				} else { throw e; }
 			}
     }

@@ -42,10 +42,23 @@ class GroupGraph {
 	}
   
   makeSetParentsChange(childId, parentIds) {
-		let oldParentIds = this.getParents(childId);
-    let change = new SetParentsChange(this, childId, oldParentIds, newParentIds);
+	  let oldParentIds = null;
+    if (this.hasGroup(childId)) {
+      oldParentIds = this.getParents(childId);
+    } else {
+      oldParentIds = [];
+    }
+    let change = new SetParentsChange(this, childId, oldParentIds, parentIds);
     return change;
 	}
+
+  hasGroup(checkId) {
+    if(this.vertexMap[checkId]) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   getParents(childId) {
 		if (!this.vertexMap[childId]) {
