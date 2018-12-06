@@ -48,6 +48,9 @@ class GroupGraph {
     } else {
       oldParentIds = [];
     }
+    if (!parentIds) {
+      parentIds = [];
+    }
     let change = new SetParentsChange(this, childId, oldParentIds, parentIds);
     return change;
 	}
