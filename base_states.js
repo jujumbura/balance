@@ -94,7 +94,6 @@ class AddState extends BaseState {
 				} else { throw e; }
 			}
     }
-    this.writeChange('added entry');
 
 		return new StateCommand(StateCommand.Type.BACK);
 	}
@@ -154,7 +153,6 @@ class EditState extends BaseState {
 				} else { throw e; }
       }
     }
-    this.writeChange('modified entry');
 
 		return new StateCommand(StateCommand.Type.BACK);
 	}
@@ -207,10 +205,10 @@ class RemoveState extends BaseState {
       } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
 					this.writeError(e.message);
+          throw e;
 				} else { throw e; }
       }
     }
-    this.writeChange('removed entry');
 
 		return new StateCommand(StateCommand.Type.BACK);
 	}

@@ -13,6 +13,10 @@ const FIND_FIELDS = [
   { label: 'name',    usage: Usage.REQUIRED, type: Type.STRING },
 ];
 
+const FILTER_FIELDS = [
+  { label: 'group',   usage: Usage.OPTIONAL, type: Type.STRING },
+];
+
 class GroupChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
@@ -105,11 +109,12 @@ class GroupListState extends baseStates.ListState {
 	constructor() {
 		super();
 		this.header = 'Groups-List';
+		this.filterFields = FILTER_FIELDS;
 		this.listFields = ALL_FIELDS;
 	}
 	
-	filterProxys() {
-		let proxys = this.context.project.getAllGroups();
+	filterProxys(attrMap) {
+		let proxys = this.context.project.filterGroups(attrMap.group);
 		return proxys;
 	}
 }

@@ -26,6 +26,17 @@ class GroupTable extends BaseTable {
 		};
 		return proxy;
 	}
+
+  findWithParentId(parentId) {
+		let proxys = [];
+    this.entries.forEach(entry => {
+      if (entry.parentIds && entry.parentIds.includes(parentId)) {
+			  let proxy = this.formProxy(entry);
+        proxys.push(proxy);
+      }
+    });
+    return proxys;
+  }
 }
 
 module.exports = GroupTable;

@@ -1,9 +1,23 @@
 var generator = require('./generator');
 var change_helper = require('./change_helper.js');
+var io = require('./console_io');
 var GroupTable = require('./group_table');
 var ProductTable = require('./product_table');
 var ItemTable = require('./item_table');
 var GroupGraph = require('./group_graph');
+
+function removeFromRefArray(proxy, arrayName, element) {
+  let array = proxy[arrayName];
+  let index = array.indexOf(element);
+  array.splice(index, 1);
+  if (array.length === 0) {
+    delete proxy[arrayName];
+  }
+}
+
+function writeChange(message) {
+  io.writeMessage('* ' + message);
+}
 
 class Project {
 	constructor() {
@@ -53,6 +67,7 @@ class Project {
       changes.push(this.groupGraph.makeSetParentsChange(id, parentIds));
     }
     change_helper.runChanges(changes);
+    writeChange('added 1 group');
 	}
 	
   updateGroup(id, groupProxy) {	
@@ -82,13 +97,25 @@ class Project {
 	}
 
 	removeGroup(id) {
-    let parentIds = [];
-    
     let changes = []
+    let childProxys = this.groupTable.findWithParentId(id);
+    childProxys.forEach(childProxy => {
+      removeFromRefArray(childProxy, 'parentIds', id);
+      changes.push(this.groupTable.makeUpdateChange(childProxy));
+    });
+    let refProxys = this.productTable.findWithGroupId(id);
+    refProxys.forEach(refProxy => {
+      removeFromRefArray(refProxy, 'groupIds', id);
+      changes.push(this.productTable.makeUpdateChange(refProxy));
+    });
+    let parentIds = [];
     changes.push(this.groupGraph.makeSetParentsChange(id, parentIds));
     changes.push(this.groupGraph.makeRemoveGroupChange(id));
 		changes.push(this.groupTable.makeRemoveChange(id));
     change_helper.runChanges(changes);
+    writeChange('removed 1 group');
+    writeChange('updated ' + childProxys.length + ' groups');
+    writeChange('updated ' + refProxys.length + ' products');
 	}
 
 	findGroup(name) {
@@ -116,19 +143,15 @@ class Project {
     let groupIdSet = null;
     if (group) {
       let groupId = this.groupTable.findIdByName(group);
-      groupIdSet = this.groupGraph.getProxyendentSet(groupId);
+      groupIdSet = this.groupGraph.getDescendentSet(groupId);
     } 
     let filteredProxys = [];
     groupProxys.forEach(groupProxy => {
+      let keep = true;
       if (group) {
-        if (!groupProxy.parentIds) { 
-          continue; // Is correct?
-        }
-        if (!this.groupGraph.areAnyDependents(groupId, groupProxy.parentIds)) {
-          continue; 
-        }
+        if (!groupIdSet[groupProxy.id]) { keep = false; }
       }
-      filteredProxys.push(groupProxy);
+      if (keep) { filteredProxys.push(groupProxy); }
     });
     return filteredProxys;
   }

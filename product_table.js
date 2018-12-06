@@ -26,6 +26,17 @@ class ProductTable extends BaseTable {
 		};
 		return proxy;
 	}
+  
+  findWithGroupId(groupId) {
+		let proxys = [];
+    this.entries.forEach(entry => {
+      if (entry.groupIds && entry.groupIds.includes(groupId)) {
+			  let proxy = this.formProxy(entry);
+        proxys.push(proxy);
+      }
+    });
+    return proxys;
+  }
 }
 
 module.exports = ProductTable;

@@ -97,6 +97,12 @@ class GroupGraph {
 		return descendentSet;
 	}
 
+  getDescendents(parentId) {
+  	let descendentSet = {};
+		this.getDescendentSetImpl(parentId, descendentSet);
+    return Object.keys(descendentSet);
+  }
+
 	isDescendentImpl(currentId, checkId, visitedSet) {
 		visitedSet[currentId] = true;
     if (currentId === checkId) {
@@ -163,7 +169,7 @@ class GroupGraph {
         throw new GraphError('Desired parent is a descendent of child');
       }
     });
-    
+
     let childVert = this.vertexMap[childId];
 		for (let parentId in childVert.parentMap) {
 			let parentVert = this.vertexMap[parentId];
@@ -171,11 +177,11 @@ class GroupGraph {
 		}
 		childVert.parentMap = {};
 		
-    for (let parentId in childVert.parentMap) {
+    parentIds.forEach(parentId => {
       let parentVert = this.vertexMap[parentId];
       parentVert.childMap[childId] = childVert;
       childVert.parentMap[parentId] = parentVert;
-		}
+		});
   }
 }
 
