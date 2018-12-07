@@ -33,11 +33,18 @@
 
 - Handle the case where a group was removed that contains products ( remove id on product entries? )
 
+[ DONE ]
+
 - Fix date print
 
 [ DONE ]
 
 ==Layout==
+
+group {
+  name
+  parentIds
+}
 
 product {
   name
@@ -45,10 +52,26 @@ product {
 }
 
 item {
-  name?
   productId
-  amount
+  quantity
   remain
   acquireDate
-  discardDate
+  disposeDate
+}
+
+vendor {
+  name
+}
+
+transaction {
+  vendorId
+  date
+}
+
+purchase {
+  transactionId
+  productId
+  price
+  quantity
+  itemId
 }

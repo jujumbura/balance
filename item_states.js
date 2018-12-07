@@ -89,7 +89,7 @@ class ItemEditState extends baseStates.EditState {
   }
 
 	handleModify(proxy) {
-		this.context.project.updateItem(proxy.id, proxy);
+		this.context.project.updateItem(proxy);
 		this.context.dirty = true;
 	}
 }

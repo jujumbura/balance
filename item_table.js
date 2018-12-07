@@ -30,6 +30,17 @@ class ItemTable extends BaseTable {
 		};
 		return proxy;
 	}
+  
+  findByProductId(productId) {
+		let proxys = [];
+    this.entries.forEach(entry => {
+      if (entry.productId === productId) {
+			  let proxy = this.formProxy(entry);
+        proxys.push(proxy);
+      }
+    });
+    return proxys;
+  }
 }
 
 module.exports = ItemTable;

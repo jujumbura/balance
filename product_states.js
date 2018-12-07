@@ -80,7 +80,7 @@ class ProductEditState extends baseStates.EditState {
   }
 
 	handleModify(proxy) {
-		this.context.project.updateProduct(proxy.id, proxy);
+		this.context.project.updateProduct(proxy);
 		this.context.dirty = true;
 	}
 }

@@ -80,7 +80,7 @@ class GroupEditState extends baseStates.EditState {
   }
 
 	handleModify(proxy) {
-		this.context.project.updateGroup(proxy.id, proxy);
+		this.context.project.updateGroup(proxy);
 		this.context.dirty = true;
 	}
 }

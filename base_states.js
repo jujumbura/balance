@@ -205,7 +205,6 @@ class RemoveState extends BaseState {
       } catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
 					this.writeError(e.message);
-          throw e;
 				} else { throw e; }
       }
     }

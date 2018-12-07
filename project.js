@@ -5,6 +5,7 @@ var GroupTable = require('./group_table');
 var ProductTable = require('./product_table');
 var ItemTable = require('./item_table');
 var GroupGraph = require('./group_graph');
+var DependencyError = require('./errors').DependencyError;
 
 function removeFromRefArray(proxy, arrayName, element) {
   let array = proxy[arrayName];
@@ -68,7 +69,7 @@ class Project {
     writeChange('added 1 group');
 	}
 	
-  updateGroup(id, groupProxy) {	
+  updateGroup(groupProxy) {	
 		let parentIds = null;
 		if (groupProxy.parents) {
 			parentIds = this.groupTable.findIdsByName(groupProxy.parents);
@@ -77,7 +78,7 @@ class Project {
 
     let changes = []
 		changes.push(this.groupTable.makeUpdateChange(groupProxy));
-    changes.push(this.groupGraph.makeSetParentsChange(id, parentIds));
+    changes.push(this.groupGraph.makeSetParentsChange(groupProxy.id, parentIds));
     change_helper.runChanges(changes);
     writeChange('updated 1 group');
 	}
@@ -164,7 +165,7 @@ class Project {
     writeChange('added 1 product');
 	}
 	
-	updateProduct(id, productProxy) {
+	updateProduct(productProxy) {
 		if (productProxy.groups) {
 			productProxy.groupIds = this.groupTable.findIdsByName(productProxy.groups);
 		}
@@ -176,8 +177,11 @@ class Project {
 	}
 	
   removeProduct(id) {
-    // TODO: check for refs in items, error if exist
-    
+    let itemProxys = this.itemTable.findByProductId(id);
+    if (itemProxys.length > 0) {
+      throw new DependencyError('Items depend on product');
+    }
+
     let changes = []
 		changes.push(this.productTable.makeRemoveChange(id));
     change_helper.runChanges(changes);
@@ -230,7 +234,9 @@ class Project {
 
 
 	addItem(itemProxy) {
-		itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
+    let id = generator.generateUUID();
+		itemProxy.id = id;
+    itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
     if (itemProxy.acquired) {
       itemProxy.acquireDate = itemProxy.acquired.toISOString();
     }
@@ -238,23 +244,31 @@ class Project {
       itemProxy.disposeDate = itemProxy.disposed.toISOString();
     }
 
-		this.itemTable.add(itemProxy);
+    let changes = []
+		changes.push(this.itemTable.makeAddChange(itemProxy));
+    change_helper.runChanges(changes);
+    writeChange('added 1 item');
 	}
 	
-  updateItem(id, itemProxy) {
-		itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
+  updateItem(itemProxy) {
     if (itemProxy.acquired) {
       itemProxy.acquireDate = itemProxy.acquired.toISOString();
     }
     if (itemProxy.disposed) {
       itemProxy.disposeDate = itemProxy.disposed.toISOString();
     }
-		
-    this.itemTable.update(id, itemProxy);
+    
+    let changes = []
+		changes.push(this.itemTable.makeUpdateChange(itemProxy));
+    change_helper.runChanges(changes);
+    writeChange('updated 1 item');
 	}
   
   removeItem(id) {
-		this.itemTable.remove(id);
+    let changes = []
+		changes.push(this.itemTable.makeRemoveChange(id));
+    change_helper.runChanges(changes);
+    writeChange('removed 1 item');
 	}
   
   getAllItems() {
