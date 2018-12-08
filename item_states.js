@@ -6,6 +6,7 @@ var Type = require('./dialog_helper').Type;
 
 const ALL_FIELDS = [
   { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
+  { label: 'location',  usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
   { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'remain',    usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'acquired',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
@@ -14,6 +15,7 @@ const ALL_FIELDS = [
 
 const FILTER_FIELDS = [
   { label: 'product',   usage: Usage.OPTIONAL, type: Type.STRING },
+  { label: 'location',  usage: Usage.OPTIONAL, type: Type.STRING },
   { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.BOOL },
 ];
 
@@ -47,6 +49,7 @@ class ItemAddState extends baseStates.AddState {
   formProxy(attrMap) {
 		let proxy = {
 			product: attrMap.product,
+			location: attrMap.location,
 			quantity: attrMap.quantity,
 			remain: attrMap.remain,
 			acquired: attrMap.acquired,
@@ -74,13 +77,15 @@ class ItemEditState extends baseStates.EditState {
 	}
 
 	filterProxys(attrMap) {
-		let proxys = this.context.project.filterItems(attrMap.product, attrMap.disposed);
+		let proxys = this.context.project.filterItems(attrMap.product, 
+        attrMap.location, attrMap.disposed);
 		return proxys;
 	}
 
   formProxy(proxy, attrMap) {
     let newProxy = Object.assign({}, proxy);
     if (attrMap.product) { newProxy.product = attrMap.product; }
+    if (attrMap.location) { newProxy.location = attrMap.location; }
     if (!isNaN(attrMap.quantity)) { newProxy.quantity = attrMap.quantity; }
     if (!isNaN(attrMap.remain)) { newProxy.remain = attrMap.remain; }
     if (attrMap.acquired) { newProxy.acquired = attrMap.acquired; }
@@ -104,7 +109,8 @@ class ItemRemoveState extends baseStates.RemoveState {
 	}
 
 	filterProxys(attrMap) {
-		let proxys = this.context.project.filterItems(attrMap.product, attrMap.disposed);
+		let proxys = this.context.project.filterItems(attrMap.product, 
+        attrMap.location, attrMap.disposed);
 		return proxys;
 	}
 
@@ -123,8 +129,9 @@ class ItemListState extends baseStates.ListState {
 	}
 	
 	filterProxys(attrMap) {
-		let itemProxys = this.context.project.filterItems(attrMap.product, attrMap.disposed);
-		return itemProxys;
+		let proxys = this.context.project.filterItems(attrMap.product, 
+        attrMap.location, attrMap.disposed);
+		return proxys;
 	}
 }
 

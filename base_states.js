@@ -106,8 +106,11 @@ class EditState extends BaseState {
     let proxys = null;
     while (true) {
       try {
-				dialogHelper.printFields('? filter', this.filterFields);
-				let attrMap = await dialogHelper.submitFields(this.filterFields);
+				let attrMap = null;
+				if (this.filterFields) {
+				  dialogHelper.printFields('? filter', this.filterFields);
+					attrMap = await dialogHelper.submitFields(this.filterFields);
+				}
         proxys = this.filterProxys(attrMap);
         break;
 			} catch (e) {
@@ -165,8 +168,11 @@ class RemoveState extends BaseState {
     let proxys = null;
     while (true) {
       try {
-				dialogHelper.printFields('? filter', this.filterFields);
-				let attrMap = await dialogHelper.submitFields(this.filterFields);
+				let attrMap = null;
+				if (this.filterFields) {
+				  dialogHelper.printFields('? filter', this.filterFields);
+					attrMap = await dialogHelper.submitFields(this.filterFields);
+				}
         proxys = this.filterProxys(attrMap);
         break;
 			} catch (e) {

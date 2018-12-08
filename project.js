@@ -3,6 +3,7 @@ var change_helper = require('./change_helper.js');
 var io = require('./console_io');
 var GroupTable = require('./group_table');
 var ProductTable = require('./product_table');
+var LocationTable = require('./location_table');
 var ItemTable = require('./item_table');
 var GroupGraph = require('./group_graph');
 var DependencyError = require('./errors').DependencyError;
@@ -24,11 +25,13 @@ class Project {
 	constructor() {
     this.groupTable = new GroupTable();
 		this.productTable = new ProductTable();
+    this.locationTable = new LocationTable();
     this.itemTable = new ItemTable();
 
 		this.tables = [
       this.groupTable,
 			this.productTable,
+      this.locationTable,
 			this.itemTable,
 		];
 		
@@ -231,12 +234,53 @@ class Project {
     }
     return filteredProxys;
   }
+	
+  
+  addLocation(locationProxy) {
+    let id = generator.generateUUID();
+		locationProxy.id = id;
+
+    let changes = []
+		changes.push(this.locationTable.makeAddChange(locationProxy));
+    change_helper.runChanges(changes);
+    writeChange('added 1 location');
+	}
+	
+	updateLocation(locationProxy) {
+    let changes = []
+		changes.push(this.locationTable.makeUpdateChange(locationProxy));
+    change_helper.runChanges(changes);
+    writeChange('updated 1 location');
+	}
+	
+  removeLocation(id) {
+    let itemProxys = this.itemTable.findByLocationId(id);
+    if (itemProxys.length > 0) {
+      throw new DependencyError('Items depend on location');
+    }
+
+    let changes = []
+		changes.push(this.locationTable.makeRemoveChange(id));
+    change_helper.runChanges(changes);
+    writeChange('removed 1 location');
+	}
+
+	findLocation(name) {
+		let locationProxy = this.locationTable.getByName(name);
+		return locationProxy;
+	}
+
+	getAllLocations() {
+		let locationProxys = this.locationTable.getAll();
+		return locationProxys;
+	}
 
 
 	addItem(itemProxy) {
     let id = generator.generateUUID();
 		itemProxy.id = id;
     itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
+    itemProxy.locationId = this.locationTable.findIdByName(itemProxy.location);
     if (itemProxy.acquired) {
       itemProxy.acquireDate = itemProxy.acquired.toISOString();
     }
@@ -276,6 +320,7 @@ class Project {
 		for (let i = 0; i < itemProxys.length; ++i) {
 			let itemProxy = itemProxys[i];
 			itemProxy.product = this.productTable.findNameById(itemProxy.productId);
+			itemProxy.location = this.locationTable.findNameById(itemProxy.locationId);
       itemProxy.acquired = new Date(itemProxy.acquireDate);
       if (itemProxy.disposeDate) {
         itemProxy.disposed = new Date(itemProxy.disposeDate);
@@ -284,13 +329,17 @@ class Project {
 		return itemProxys;
 	}
   
-  filterItems(product, disposed) {
+  filterItems(product, location, disposed) {
     let itemProxys = this.getAllItems();
     
     let filteredProxys;
     let productId;
+    let locationId;
     if (product) {
       productId = this.productTable.findIdByName(product);
+    }
+    if (location) {
+      locationId = this.locationTable.findIdByName(location);
     }
     filteredProxys = [];
     for (let i = 0; i < itemProxys.length; ++i) {
@@ -299,6 +348,9 @@ class Project {
         continue;
       }
       if (product && (itemProxy.productId !== productId)) {
+        continue
+      }
+      if (location && (itemProxy.locationId !== locationId)) {
         continue
       }
       filteredProxys.push(itemProxy);

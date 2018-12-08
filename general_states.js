@@ -4,6 +4,7 @@ var dialogHelper = require('./dialog_helper');
 var baseStates = require('./base_states');
 var groupStates = require('./group_states');
 var productStates = require('./product_states');
+var locationStates = require('./location_states');
 var itemStates = require('./item_states');
 var logger = require('./logger');
 
@@ -14,12 +15,14 @@ class ChooseModeState extends baseStates.ChooseState {
 		this.options = [
 			{ label: 'groups' },
 			{ label: 'products' },
-			{ label: 'items' },
+      { label: 'locations' },
+      { label: 'items' },
 		];
     this.stateMap = {
 		  groups: new groupStates.GroupChooseActionState(),
 			products: new productStates.ProductChooseActionState(),
-			items: new itemStates.ItemChooseActionState(),
+			locations: new locationStates.LocationChooseActionState(),
+      items: new itemStates.ItemChooseActionState(),
     };
 	}
 }
