@@ -188,7 +188,7 @@ class RemoveState extends BaseState {
     } else {
       while (true) {
         try {
-          dialogHelper.listProxys(this.listFields, proxys);
+          dialogHelper.listProxys(this.displayFields, proxys);
           dialogHelper.printFields('? select', SELECT_FIELDS);
           let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
           let index = attrMap.number - 1;
@@ -240,7 +240,7 @@ class ListState extends BaseState {
 			}
 		}
       
-		dialogHelper.listProxys(this.listFields, proxys);
+		dialogHelper.listProxys(this.displayFields, proxys);
 
 		return new StateCommand(StateCommand.Type.BACK);
 	}

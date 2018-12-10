@@ -90,7 +90,7 @@ class ProductRemoveState extends baseStates.RemoveState {
 		super();
 		this.header = 'Products-Remove';
 		this.filterFields = FIND_FIELDS;
-    this.listFields = ALL_FIELDS;
+    this.displayFields = ALL_FIELDS;
     this.removeFields = ALL_FIELDS;
 	}
 
@@ -110,7 +110,7 @@ class ProductListState extends baseStates.ListState {
 		super();
     this.header = 'Products-List';
 		this.filterFields = FILTER_FIELDS;
-		this.listFields = ALL_FIELDS;
+		this.displayFields = ALL_FIELDS;
 	}
 	
 	filterProxys(attrMap) {

@@ -5,6 +5,7 @@ var GroupTable = require('./group_table');
 var ProductTable = require('./product_table');
 var LocationTable = require('./location_table');
 var ItemTable = require('./item_table');
+var VendorTable = require('./vendor_table');
 var GroupGraph = require('./group_graph');
 var DependencyError = require('./errors').DependencyError;
 
@@ -27,12 +28,14 @@ class Project {
 		this.productTable = new ProductTable();
     this.locationTable = new LocationTable();
     this.itemTable = new ItemTable();
+    this.vendorTable = new VendorTable();
 
 		this.tables = [
       this.groupTable,
 			this.productTable,
       this.locationTable,
 			this.itemTable,
+      this.vendorTable,
 		];
 		
 		this.groupGraph = new GroupGraph();
@@ -274,6 +277,21 @@ class Project {
 		let locationProxys = this.locationTable.getAll();
 		return locationProxys;
 	}
+  
+  filterLocations(name) {
+    let locationProxys = this.getAllLocations();
+    
+    let filteredProxys;
+    filteredProxys = [];
+    for (let i = 0; i < locationProxys.length; ++i) {
+      let locationProxy = locationProxys[i];
+      if (name && (locationProxy.name !== name)) {
+        continue
+      }
+      filteredProxys.push(locationProxy);
+    }
+    return filteredProxys;
+  }
 
 
 	addItem(itemProxy) {
@@ -354,6 +372,63 @@ class Project {
         continue
       }
       filteredProxys.push(itemProxy);
+    }
+    return filteredProxys;
+  }
+  
+  
+  addVendor(vendorProxy) {
+    let id = generator.generateUUID();
+		vendorProxy.id = id;
+
+    let changes = []
+		changes.push(this.vendorTable.makeAddChange(vendorProxy));
+    change_helper.runChanges(changes);
+    writeChange('added 1 vendor');
+	}
+	
+	updateVendor(vendorProxy) {
+    let changes = []
+		changes.push(this.vendorTable.makeUpdateChange(vendorProxy));
+    change_helper.runChanges(changes);
+    writeChange('updated 1 vendor');
+	}
+	
+  removeVendor(id) {
+    /*
+    let itemProxys = this.itemTable.findByVendorId(id);
+    if (itemProxys.length > 0) {
+      throw new DependencyError('Items depend on vendor');
+    }
+    */
+
+    let changes = []
+		changes.push(this.vendorTable.makeRemoveChange(id));
+    change_helper.runChanges(changes);
+    writeChange('removed 1 vendor');
+	}
+
+	findVendor(name) {
+		let vendorProxy = this.vendorTable.getByName(name);
+		return vendorProxy;
+	}
+
+	getAllVendors() {
+		let vendorProxys = this.vendorTable.getAll();
+		return vendorProxys;
+	}
+  
+  filterVendors(name) {
+    let vendorProxys = this.getAllVendors();
+    
+    let filteredProxys;
+    filteredProxys = [];
+    for (let i = 0; i < vendorProxys.length; ++i) {
+      let vendorProxy = vendorProxys[i];
+      if (name && (vendorProxy.name !== name)) {
+        continue
+      }
+      filteredProxys.push(vendorProxy);
     }
     return filteredProxys;
   }

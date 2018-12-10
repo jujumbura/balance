@@ -104,7 +104,7 @@ class ItemRemoveState extends baseStates.RemoveState {
 		super();
 		this.header = 'Items-Remove';
 		this.filterFields = FILTER_FIELDS;
-    this.listFields = ALL_FIELDS;
+    this.displayFields = ALL_FIELDS;
     this.removeFields = ALL_FIELDS;
 	}
 
@@ -125,7 +125,7 @@ class ItemListState extends baseStates.ListState {
 		super();
     this.header = 'Items-List';
 		this.filterFields = FILTER_FIELDS;
-		this.listFields = ALL_FIELDS;
+		this.displayFields = ALL_FIELDS;
 	}
 	
 	filterProxys(attrMap) {

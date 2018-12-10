@@ -16,10 +16,10 @@ const FILTER_FIELDS = [
   { label: 'name',    usage: Usage.OPTIONAL, type: Type.STRING },
 ];
 
-class LocationChooseActionState extends baseStates.ChooseState {
+class VendorChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
-		this.header = 'Locations';
+		this.header = 'Vendors';
 		this.options = [
 			{ label: 'add' },
 			{ label: 'edit' },
@@ -27,18 +27,18 @@ class LocationChooseActionState extends baseStates.ChooseState {
 			{ label: 'list' },
 		];
 		this.stateMap = {
-			add: new LocationAddState(),
-			edit: new LocationEditState(),
-			remove: new LocationRemoveState(),
-			list: new LocationListState(),
+			add: new VendorAddState(),
+			edit: new VendorEditState(),
+			remove: new VendorRemoveState(),
+			list: new VendorListState(),
     };
 	}
 }
 
-class LocationAddState extends baseStates.AddState {
+class VendorAddState extends baseStates.AddState {
 	constructor() {
 		super();
-		this.header = 'Locations-Add';
+		this.header = 'Vendors-Add';
 		this.addFields = ALL_FIELDS;
     this.displayFields = ALL_FIELDS;
 	}
@@ -51,22 +51,22 @@ class LocationAddState extends baseStates.AddState {
   }
 
 	handleAdd(proxy) {
-		this.context.project.addLocation(proxy);
+		this.context.project.addVendor(proxy);
 		this.context.dirty = true;
 	}
 }
 
-class LocationEditState extends baseStates.EditState {
+class VendorEditState extends baseStates.EditState {
 	constructor() {
 		super();
-		this.header = 'Locations-Edit';
+		this.header = 'Vendors-Edit';
 		this.filterFields = FILTER_FIELDS;
     this.modifyFields = ALL_FIELDS;
     this.displayFields = ALL_FIELDS;
 	}
   
   filterProxys(attrMap) {
-		let proxys = this.context.project.filterLocations(attrMap.name);
+		let proxys = this.context.project.filterVendors(attrMap.name);
 		return proxys;
 	}
  
@@ -77,44 +77,44 @@ class LocationEditState extends baseStates.EditState {
   }
 
 	handleModify(proxy) {
-		this.context.project.updateLocation(proxy);
+		this.context.project.updateVendor(proxy);
 		this.context.dirty = true;
 	}
 }
 
-class LocationRemoveState extends baseStates.RemoveState {
+class VendorRemoveState extends baseStates.RemoveState {
 	constructor() {
 		super();
-		this.header = 'Locations-Remove';
+		this.header = 'Vendors-Remove';
 		this.filterFields = FILTER_FIELDS;
     this.displayFields = ALL_FIELDS;
     this.removeFields = ALL_FIELDS;
 	}
 	
   filterProxys(attrMap) {
-		let proxys = this.context.project.filterLocations(attrMap.name);
+		let proxys = this.context.project.filterVendors(attrMap.name);
 		return proxys;
 	}
 
 	handleRemove(proxy) {
-		this.context.project.removeLocation(proxy.id);
+		this.context.project.removeVendor(proxy.id);
 		this.context.dirty = true;
 	}
 }
 
-class LocationListState extends baseStates.ListState {
+class VendorListState extends baseStates.ListState {
 	constructor() {
 		super();
-		this.header = 'Locations-List';
+		this.header = 'Vendors-List';
 		this.filterFields = FILTER_FIELDS;
 		this.displayFields = ALL_FIELDS;
 	}
 	
   filterProxys(attrMap) {
-		let proxys = this.context.project.filterLocations(attrMap.name);
+		let proxys = this.context.project.filterVendors(attrMap.name);
 		return proxys;
 	}
 }
 
 module.exports = {};
-module.exports.LocationChooseActionState = LocationChooseActionState;
+module.exports.VendorChooseActionState = VendorChooseActionState;
