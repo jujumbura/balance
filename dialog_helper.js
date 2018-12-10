@@ -173,11 +173,10 @@ async function submit() {
 
 async function submitFields(fields, forceOptional) {
 	let values = await io.readValues();
-	if (values.length < 1) {
-		throw new InputError('Expected at least 1 value');
-	}
-	let checkValue = values[0];
-	checkAbort(checkValue);
+	if (values.length > 0) {
+    let checkValue = values[0];
+    checkAbort(checkValue);
+  }
 
 	let attrMap = {};
 	for (let i = 0; i < fields.length; ++i) {

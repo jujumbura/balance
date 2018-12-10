@@ -3,21 +3,21 @@ prompt.message = '';
 
 var logger = require('./logger');
 
-function parseValues(result) {
+function parseValues(input) {
   let values = [];
   let quoteBegin = -1;
   let strBegin = -1;
   
   const checkEndString = function(i) {
     if (strBegin !== -1) {
-      let str = result.substring(strBegin, i);
+      let str = input.substring(strBegin, i);
       values.push(str);
       strBegin = -1;
     }
   }
   
-  for (let i = 0; i < result.length; ++i) {
-    let c = result.charAt(i);
+  for (let i = 0; i < input.length; ++i) {
+    let c = input.charAt(i);
     if (c === '\"') {
       if (quoteBegin === -1) {
         quoteBegin = i;
@@ -41,20 +41,19 @@ function parseValues(result) {
       }
     }
   }
-  checkEndString(result.lengt);
+  checkEndString(input.length);
 
+  console.log(input);
   console.log(values);
   return values;
 }
-
-parseValues('Bob bat brown fox');
 
 function getValues() {
 	return new Promise(resolve => {
 		logger.trace('logger.getValues');
 		prompt.get('input', function(err, result) {
 			//let values = result.input.split(/\s+/);
-      let values = parseValues(result);  
+      let values = parseValues(result.input);  
       resolve(values);
 		});
 	});
