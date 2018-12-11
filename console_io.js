@@ -43,8 +43,6 @@ function parseValues(input) {
   }
   checkEndString(input.length);
 
-  console.log(input);
-  console.log(values);
   return values;
 }
 

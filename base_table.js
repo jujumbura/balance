@@ -109,7 +109,8 @@ class BaseTable {
 
   findIdByName(name) {
     if (!this.nameEntryMap[name]) {
-      throw new TableError('Name: ' + name + ' not present in table');
+      throw new TableError('Name: ' + name + ' not present in table: ' + 
+          this.getName);
     }
 
 	  let entry = this.nameEntryMap[name];
@@ -121,7 +122,8 @@ class BaseTable {
 		for (let i = 0; i < names.length; ++i) {
 			let name = names[i];
 			if (!this.nameEntryMap[name]) {
-				throw new TableError('Name: ' + name + ' not present in table');
+				throw new TableError('Name: ' + name + ' not present in table: ' + 
+            this.getName());
 			}
 			
 			let entry = this.nameEntryMap[name];
@@ -132,7 +134,7 @@ class BaseTable {
 	
   findNameById(id) {
     if (!this.idEntryMap[id]) {
-      throw new TableError('Id not present in table');
+      throw new TableError('Id not present in table: ' + this.getName());
     }
     
     let entry = this.idEntryMap[id];
@@ -144,7 +146,7 @@ class BaseTable {
 		for (let i = 0; i < ids.length; ++i) {
 			let id = ids[i];
 			if (!this.idEntryMap[id]) {
-				throw new TableError('Id not present in table');
+				throw new TableError('Id not present in table: ' + this.getName());
 			}
 			
 			let entry = this.idEntryMap[id];
@@ -159,7 +161,8 @@ class BaseTable {
 		}
     if (this.named) {
       if (this.nameEntryMap[proxy.name]) {
-        throw new TableError('Name: ' + proxy.name + ' already exists in table');
+        throw new TableError('Name: ' + proxy.name + 
+            ' already exists in table: ' + this.getName());
       }
     }
     
@@ -173,7 +176,7 @@ class BaseTable {
   
   remove_(id) {
 		if (!this.idEntryMap[id]) {
-			throw new TableError('Id not present in table');
+			throw new TableError('Id not present in table: ' + this.getName());
 		}
 		
     let entry = this.idEntryMap[id];
@@ -187,7 +190,7 @@ class BaseTable {
   
   update_(proxy) {
 		if (!this.idEntryMap[proxy.id]) {
-			throw new TableError('Id not present in table');
+			throw new TableError('Id not present in table: ' + this.getName());
 		}
     if (this.named) {
       let namedEntry = this.nameEntryMap[proxy.name];

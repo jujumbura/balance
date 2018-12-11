@@ -6,6 +6,7 @@ var ProductTable = require('./product_table');
 var LocationTable = require('./location_table');
 var ItemTable = require('./item_table');
 var VendorTable = require('./vendor_table');
+var TransactionTable = require('./transaction_table');
 var GroupGraph = require('./group_graph');
 var DependencyError = require('./errors').DependencyError;
 
@@ -29,6 +30,7 @@ class Project {
     this.locationTable = new LocationTable();
     this.itemTable = new ItemTable();
     this.vendorTable = new VendorTable();
+    this.transactionTable = new TransactionTable();
 
 		this.tables = [
       this.groupTable,
@@ -36,6 +38,7 @@ class Project {
       this.locationTable,
 			this.itemTable,
       this.vendorTable,
+			this.transactionTable,
 		];
 		
 		this.groupGraph = new GroupGraph();
@@ -313,6 +316,8 @@ class Project {
 	}
 	
   updateItem(itemProxy) {
+    itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
+    itemProxy.locationId = this.locationTable.findIdByName(itemProxy.location);
     if (itemProxy.acquired) {
       itemProxy.acquireDate = itemProxy.acquired.toISOString();
     }
@@ -395,12 +400,10 @@ class Project {
 	}
 	
   removeVendor(id) {
-    /*
-    let itemProxys = this.itemTable.findByVendorId(id);
-    if (itemProxys.length > 0) {
-      throw new DependencyError('Items depend on vendor');
+    let transactionProxys = this.transactionTable.findByVendorId(id);
+    if (transactionProxys.length > 0) {
+      throw new DependencyError('Transactions depend on vendor');
     }
-    */
 
     let changes = []
 		changes.push(this.vendorTable.makeRemoveChange(id));
@@ -429,6 +432,69 @@ class Project {
         continue
       }
       filteredProxys.push(vendorProxy);
+    }
+    return filteredProxys;
+  }
+	
+  
+  addTransaction(transactionProxy) {
+    let id = generator.generateUUID();
+		transactionProxy.id = id;
+    transactionProxy.vendorId = this.vendorTable.findIdByName(transactionProxy.vendor);
+    if (transactionProxy.entered) {
+      transactionProxy.enterDate = transactionProxy.entered.toISOString();
+    }
+
+    let changes = []
+		changes.push(this.transactionTable.makeAddChange(transactionProxy));
+    change_helper.runChanges(changes);
+    writeChange('added 1 transaction');
+	}
+	
+  updateTransaction(transactionProxy) {
+    transactionProxy.vendorId = this.vendorTable.findIdByName(transactionProxy.vendor);
+    if (transactionProxy.entered) {
+      transactionProxy.enterDate = transactionProxy.entered.toISOString();
+    }
+    
+    let changes = []
+		changes.push(this.transactionTable.makeUpdateChange(transactionProxy));
+    change_helper.runChanges(changes);
+    writeChange('updated 1 transaction');
+	}
+  
+  removeTransaction(id) {
+    let changes = []
+		changes.push(this.transactionTable.makeRemoveChange(id));
+    change_helper.runChanges(changes);
+    writeChange('removed 1 transaction');
+	}
+  
+  getAllTransactions() {
+		let transactionProxys = this.transactionTable.getAll();
+		for (let i = 0; i < transactionProxys.length; ++i) {
+			let transactionProxy = transactionProxys[i];
+			transactionProxy.vendor = this.vendorTable.findNameById(transactionProxy.vendorId);
+      transactionProxy.entered = new Date(transactionProxy.enterDate);
+		}
+		return transactionProxys;
+	}
+  
+  filterTransactions(vendor) {
+    let transactionProxys = this.getAllTransactions();
+    
+    let filteredProxys;
+    let vendorId;
+    if (vendor) {
+      vendorId = this.vendorTable.findIdByName(vendor);
+    }
+    filteredProxys = [];
+    for (let i = 0; i < transactionProxys.length; ++i) {
+      let transactionProxy = transactionProxys[i];
+      if (vendor && (transactionProxy.vendorId !== vendorId)) {
+        continue
+      }
+      filteredProxys.push(transactionProxy);
     }
     return filteredProxys;
   }
