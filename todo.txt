@@ -17,6 +17,8 @@
 
 - Rework input parsing so that whitespace can be handled between quotes ( walk the string )
 
+[ DONE ]
+
 - Format list output with aligned columns
 
 [ DONE ]
