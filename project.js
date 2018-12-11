@@ -7,6 +7,7 @@ var LocationTable = require('./location_table');
 var ItemTable = require('./item_table');
 var VendorTable = require('./vendor_table');
 var TransactionTable = require('./transaction_table');
+var PurchaseTable = require('./purchase_table');
 var GroupGraph = require('./group_graph');
 var DependencyError = require('./errors').DependencyError;
 
@@ -31,6 +32,7 @@ class Project {
     this.itemTable = new ItemTable();
     this.vendorTable = new VendorTable();
     this.transactionTable = new TransactionTable();
+    this.purchaseTable = new PurchaseTable();
 
 		this.tables = [
       this.groupTable,
@@ -39,6 +41,7 @@ class Project {
 			this.itemTable,
       this.vendorTable,
 			this.transactionTable,
+			this.purchaseTable,
 		];
 		
 		this.groupGraph = new GroupGraph();
@@ -495,6 +498,62 @@ class Project {
         continue
       }
       filteredProxys.push(transactionProxy);
+    }
+    return filteredProxys;
+  }
+	
+  
+  addPurchase(purchaseProxy) {
+    let id = generator.generateUUID();
+		purchaseProxy.id = id;
+    purchaseProxy.productId = this.productTable.findIdByName(purchaseProxy.product);
+
+    let changes = []
+		changes.push(this.purchaseTable.makeAddChange(purchaseProxy));
+    change_helper.runChanges(changes);
+    writeChange('added 1 purchase');
+	}
+	
+  updatePurchase(purchaseProxy) {
+    purchaseProxy.productId = this.productTable.findIdByName(purchaseProxy.product);
+    
+    let changes = []
+		changes.push(this.purchaseTable.makeUpdateChange(purchaseProxy));
+    change_helper.runChanges(changes);
+    writeChange('updated 1 purchase');
+	}
+  
+  removePurchase(id) {
+    let changes = []
+		changes.push(this.purchaseTable.makeRemoveChange(id));
+    change_helper.runChanges(changes);
+    writeChange('removed 1 purchase');
+	}
+  
+  getAllPurchases(transactionId) {
+		let purchaseProxys = this.purchaseTable.findByTransactionId(transactionId);
+		for (let i = 0; i < purchaseProxys.length; ++i) {
+			let purchaseProxy = purchaseProxys[i];
+			purchaseProxy.product = this.productTable.findNameById(purchaseProxy.productId);
+		}
+		return purchaseProxys;
+	}
+  
+  filterPurchases(transactionId, product) {
+    let purchaseProxys = this.getAllPurchases(transactionId);
+    
+    let filteredProxys;
+    let productId;
+    if (product) {
+      productId = this.productTable.findIdByName(product);
+    }
+    filteredProxys = [];
+    for (let i = 0; i < purchaseProxys.length; ++i) {
+      let purchaseProxy = purchaseProxys[i];
+      if (product && (purchaseProxy.productId !== productId)) {
+        continue
+      }
+      filteredProxys.push(purchaseProxy);
     }
     return filteredProxys;
   }
