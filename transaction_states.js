@@ -116,5 +116,25 @@ class TransactionListState extends baseStates.ListState {
 	}
 }
 
+class TransactionTargetState extends baseStates.RemoveState {
+	constructor() {
+		super();
+		this.header = 'Transactions-Remove';
+		this.filterFields = FILTER_FIELDS;
+    this.displayFields = ALL_FIELDS;
+    this.removeFields = ALL_FIELDS;
+	}
+
+	filterProxys(attrMap) {
+		let proxys = this.context.project.filterTransactions(attrMap.vendor);
+		return proxys;
+	}
+
+	handleRemove(proxy) {
+		this.context.project.removeTransaction(proxy.id);
+		this.context.dirty = true;
+	}
+}
+
 module.exports = {};
 module.exports.TransactionChooseActionState = TransactionChooseActionState;
