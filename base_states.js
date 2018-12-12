@@ -45,6 +45,14 @@ class BaseState {
     io.writeMessage('! ' + message);
   }
 
+  checkIndex(index, array) {
+    if (index < 0 || index >= array.length) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   async checkConfirm() {
     dialogHelper.printOptions('? confirm', CONFIRM_OPTIONS);
     let choice = await dialogHelper.chooseOption(CONFIRM_OPTIONS);
@@ -130,6 +138,7 @@ class EditState extends BaseState {
           dialogHelper.printFields('? select', SELECT_FIELDS);
           let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
           let index = attrMap.number - 1;
+          if (!this.checkIndex(index, proxys)) { continue }
           proxy = proxys[index];
           break;
         } catch (e) {
@@ -192,6 +201,7 @@ class RemoveState extends BaseState {
           dialogHelper.printFields('? select', SELECT_FIELDS);
           let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
           let index = attrMap.number - 1;
+          if (!this.checkIndex(index, proxys)) { continue }
           proxy = proxys[index];
           break;
         } catch (e) {
@@ -268,6 +278,7 @@ class TargetState extends BaseState {
 			}
     }
    
+    let proxy = null;
     if (proxys.length === 1) {
       proxy = proxys[0];
     } else {
@@ -277,8 +288,8 @@ class TargetState extends BaseState {
           dialogHelper.printFields('? select', SELECT_FIELDS);
           let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
           let index = attrMap.number - 1;
+          if (!this.checkIndex(index, proxys)) { continue }
           let proxy = proxys[index];
-          this.handleSelect(proxy);
           break;
         } catch (e) {
           if (e instanceof InputError || e instanceof DataError) {
@@ -287,6 +298,8 @@ class TargetState extends BaseState {
         }
       }
     }
+          
+    this.handleSelect(proxy);
 
 		this.writeTransition('entering ' + this.nextName);
 		return new StateCommand(StateCommand.Type.NEXT, this.nextState);
@@ -300,3 +313,4 @@ module.exports.AddState = AddState;
 module.exports.EditState = EditState;
 module.exports.RemoveState = RemoveState;
 module.exports.ListState = ListState;
+module.exports.TargetState = TargetState;

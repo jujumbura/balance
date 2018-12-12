@@ -42,7 +42,8 @@ class PurchaseAddState extends baseStates.AddState {
 	}
 
   formProxy(attrMap) {
-		let proxy = {
+		console.log(this.context.targetId);
+    let proxy = {
       transactionId: this.context.targetId,
       product: attrMap.product,
 			quantity: attrMap.quantity,
@@ -96,6 +97,7 @@ class PurchaseRemoveState extends baseStates.RemoveState {
 	}
 
 	filterProxys(attrMap) {
+    // FIX!!
 		let proxys = this.context.project.filterPurchases(attrMap.product, 
         attrMap.location, attrMap.disposed);
 		return proxys;
@@ -116,8 +118,7 @@ class PurchaseListState extends baseStates.ListState {
 	}
 	
 	filterProxys(attrMap) {
-		let proxys = this.context.project.filterPurchases(attrMap.product, 
-        attrMap.location, attrMap.disposed);
+		let proxys = this.context.project.filterPurchases(this.context.targetId, attrMap.product);
 		return proxys;
 	}
 }

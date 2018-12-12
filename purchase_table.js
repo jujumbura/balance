@@ -25,8 +25,8 @@ class PurchaseTable extends BaseTable {
       transactionId: entry.transactionId,
 			productId: entry.productId,
       quantity: entry.quantity,
-      price: proxy.price,
-      itemId: proxy.itemId,
+      price: entry.price,
+      itemId: entry.itemId,
 		};
 		return proxy;
 	}
