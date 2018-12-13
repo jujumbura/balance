@@ -12,8 +12,9 @@ class PurchaseTable extends BaseTable {
 			id: id,
       transactionId: proxy.transactionId,
 			productId: proxy.productId,
-      quantity: proxy.quantity,
       price: proxy.price,
+      quantity: proxy.quantity,
+      size: proxy.size,
       itemId: proxy.itemId,
 		};
 		return entry;	
@@ -24,8 +25,9 @@ class PurchaseTable extends BaseTable {
 			id: entry.id,
       transactionId: entry.transactionId,
 			productId: entry.productId,
-      quantity: entry.quantity,
       price: entry.price,
+      quantity: entry.quantity,
+      size: entry.size,
       itemId: entry.itemId,
 		};
 		return proxy;

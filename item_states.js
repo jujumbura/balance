@@ -8,6 +8,7 @@ const ALL_FIELDS = [
   { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
   { label: 'location',  usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
   { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
+  { label: 'size',      usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'remain',    usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'acquired',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
   { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
@@ -56,6 +57,7 @@ class ItemAddState extends baseStates.AddState {
       disposed: attrMap.disposed,
 		};
     if (isNaN(proxy.quantity)) { proxy.quantity = 1 }
+    if (isNaN(proxy.size)) { proxy.size = 1 }
     if (isNaN(proxy.remain)) { proxy.remain = proxy.quantity; }
     if (!proxy.acquired) { proxy.acquired = new Date(); }
     return proxy;
@@ -87,6 +89,7 @@ class ItemEditState extends baseStates.EditState {
     if (attrMap.product) { newProxy.product = attrMap.product; }
     if (attrMap.location) { newProxy.location = attrMap.location; }
     if (!isNaN(attrMap.quantity)) { newProxy.quantity = attrMap.quantity; }
+    if (!isNaN(attrMap.size)) { newProxy.size = attrMap.size; }
     if (!isNaN(attrMap.remain)) { newProxy.remain = attrMap.remain; }
     if (attrMap.acquired) { newProxy.acquired = attrMap.acquired; }
     if (attrMap.disposed) { newProxy.disposed = attrMap.disposed; }

@@ -6,8 +6,9 @@ var Type = require('./dialog_helper').Type;
 
 const ALL_FIELDS = [
   { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
-  { label: 'quantity',  usage: Usage.REQUIRED, type: Type.NUMBER, width: 10 },
-  { label: 'price',     usage: Usage.REQUIRED, type: Type.NUMBER, width: 10 },
+  { label: 'price',     usage: Usage.REQUIRED, type: Type.MONEY,  width: 10 },
+  { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
+  { label: 'size',      usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
 ];
 
 const FILTER_FIELDS = [
@@ -46,9 +47,12 @@ class PurchaseAddState extends baseStates.AddState {
     let proxy = {
       transactionId: this.context.targetId,
       product: attrMap.product,
-			quantity: attrMap.quantity,
       price: attrMap.price,
+			quantity: attrMap.quantity,
+      size: attrMap.size,
 		};
+    if (isNaN(proxy.quantity)) { proxy.quantity = 1 }
+    if (isNaN(proxy.size)) { proxy.size = 1; }
     return proxy;
   }
 
@@ -68,16 +72,17 @@ class PurchaseEditState extends baseStates.EditState {
 	}
 
 	filterProxys(attrMap) {
-		let proxys = this.context.project.filterPurchases(attrMap.product, 
-        attrMap.location, attrMap.disposed);
+		let proxys = this.context.project.filterPurchases(this.context.targetId, 
+        attrMap.product);
 		return proxys;
 	}
 
   formProxy(proxy, attrMap) {
     let newProxy = Object.assign({}, proxy);
     if (attrMap.product) { newProxy.product = attrMap.product; }
-    if (!isNaN(attrMap.quantity)) { newProxy.quantity = attrMap.quantity; }
     if (!isNaN(attrMap.price)) { newProxy.price = attrMap.price; }
+    if (!isNaN(attrMap.quantity)) { newProxy.quantity = attrMap.quantity; }
+    if (!isNaN(attrMap.size)) { newProxy.size = attrMap.size; }
     return newProxy;
   }
 
@@ -97,9 +102,8 @@ class PurchaseRemoveState extends baseStates.RemoveState {
 	}
 
 	filterProxys(attrMap) {
-    // FIX!!
-		let proxys = this.context.project.filterPurchases(attrMap.product, 
-        attrMap.location, attrMap.disposed);
+		let proxys = this.context.project.filterPurchases(this.context.targetId, 
+        attrMap.product);
 		return proxys;
 	}
 
@@ -118,9 +122,18 @@ class PurchaseListState extends baseStates.ListState {
 	}
 	
 	filterProxys(attrMap) {
-		let proxys = this.context.project.filterPurchases(this.context.targetId, attrMap.product);
+		let proxys = this.context.project.filterPurchases(this.context.targetId, 
+        attrMap.product);
 		return proxys;
 	}
+}
+
+class ConvertItemState extends baseStates.BaseState {
+	constructor() {
+		super();
+    this.header = 'Purchases-Convert-Items';
+	}
+	
 }
 
 module.exports = {};

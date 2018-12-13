@@ -14,6 +14,7 @@ const Type = {
   NUMBER: 'n',
   BOOL: 'b',
   DATE: 'd',
+  MONEY: 'm',
 };
 
 function checkAbort(value) {
@@ -32,6 +33,12 @@ function parseField(field, value) {
     let attr = parseFloat(value);
     if (!isFinite(attr)) {
       throw new InputError('Invalid number: ' + value);
+    }
+    return attr;
+  } else if (field.type == Type.MONEY) {
+    let attr = parseFloat(value);
+    if (!isFinite(attr)) {
+      throw new InputError('Invalid money: ' + value);
     }
     return attr;
   } else if (field.type == Type.BOOL) {
@@ -63,6 +70,13 @@ function formatAttr(field, attr) {
     let hourStr = date.getHours();
     let minuteStr = date.getMinutes().toString().padStart(2, '0');
     let str = `${dateStr} ${hourStr}:${minuteStr}`;
+    return str;
+  } else if (field.type == Type.MONEY) {
+    let dollars = Math.trunc(attr);
+    let cents = Math.round((attr - dollars) * 100);
+    let dollarsStr = dollars.toString();
+    let centsStr = cents.toString().padStart(2, '0');
+    let str = `\$${dollarsStr}.${centsStr}`;
     return str;
   } else {
     return attr.toString();
@@ -100,7 +114,12 @@ function formatProxy(fields, proxy) {
       }
     }
     if (field.width) {
-      str += attrStr.padEnd(field.width, ' ');
+      if (field.type === Type.MONEY) {
+        str += attrStr.padStart(field.width, ' ');
+      } else {
+        str += attrStr.padEnd(field.width, ' ');
+      }
+      str += '  ';
     } else {
       str += attrStr + ' ';
     }
@@ -217,7 +236,12 @@ function listProxys(fields, proxys) {
   header += '#   ';
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
-		header += field.label.padEnd(field.width, ' ');
+    if (field.type === Type.MONEY) {
+      header += field.label.padStart(field.width, ' ' );
+    } else {
+		  header += field.label.padEnd(field.width, ' ');
+    }
+    header += '  ';
 	}
 	io.writeMessage(header);
 
