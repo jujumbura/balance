@@ -472,6 +472,13 @@ class Project {
     change_helper.runChanges(changes);
     writeChange('removed 1 transaction');
 	}
+	
+  findTransaction(id) {
+		let transactionProxy = this.transactionTable.getById(id);
+    transactionProxy.vendor = this.vendorTable.findNameById(transactionProxy.vendorId);
+    transactionProxy.entered = new Date(transactionProxy.enterDate);
+		return transactionProxy;
+	}
   
   getAllTransactions() {
 		let transactionProxys = this.transactionTable.getAll();
@@ -556,6 +563,25 @@ class Project {
       filteredProxys.push(purchaseProxy);
     }
     return filteredProxys;
+  }
+
+  convertPurchaseToItem(purchaseProxy, itemProxy) {
+    let id = generator.generateUUID();
+		itemProxy.id = id;
+    itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
+    itemProxy.locationId = this.locationTable.findIdByName(itemProxy.location);
+    if (itemProxy.acquired) {
+      itemProxy.acquireDate = itemProxy.acquired.toISOString();
+    }
+
+    purchaseProxy.itemId = id;
+    
+    let changes = [];
+		changes.push(this.itemTable.makeAddChange(itemProxy));
+		changes.push(this.purchaseTable.makeUpdateChange(purchaseProxy));
+    change_helper.runChanges(changes);
+    writeChange('added 1 item');
+    writeChange('updated 1 purchase');
   }
 }
 

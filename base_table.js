@@ -80,7 +80,8 @@ class BaseTable {
 	
 	getByName(name) {
 		if (!this.nameEntryMap[name]) {
-			throw new TableError('Name: ' + name + ' not present in table');
+			throw new TableError('Name: ' + name + ' not present in table: ' +
+          this.getName());
 		}
 		
 		let entry = this.nameEntryMap[name];
@@ -110,7 +111,7 @@ class BaseTable {
   findIdByName(name) {
     if (!this.nameEntryMap[name]) {
       throw new TableError('Name: ' + name + ' not present in table: ' + 
-          this.getName);
+          this.getName());
     }
 
 	  let entry = this.nameEntryMap[name];

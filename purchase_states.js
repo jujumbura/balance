@@ -1,8 +1,13 @@
 var io = require('./console_io');
+var dialogHelper = require('./dialog_helper');
 var logger = require('./logger');
 var baseStates = require('./base_states');
+var itemStates = require('./item_states');
 var Usage = require('./dialog_helper').Usage;
 var Type = require('./dialog_helper').Type;
+var InputError = require('./errors').InputError;
+var DataError = require('./errors').DataError;
+var StateCommand = require('./state_command');
 
 const ALL_FIELDS = [
   { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
@@ -15,6 +20,10 @@ const FILTER_FIELDS = [
   { label: 'product',   usage: Usage.OPTIONAL, type: Type.STRING },
 ];
 
+const CONVERT_FIELDS = [
+  { label: 'location',  usage: Usage.REQUIRED, type: Type.STRING },
+];
+
 class PurchaseChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
@@ -24,12 +33,14 @@ class PurchaseChooseActionState extends baseStates.ChooseState {
 			{ label: 'edit' },
 			{ label: 'remove' },
 			{ label: 'list' },
+      { label: 'convert' },
 		];
 		this.stateMap = {
 			add: new PurchaseAddState(),
 			edit: new PurchaseEditState(),
 			remove: new PurchaseRemoveState(),
 			list: new PurchaseListState(),
+      convert: new PurchaseConvertItemState(),
     };
 	}
 }
@@ -43,7 +54,6 @@ class PurchaseAddState extends baseStates.AddState {
 	}
 
   formProxy(attrMap) {
-		console.log(this.context.targetId);
     let proxy = {
       transactionId: this.context.targetId,
       product: attrMap.product,
@@ -128,12 +138,68 @@ class PurchaseListState extends baseStates.ListState {
 	}
 }
 
-class ConvertItemState extends baseStates.BaseState {
+class PurchaseConvertItemState extends baseStates.BaseState {
 	constructor() {
 		super();
     this.header = 'Purchases-Convert-Items';
+    this.convertFields = CONVERT_FIELDS;
+		this.fromFields = ALL_FIELDS;
+		this.toFields = itemStates.ALL_FIELDS;
 	}
 	
+	async run () {
+		this.writeHeader(this.header);
+	
+    let proxys = this.getProxys();
+    this.writeInfo('converting ' + proxys.length + ' entries');
+    for (let i = 0; i < proxys.length; ++i) {
+      let proxy = proxys[i];
+      try {
+		    dialogHelper.printProxy('- from', this.fromFields, proxy);
+        dialogHelper.printFields('? convert', this.convertFields);
+        let attrMap = await dialogHelper.submitFields(this.convertFields);
+		    let convertedProxy = this.convertProxy(proxy, attrMap);
+        dialogHelper.printProxy('- to', this.toFields, convertedProxy);
+        if (!await this.checkConfirm()) { continue; }
+        this.handleConvert(proxy, convertedProxy);
+      } catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+      }
+    }
+
+		return new StateCommand(StateCommand.Type.BACK);
+	}
+
+  getProxys() {
+    let proxys = this.context.project.getAllPurchases(this.context.targetId);
+    let convertProxys = [];
+    proxys.forEach(proxy => {
+      if (!proxy.itemId) {
+        convertProxys.push(proxy);
+      }
+    });
+    return convertProxys;
+  }
+
+  convertProxy(proxy, attrMap) {
+    let transactionProxy = this.context.project.findTransaction(this.context.targetId);
+    let convertedProxy = {
+			product: proxy.product,
+			location: attrMap.location,
+			quantity: proxy.quantity,
+      size: proxy.size,
+			remain: proxy.quantity,
+			acquired: transactionProxy.entered,
+		};
+    return convertedProxy;
+  }
+	
+  handleConvert(proxy, convertedProxy) {
+		this.context.project.convertPurchaseToItem(proxy, convertedProxy);
+		this.context.dirty = true;
+	}
 }
 
 module.exports = {};

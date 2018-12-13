@@ -1,4 +1,3 @@
-var StateCommand = require('./state_command');
 var io = require('./console_io');
 var dialogHelper = require('./dialog_helper');
 var logger = require('./logger');
@@ -6,6 +5,7 @@ var Usage = require('./dialog_helper').Usage;
 var Type = require('./dialog_helper').Type;
 var InputError = require('./errors').InputError;
 var DataError = require('./errors').DataError;
+var StateCommand = require('./state_command');
 
 const Confirm = {
   YES: 'yes',
@@ -29,13 +29,9 @@ class BaseState {
 		io.writeMessage('[' + message + ']');
 	}
 
-	writeRequest(message) {
+	writeInfo(message) {
 		io.writeMessage('- ' + message);
 	}
-
-  writeChange(message) {
-    io.writeMessage('* ' + message);
-  }
 
 	writeTransition(message) {
 		io.writeMessage('> ' + message);

@@ -52,7 +52,8 @@ class ItemAddState extends baseStates.AddState {
 			product: attrMap.product,
 			location: attrMap.location,
 			quantity: attrMap.quantity,
-			remain: attrMap.remain,
+			size: attrMap.size,
+      remain: attrMap.remain,
 			acquired: attrMap.acquired,
       disposed: attrMap.disposed,
 		};
@@ -140,3 +141,4 @@ class ItemListState extends baseStates.ListState {
 
 module.exports = {};
 module.exports.ItemChooseActionState = ItemChooseActionState;
+module.exports.ALL_FIELDS = ALL_FIELDS;
