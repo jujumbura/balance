@@ -1,5 +1,5 @@
 var storage = require('./storage');
-var generalStates = require('./general_states');
+var mainStates = require('./main_states');
 var StateCommand = require('./state_command');
 var Project = require('./project');
 var io = require('./console_io');
@@ -8,7 +8,6 @@ var AbortError = require('./errors').AbortError;
 
 class StateController {
 	constructor() {
-		this.stateStack = [];
 	}
 
 	async run(projectPath) {
@@ -22,7 +21,8 @@ class StateController {
 			dirty: false,
 		};
 
-		let state = new generalStates.ChooseModeState();
+		let state = new mainStates.ChooseModeState();
+    let stateStack = [];
 		while (true) {
 			state.context = context;
 
@@ -35,6 +35,8 @@ class StateController {
 						command = new StateCommand(StateCommand.Type.QUIT); 
 					} else if (e.type === AbortError.Type.BACK) {
 						command = new StateCommand(StateCommand.Type.BACK); 
+					} else if (e.type === AbortError.Type.MAIN) {
+						command = new StateCommand(StateCommand.Type.MAIN); 
 					} else {
 						throw e;
 					}
@@ -52,10 +54,14 @@ class StateController {
 				io.writeMessage('> quitting');
 				io.writeMessage('');
 				break;
+      } else if (command.type === StateCommand.Type.MAIN) {
+        stateStack = [];
+        state = new mainStates.ChooseModeState();
+        continue;
 			} else if (command.type === StateCommand.Type.BACK) {
-				if (this.stateStack.length > 0) {
+				if (stateStack.length > 0) {
 					io.writeMessage('> going back');
-					state = this.stateStack.pop();
+					state = stateStack.pop();
 				} else {
 					io.writeMessage('> cannot go back, returning');
 				}
@@ -65,7 +71,7 @@ class StateController {
         io.writeMessage('');
 				continue;
 			} else if (command.type == StateCommand.Type.NEXT) {
-				this.stateStack.push(state);
+				stateStack.push(state);
 				state = command.nextState;
 			} else {
 				throw new Error('Unhandled command: ' + command.type);

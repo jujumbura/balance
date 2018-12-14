@@ -336,8 +336,16 @@ class Project {
   
   removeItem(id) {
     let changes = []
+    let purchaseProxy = this.purchaseTable.findByItemId(id);
+    if (purchaseProxy) {
+      delete purchaseProxy.itemId;
+      changes.push(this.purchaseTable.makeUpdateChange(purchaseProxy));
+    }
 		changes.push(this.itemTable.makeRemoveChange(id));
     change_helper.runChanges(changes);
+    if (purchaseProxy) {
+      writeChange('updated 1 purchase');
+    }
     writeChange('removed 1 item');
 	}
   

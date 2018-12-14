@@ -33,18 +33,6 @@ class PurchaseTable extends BaseTable {
 		return proxy;
 	}
 
- /* 
-  findByProductId(productId) {
-		let proxys = [];
-    this.entries.forEach(entry => {
-      if (entry.productId === productId) {
-			  let proxy = this.formProxy(entry);
-        proxys.push(proxy);
-      }
-    });
-    return proxys;
-  }
- */ 
   findByTransactionId(transactionId) {
 		let proxys = [];
     this.entries.forEach(entry => {
@@ -54,6 +42,17 @@ class PurchaseTable extends BaseTable {
       }
     });
     return proxys;
+  }
+ 
+  findByItemId(itemId) {
+		let proxy = null;
+    this.entries.some(entry => {
+      if (entry.itemId === itemId) {
+			  proxy = this.formProxy(entry);
+        return true;
+      }
+    });
+    return proxy;
   }
 }
 

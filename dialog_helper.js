@@ -25,6 +25,9 @@ function checkAbort(value) {
 		case 'back':
 		case 'b':
 			throw new AbortError(AbortError.Type.BACK);
+    case 'main':
+    case 'm':
+      throw new AbortError(AbortError.Type.MAIN);
 	}
 }
 

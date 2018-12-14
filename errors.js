@@ -7,6 +7,7 @@ class InputError extends Error {
 const AbortType = {
 	BACK: 'back',
 	QUIT: 'quit',
+  MAIN: 'main',
 };
 class AbortError extends Error {
 	constructor(type) {
