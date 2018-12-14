@@ -139,6 +139,65 @@ class ItemListState extends baseStates.ListState {
 	}
 }
 
+class ItemUseState extends baseStates.BaseState {
+	constructor() {
+		super();
+    this.header = 'Items-Use';
+		this.filterFields = FILTER_FIELDS;
+    this.useFields = USE_FIELDS;
+		this.changeFields = CHANGE_FIELDS;
+	}
+	
+	async run () {
+		this.writeHeader(this.header);
+	
+    let proxy = await this.selectProxy();
+
+    while (true) {
+      try {
+        dialogHelper.printFields('? use', this.useFields);
+        let attrMap = await dialogHelper.submitFields(this.useFields);
+		    let newProxy = this.useProxy(proxy, attrMap);
+        dialogHelper.printProxy('- change', this.changeFields, newProxy);
+        if (!await this.checkConfirm()) { continue; }
+        this.handleChange(newProxy);
+        break;
+      } catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+      }
+    }
+
+		return new StateCommand(StateCommand.Type.BACK);
+	}
+
+	filterProxys(attrMap) {
+		let proxys = this.context.project.filterItems(attrMap.product, 
+        attrMap.location, attrMap.disposed);
+		return proxys;
+	}
+
+  useProxy(proxy, attrMap) {
+    let usedProxy = Object.assign({}, proxy);
+    if (attrMap.count) {
+      let remain = usedProxy.remain - attrMap.count;
+      if (remain <= 0) {
+        usedProxy.remain = 0;
+        usedProxy.disposed = new Date();
+      } else {
+        // TODO
+      }
+    }
+    return usedProxy;
+  }
+	
+	handleChange(proxy) {
+		this.context.project.updateItem(proxy);
+		this.context.dirty = true;
+	}
+}
+
 module.exports = {};
 module.exports.ItemChooseActionState = ItemChooseActionState;
 module.exports.ALL_FIELDS = ALL_FIELDS;

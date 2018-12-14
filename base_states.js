@@ -54,6 +54,47 @@ class BaseState {
     let choice = await dialogHelper.chooseOption(CONFIRM_OPTIONS);
     return choice === Confirm.YES;
   }
+
+  async selectProxy() {
+    let proxys = null;
+    while (true) {
+      try {
+				let attrMap = null;
+				if (this.filterFields) {
+				  dialogHelper.printFields('? filter', this.filterFields);
+					attrMap = await dialogHelper.submitFields(this.filterFields);
+				}
+        proxys = this.filterProxys(attrMap);
+        break;
+			} catch (e) {
+				if (e instanceof InputError || e instanceof DataError) {
+					this.writeError(e.message);
+				} else { throw e; }
+			}
+    }
+   
+    let proxy = null;
+    if (proxys.length === 1) {
+      proxy = proxys[0];
+    } else {
+      while (true) {
+        try {
+		      dialogHelper.listProxys(this.displayFields, proxys);
+          dialogHelper.printFields('? select', SELECT_FIELDS);
+          let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
+          let index = attrMap.number - 1;
+          if (!this.checkIndex(index, proxys)) { continue }
+          proxy = proxys[index];
+          break;
+        } catch (e) {
+          if (e instanceof InputError || e instanceof DataError) {
+            this.writeError(e.message);
+          } else { throw e; }
+        }
+      }
+    }
+    return proxy;
+  }
 }
 
 class ChooseState extends BaseState {
@@ -106,44 +147,8 @@ class AddState extends BaseState {
 class EditState extends BaseState {
 	async run () {
 		this.writeHeader(this.header);
-	
-    let proxys = null;
-    while (true) {
-      try {
-				let attrMap = null;
-				if (this.filterFields) {
-				  dialogHelper.printFields('? filter', this.filterFields);
-					attrMap = await dialogHelper.submitFields(this.filterFields);
-				}
-        proxys = this.filterProxys(attrMap);
-        break;
-			} catch (e) {
-				if (e instanceof InputError || e instanceof DataError) {
-					this.writeError(e.message);
-				} else { throw e; }
-			}
-    }
-   
-    let proxy = null;
-    if (proxys.length === 1) {
-      proxy = proxys[0];
-    } else {
-      while (true) {
-        try {
-		      dialogHelper.listProxys(this.displayFields, proxys);
-          dialogHelper.printFields('? select', SELECT_FIELDS);
-          let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
-          let index = attrMap.number - 1;
-          if (!this.checkIndex(index, proxys)) { continue }
-          proxy = proxys[index];
-          break;
-        } catch (e) {
-          if (e instanceof InputError || e instanceof DataError) {
-            this.writeError(e.message);
-          } else { throw e; }
-        }
-      }
-    }
+
+    let proxy = await this.selectProxy();
 
     while (true) {
       try {
@@ -170,43 +175,7 @@ class RemoveState extends BaseState {
 	async run () {
 		this.writeHeader(this.header);
 	
-    let proxys = null;
-    while (true) {
-      try {
-				let attrMap = null;
-				if (this.filterFields) {
-				  dialogHelper.printFields('? filter', this.filterFields);
-					attrMap = await dialogHelper.submitFields(this.filterFields);
-				}
-        proxys = this.filterProxys(attrMap);
-        break;
-			} catch (e) {
-				if (e instanceof InputError || e instanceof DataError) {
-					this.writeError(e.message);
-				} else { throw e; }
-			}
-    }
-   
-    let proxy = null;
-    if (proxys.length === 1) {
-      proxy = proxys[0];
-    } else {
-      while (true) {
-        try {
-          dialogHelper.listProxys(this.displayFields, proxys);
-          dialogHelper.printFields('? select', SELECT_FIELDS);
-          let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
-          let index = attrMap.number - 1;
-          if (!this.checkIndex(index, proxys)) { continue }
-          proxy = proxys[index];
-          break;
-        } catch (e) {
-          if (e instanceof InputError || e instanceof DataError) {
-            this.writeError(e.message);
-          } else { throw e; }
-        }
-      }
-    }
+    let proxy = await this.selectProxy();
 
     while (true) {
       try {
@@ -257,43 +226,7 @@ class TargetState extends BaseState {
 	async run () {
 		this.writeHeader(this.header);
 	
-    let proxys = null;
-    while (true) {
-      try {
-				let attrMap = null;
-				if (this.filterFields) {
-				  dialogHelper.printFields('? filter', this.filterFields);
-					attrMap = await dialogHelper.submitFields(this.filterFields);
-				}
-        proxys = this.filterProxys(attrMap);
-        break;
-			} catch (e) {
-				if (e instanceof InputError || e instanceof DataError) {
-					this.writeError(e.message);
-				} else { throw e; }
-			}
-    }
-   
-    let proxy = null;
-    if (proxys.length === 1) {
-      proxy = proxys[0];
-    } else {
-      while (true) {
-        try {
-          dialogHelper.listProxys(this.displayFields, proxys);
-          dialogHelper.printFields('? select', SELECT_FIELDS);
-          let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
-          let index = attrMap.number - 1;
-          if (!this.checkIndex(index, proxys)) { continue }
-          let proxy = proxys[index];
-          break;
-        } catch (e) {
-          if (e instanceof InputError || e instanceof DataError) {
-            this.writeError(e.message);
-          } else { throw e; }
-        }
-      }
-    }
+    let proxy = await this.selectProxy();
           
     this.handleSelect(proxy);
 
