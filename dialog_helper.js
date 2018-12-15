@@ -207,7 +207,8 @@ async function submitFields(fields, forceOptional) {
 		let skip = false;
 		if (i < values.length) {
 			value = values[i];
-			skip = value == '~';
+      if (value === '@') { skip = true; }
+      if (value === '~') { value = null; }
 		}
 		if (field.usage === Usage.MULTIPLE) {
 			if (value && !skip) {

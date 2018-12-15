@@ -14,6 +14,7 @@ class ProductTable extends BaseTable {
 			id: id,
 			name: proxy.name,
 			groupIds: proxy.groupIds,
+      desired: proxy.desired,
 		};
 		return entry;	
 	}
@@ -23,6 +24,7 @@ class ProductTable extends BaseTable {
 			id: entry.id,
 			name: entry.name,
 			groupIds: entry.groupIds,
+      desired: entry.desired,
 		};
 		return proxy;
 	}

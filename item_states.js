@@ -1,8 +1,12 @@
 var io = require('./console_io');
+var dialogHelper = require('./dialog_helper');
 var logger = require('./logger');
 var baseStates = require('./base_states');
 var Usage = require('./dialog_helper').Usage;
 var Type = require('./dialog_helper').Type;
+var InputError = require('./errors').InputError;
+var DataError = require('./errors').DataError;
+var StateCommand = require('./state_command');
 
 const ALL_FIELDS = [
   { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
@@ -20,6 +24,16 @@ const FILTER_FIELDS = [
   { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.BOOL },
 ];
 
+const USE_FIELDS = [
+  { label: 'count',     usage: Usage.OPTIONAL, type: Type.NUMBER },
+];
+
+const CHANGE_FIELDS = [
+  { label: 'product',   usage: Usage.OPTIONAL, type: Type.STRING, width: 20 },
+  { label: 'remain',    usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
+  { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
+];
+
 class ItemChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
@@ -29,12 +43,14 @@ class ItemChooseActionState extends baseStates.ChooseState {
 			{ label: 'edit' },
 			{ label: 'remove' },
 			{ label: 'list' },
+      { label: 'use' },
 		];
 		this.stateMap = {
 			add: new ItemAddState(),
 			edit: new ItemEditState(),
 			remove: new ItemRemoveState(),
 			list: new ItemListState(),
+      use: new ItemUseState(),
     };
 	}
 }
@@ -144,6 +160,7 @@ class ItemUseState extends baseStates.BaseState {
 		super();
     this.header = 'Items-Use';
 		this.filterFields = FILTER_FIELDS;
+		this.displayFields = ALL_FIELDS;
     this.useFields = USE_FIELDS;
 		this.changeFields = CHANGE_FIELDS;
 	}
@@ -186,7 +203,7 @@ class ItemUseState extends baseStates.BaseState {
         usedProxy.remain = 0;
         usedProxy.disposed = new Date();
       } else {
-        // TODO
+        usedProxy.remain = remain;
       }
     }
     return usedProxy;

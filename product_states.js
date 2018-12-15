@@ -7,6 +7,7 @@ var Type = require('./dialog_helper').Type;
 const ALL_FIELDS = [
   { label: 'name',    usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
   { label: 'groups',  usage: Usage.MULTIPLE, type: Type.STRING, width: 40 },
+  { label: 'desired', usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
 ];
 
 const FIND_FIELDS = [
@@ -48,6 +49,7 @@ class ProductAddState extends baseStates.AddState {
 		let proxy = {
 			name: attrMap.name,
 			groups: attrMap.groups,
+      desired: attrMap.desired,
 		};
     return proxy;
   }
@@ -76,6 +78,7 @@ class ProductEditState extends baseStates.EditState {
     let newProxy = Object.assign({}, proxy);
     if (attrMap.name) { newProxy.name = attrMap.name; }
     if (attrMap.groups) { newProxy.groups = attrMap.groups; }
+    if (attrMap.desired) { newProxy.desired = attrMap.desired; }
     return newProxy;
   }
 

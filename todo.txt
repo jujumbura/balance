@@ -77,3 +77,29 @@ purchase {
   quantity
   itemId
 }
+
+==Submit rules==
+
+Add
+  - Required
+    * Cannot skip
+    * Cannot clear
+  - Optional
+    * Can skip
+    * Can clear
+  - Multiple
+    * Can skip
+    * Can clear
+
+Edit
+  - Required
+    * Can skip
+    * Cannot clear
+  - Optional
+    * Can skip
+    * Can clear
+  - Multiple
+    * Can skip
+    * Can clear
+
+

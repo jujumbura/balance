@@ -14,6 +14,7 @@ class GroupTable extends BaseTable {
 			id: id,
 			name: proxy.name,
 			parentIds: proxy.parentIds,
+      desired: proxy.desired,
 		};
 		return entry;	
 	}
@@ -23,6 +24,7 @@ class GroupTable extends BaseTable {
 			id: entry.id,
 			name: entry.name,
       parentIds: entry.parentIds,
+      desired: entry.desired,
 		};
 		return proxy;
 	}
