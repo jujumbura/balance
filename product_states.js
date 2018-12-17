@@ -74,11 +74,11 @@ class ProductEditState extends baseStates.EditState {
 		return [ proxy ];
 	}
 
-  formProxy(proxy, attrMap) {
+  formProxy(proxy, attrMap, skipMap) {
     let newProxy = Object.assign({}, proxy);
-    if (attrMap.name) { newProxy.name = attrMap.name; }
-    if (attrMap.groups) { newProxy.groups = attrMap.groups; }
-    if (attrMap.desired) { newProxy.desired = attrMap.desired; }
+    if (!skipMap.name) { newProxy.name = attrMap.name; }
+    if (!skipMap.groups) { newProxy.groups = attrMap.groups; }
+    if (!skipMap.desired) { newProxy.desired = attrMap.desired; }
     return newProxy;
   }
 

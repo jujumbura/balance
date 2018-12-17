@@ -87,12 +87,12 @@ class PurchaseEditState extends baseStates.EditState {
 		return proxys;
 	}
 
-  formProxy(proxy, attrMap) {
+  formProxy(proxy, attrMap, skipMap) {
     let newProxy = Object.assign({}, proxy);
-    if (attrMap.product) { newProxy.product = attrMap.product; }
-    if (!isNaN(attrMap.price)) { newProxy.price = attrMap.price; }
-    if (!isNaN(attrMap.quantity)) { newProxy.quantity = attrMap.quantity; }
-    if (!isNaN(attrMap.size)) { newProxy.size = attrMap.size; }
+    if (!skipMap.product) { newProxy.product = attrMap.product; }
+    if (!skipMap.price) { newProxy.price = attrMap.price; }
+    if (!skipMap.quantity) { newProxy.quantity = attrMap.quantity; }
+    if (!skipMap.size) { newProxy.size = attrMap.size; }
     return newProxy;
   }
 

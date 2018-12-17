@@ -41,6 +41,10 @@
 
 [ DONE ]
 
+- Fix issue where editing a group with the existing set of parents throws exception
+
+- Implement new solution for clear vs skip tracking
+
 ==Layout==
 
 group {

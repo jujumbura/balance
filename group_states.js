@@ -74,11 +74,11 @@ class GroupEditState extends baseStates.EditState {
 		return [ proxy ];
 	}
   
-  formProxy(proxy, attrMap) {
+  formProxy(proxy, attrMap, skipMap) {
     let newProxy = Object.assign({}, proxy);
-    if (attrMap.name) { newProxy.name = attrMap.name; }
-    if (attrMap.parents) { newProxy.parents = attrMap.parents; }
-    if (attrMap.desired) { newProxy.desired = attrMap.desired; }
+    if (!skipMap.name) { newProxy.name = attrMap.name; }
+    if (!skipMap.parents) { newProxy.parents = attrMap.parents; }
+    if (!skipMap.desired) { newProxy.desired = attrMap.desired; }
     return newProxy;
   }
 

@@ -62,7 +62,8 @@ class BaseState {
 				let attrMap = null;
 				if (this.filterFields) {
 				  dialogHelper.printFields('? filter', this.filterFields);
-					attrMap = await dialogHelper.submitFields(this.filterFields);
+					let results = await dialogHelper.submitFields(this.filterFields);
+          attrMap = results.attrMap;
 				}
         proxys = this.filterProxys(attrMap);
         break;
@@ -81,8 +82,8 @@ class BaseState {
         try {
 		      dialogHelper.listProxys(this.displayFields, proxys);
           dialogHelper.printFields('? select', SELECT_FIELDS);
-          let attrMap = await dialogHelper.submitFields(SELECT_FIELDS);
-          let index = attrMap.number - 1;
+          let results = await dialogHelper.submitFields(SELECT_FIELDS);
+          let index = results.attrMap.number - 1;
           if (!this.checkIndex(index, proxys)) { continue }
           proxy = proxys[index];
           break;
@@ -127,8 +128,8 @@ class AddState extends BaseState {
     while (true) {
       try {
         dialogHelper.printFields('? add', this.addFields);
-        let attrMap = await dialogHelper.submitFields(this.addFields);
-		    let proxy = this.formProxy(attrMap);
+        let results = await dialogHelper.submitFields(this.addFields);
+		    let proxy = this.formProxy(results.attrMap);
         dialogHelper.printProxy('- new', this.displayFields, proxy);
         if (!await this.checkConfirm()) { continue; }
         this.handleAdd(proxy);
@@ -154,8 +155,8 @@ class EditState extends BaseState {
       try {
 		    dialogHelper.printProxy('- old', this.displayFields, proxy);
         dialogHelper.printFields('? modify', this.modifyFields, true);
-        let attrMap = await dialogHelper.submitFields(this.modifyFields, true);
-		    let newProxy = this.formProxy(proxy, attrMap);
+        let results = await dialogHelper.submitFields(this.modifyFields, true);
+		    let newProxy = this.formProxy(proxy, results.attrMap, results.skipMap);
         dialogHelper.printProxy('- new', this.displayFields, newProxy);
         if (!await this.checkConfirm()) { continue; }
         this.handleModify(newProxy);
@@ -204,7 +205,8 @@ class ListState extends BaseState {
 				let attrMap = null;
 				if (this.filterFields) {
 				  dialogHelper.printFields('? filter', this.filterFields);
-					attrMap = await dialogHelper.submitFields(this.filterFields);
+					let results = await dialogHelper.submitFields(this.filterFields);
+          attrMap = results.attrMap;
 				}
 		  	proxys = this.filterProxys(attrMap);
 				break;

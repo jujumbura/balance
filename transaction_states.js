@@ -72,10 +72,10 @@ class TransactionEditState extends baseStates.EditState {
 		return proxys;
 	}
 
-  formProxy(proxy, attrMap) {
+  formProxy(proxy, attrMap, skipMap) {
     let newProxy = Object.assign({}, proxy);
-    if (attrMap.vendor) { newProxy.vendor = attrMap.vendor; }
-    if (attrMap.entered) { newProxy.entered = attrMap.entered; }
+    if (!skipMap.vendor) { newProxy.vendor = attrMap.vendor; }
+    if (!skipMap.entered) { newProxy.entered = attrMap.entered; }
     return newProxy;
   }
 

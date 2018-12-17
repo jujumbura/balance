@@ -70,9 +70,9 @@ class VendorEditState extends baseStates.EditState {
 		return proxys;
 	}
  
-  formProxy(proxy, attrMap) {
+  formProxy(proxy, attrMap, skipMap) {
     let newProxy = Object.assign({}, proxy);
-    if (attrMap.name) { newProxy.name = attrMap.name; }
+    if (!skipMap.name) { newProxy.name = attrMap.name; }
     return newProxy;
   }
 

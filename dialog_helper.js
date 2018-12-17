@@ -95,7 +95,7 @@ function formatProxy(fields, proxy) {
     if (field.usage === Usage.REQUIRED) {
       attrStr = formatAttr(field, attr);
     } else if (field.usage === Usage.OPTIONAL) {
-      if (typeof(attr) !== 'undefined') {
+      if (attr !== null) {
         attrStr = formatAttr(field, attr);
       } else {
         attrStr = '~';
@@ -193,7 +193,7 @@ async function submit() {
 	return value;
 }
 
-async function submitFields(fields, forceOptional) {
+async function submitFields(fields, allowSkip) {
 	let values = await io.readValues();
 	if (values.length > 0) {
     let checkValue = values[0];
@@ -201,32 +201,60 @@ async function submitFields(fields, forceOptional) {
   }
 
 	let attrMap = {};
+  let skipMap = {};
 	for (let i = 0; i < fields.length; ++i) {
 		let field = fields[i];
 		let value = null;
-		let skip = false;
 		if (i < values.length) {
 			value = values[i];
-      if (value === '@') { skip = true; }
-      if (value === '~') { value = null; }
-		}
+      if (value === '@') { 
+        if (allowSkip) {
+          skipMap[field.label] = true;
+          continue;
+        } else {
+          throw new InputError('Cannot skip fields');
+        }
+      }
+      if (value === '~') { 
+        value = null; 
+      }
+		} else {
+      if (allowSkip) {
+        skipMap[field.label] = true;
+        continue;
+      } else {
+        value = null;
+      }
+    }
+
 		if (field.usage === Usage.MULTIPLE) {
-			if (value && !skip) {
+			if (value) {
 				let elems = value.split(',');
 				attrMap[field.label] = elems;
-			}
-		} else if ((field.usage === Usage.REQUIRED) && !forceOptional) {
-			if (!value || skip) {
+			} else {
+        attrMap[field.label] = null;
+      }
+		} else if (field.usage === Usage.REQUIRED) {
+			if (!value) {
 				throw new InputError('Field: ' + field.label + ' is required');
 			}
 			attrMap[field.label] = parseField(field, value);
-		} else if ((field.usage === Usage.OPTIONAL) || forceOptional) {
-      if (value && !skip) {
+		} else if (field.usage === Usage.OPTIONAL) {
+      if (value) {
         attrMap[field.label] = parseField(field, value);
+      } else {
+        attrMap[field.label] = null;
       }
     }
 	}
-	return attrMap;
+
+  let result = {
+    attrMap: attrMap,
+  };
+  if (allowSkip) {
+    result.skipMap = skipMap;
+  }
+	return result;
 }
 
 function printProxy(message, fields, proxy) {

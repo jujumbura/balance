@@ -73,10 +73,10 @@ class ItemAddState extends baseStates.AddState {
 			acquired: attrMap.acquired,
       disposed: attrMap.disposed,
 		};
-    if (isNaN(proxy.quantity)) { proxy.quantity = 1 }
-    if (isNaN(proxy.size)) { proxy.size = 1 }
-    if (isNaN(proxy.remain)) { proxy.remain = proxy.quantity; }
-    if (!proxy.acquired) { proxy.acquired = new Date(); }
+    if (proxy.quantity === null) { proxy.quantity = 1 }
+    if (proxy.size === null) { proxy.size = 1 }
+    if (proxy.remain === null) { proxy.remain = proxy.quantity; }
+    if (proxy.acquired === null) { proxy.acquired = new Date(); }
     return proxy;
   }
 
@@ -101,15 +101,15 @@ class ItemEditState extends baseStates.EditState {
 		return proxys;
 	}
 
-  formProxy(proxy, attrMap) {
+  formProxy(proxy, attrMap, skipMap) {
     let newProxy = Object.assign({}, proxy);
-    if (attrMap.product) { newProxy.product = attrMap.product; }
-    if (attrMap.location) { newProxy.location = attrMap.location; }
-    if (!isNaN(attrMap.quantity)) { newProxy.quantity = attrMap.quantity; }
-    if (!isNaN(attrMap.size)) { newProxy.size = attrMap.size; }
-    if (!isNaN(attrMap.remain)) { newProxy.remain = attrMap.remain; }
-    if (attrMap.acquired) { newProxy.acquired = attrMap.acquired; }
-    if (attrMap.disposed) { newProxy.disposed = attrMap.disposed; }
+    if (!skipMap.product) { newProxy.product = attrMap.product; }
+    if (!skipMap.location) { newProxy.location = attrMap.location; }
+    if (!skipMap.quantity) { newProxy.quantity = attrMap.quantity; }
+    if (!skipMap.size) { newProxy.size = attrMap.size; }
+    if (!skipMap.remain) { newProxy.remain = attrMap.remain; }
+    if (!skipMap.acquired) { newProxy.acquired = attrMap.acquired; }
+    if (!skipMap.disposed) { newProxy.disposed = attrMap.disposed; }
     return newProxy;
   }
 
