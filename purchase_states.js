@@ -61,8 +61,8 @@ class PurchaseAddState extends baseStates.AddState {
 			quantity: attrMap.quantity,
       size: attrMap.size,
 		};
-    if (isNaN(proxy.quantity)) { proxy.quantity = 1 }
-    if (isNaN(proxy.size)) { proxy.size = 1; }
+    if (proxy.quantity === null) { proxy.quantity = 1 }
+    if (proxy.size === null) { proxy.size = 1; }
     return proxy;
   }
 

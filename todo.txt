@@ -43,7 +43,11 @@
 
 - Fix issue where editing a group with the existing set of parents throws exception
 
+[ DONE? ]
+
 - Implement new solution for clear vs skip tracking
+
+[ DONE ]
 
 ==Layout==
 

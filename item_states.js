@@ -64,7 +64,7 @@ class ItemAddState extends baseStates.AddState {
 	}
 
   formProxy(attrMap) {
-		let proxy = {
+    let proxy = {
 			product: attrMap.product,
 			location: attrMap.location,
 			quantity: attrMap.quantity,

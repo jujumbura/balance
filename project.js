@@ -71,7 +71,9 @@ class Project {
 		if (groupProxy.parents) {
 			parentIds = this.groupTable.findIdsByName(groupProxy.parents);
       groupProxy.parentIds = parentIds;
-		} 
+		} else {
+      groupProxy.parentIds = null;
+    }
 
     let changes = []
 		changes.push(this.groupTable.makeAddChange(groupProxy));
@@ -86,7 +88,9 @@ class Project {
 		if (groupProxy.parents) {
 			parentIds = this.groupTable.findIdsByName(groupProxy.parents);
       groupProxy.parentIds = parentIds;
-		} 
+		} else {
+      groupProxy.parentIds = null;
+    }
 
     let changes = []
 		changes.push(this.groupTable.makeUpdateChange(groupProxy));
@@ -129,7 +133,9 @@ class Project {
 		let groupProxy = this.groupTable.getByName(name);
 		if (groupProxy.parentIds) {
 			groupProxy.parents = this.groupTable.findNamesById(groupProxy.parentIds);
-		}
+		} else {
+      groupProxy.parents = null;
+    }
 		return groupProxy;
 	}
 
@@ -139,6 +145,8 @@ class Project {
 			let groupProxy = groupProxys[i];
       if (groupProxy.parentIds) {
         groupProxy.parents = this.groupTable.findNamesById(groupProxy.parentIds);
+      } else {
+        groupProxy.parents = null;
       }
 		}
 		return groupProxys;
@@ -169,7 +177,9 @@ class Project {
 		productProxy.id = id;
 		if (productProxy.groups) {
 			productProxy.groupIds = this.groupTable.findIdsByName(productProxy.groups);
-		} 
+		} else {
+      productProxy.groupIds = null;
+    }
 
     let changes = []
 		changes.push(this.productTable.makeAddChange(productProxy));
@@ -180,7 +190,9 @@ class Project {
 	updateProduct(productProxy) {
 		if (productProxy.groups) {
 			productProxy.groupIds = this.groupTable.findIdsByName(productProxy.groups);
-		}
+		} else {
+      productProxy.groupIds = null;
+    }
     
     let changes = []
 		changes.push(this.productTable.makeUpdateChange(productProxy));
@@ -204,7 +216,9 @@ class Project {
 		let productProxy = this.productTable.getByName(name);
 		if (productProxy.groupIds) {
 			productProxy.groups = this.groupTable.findNamesById(productProxy.groupIds);
-		}
+    } else {
+      productProxy.groups = null;
+    }
 		return productProxy;
 	}
 
@@ -214,7 +228,9 @@ class Project {
 			let productProxy = productProxys[i];
 			if (productProxy.groupIds) {
 				productProxy.groups = this.groupTable.findNamesById(productProxy.groupIds);
-			}
+			} else {
+        productProxy.groups = null;
+      }
 		}
 		return productProxys;
 	}
@@ -305,11 +321,11 @@ class Project {
 		itemProxy.id = id;
     itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
     itemProxy.locationId = this.locationTable.findIdByName(itemProxy.location);
-    if (itemProxy.acquired) {
-      itemProxy.acquireDate = itemProxy.acquired.toISOString();
-    }
+    itemProxy.acquireDate = itemProxy.acquired.toISOString();
     if (itemProxy.disposed) {
       itemProxy.disposeDate = itemProxy.disposed.toISOString();
+    } else {
+      itemProxy.disposeDate = null;
     }
 
     let changes = []
@@ -321,11 +337,11 @@ class Project {
   updateItem(itemProxy) {
     itemProxy.productId = this.productTable.findIdByName(itemProxy.product);
     itemProxy.locationId = this.locationTable.findIdByName(itemProxy.location);
-    if (itemProxy.acquired) {
-      itemProxy.acquireDate = itemProxy.acquired.toISOString();
-    }
+    itemProxy.acquireDate = itemProxy.acquired.toISOString();
     if (itemProxy.disposed) {
       itemProxy.disposeDate = itemProxy.disposed.toISOString();
+    } else {
+      itemProxy.disposeDate = null;
     }
     
     let changes = []
@@ -358,6 +374,8 @@ class Project {
       itemProxy.acquired = new Date(itemProxy.acquireDate);
       if (itemProxy.disposeDate) {
         itemProxy.disposed = new Date(itemProxy.disposeDate);
+      } else {
+        itemProxy.disposed = null;
       }
 		}
 		return itemProxys;
