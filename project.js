@@ -222,6 +222,27 @@ class Project {
 		return productProxy;
 	}
 
+  findProductsByGroup(group) {
+    let productProxys = this.getAllProducts();
+
+    let foundProxys;
+    let groupId = this.groupTable.findIdByName(group);
+    let groupIdSet = this.groupGraph.getDescendentSet(groupId);
+    foundProxys = [];
+    for (let i = 0; i < productProxys.length; ++i) {
+      let productProxy = productProxys[i];
+      if (productProxy.groupIds) {
+        for (let j = 0; j < productProxy.groupIds.length; ++j) {
+          let groupId = productProxy.groupIds[j];
+          if (groupIdSet[groupId]) {
+            foundProxys.push(productProxy);
+          }
+        }
+      }
+    }
+    return foundProxys;
+  }
+
 	getAllProducts() {
 		let productProxys = this.productTable.getAll();
 		for (let i = 0; i < productProxys.length; ++i) {
@@ -236,26 +257,11 @@ class Project {
 	}
 
   filterProducts(group) {
-    let productProxys = this.getAllProducts();
-
     let filteredProxys;
     if (group) {
-      let groupId = this.groupTable.findIdByName(group);
-      let groupIdSet = this.groupGraph.getDescendentSet(groupId);
-      filteredProxys = [];
-      for (let i = 0; i < productProxys.length; ++i) {
-        let productProxy = productProxys[i];
-        if (productProxy.groupIds) {
-          for (let j = 0; j < productProxy.groupIds.length; ++j) {
-            let groupId = productProxy.groupIds[j];
-            if (groupIdSet[groupId]) {
-              filteredProxys.push(productProxy);
-            }
-          }
-        }
-      }
+      filteredProxys = this.findProductsByGroup(group);
     } else {
-      filteredProxys = productProxys;
+      filteredProxys = this.getAllProducts();
     }
     return filteredProxys;
   }
@@ -409,8 +415,14 @@ class Project {
     }
     return filteredProxys;
   }
+ 
+  // GORUP
+  getItemCountWithGroup(group) {
+  }
 
-  getItemCount(product) {
+  getItemCountWithProduct(product) {
+    let itemProxys = this.getAllItems();
+    
     let productId;
     let locationId;
     if (product) {

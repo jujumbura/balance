@@ -8,6 +8,7 @@ var locationStates = require('./location_states');
 var itemStates = require('./item_states');
 var vendorStates = require('./vendor_states');
 var transactionStates = require('./transaction_states');
+var reportStates = require('./report_states');
 var logger = require('./logger');
 
 class ChooseModeState extends baseStates.ChooseState {
@@ -21,6 +22,7 @@ class ChooseModeState extends baseStates.ChooseState {
       { label: 'items' },
       { label: 'vendors' },
       { label: 'transactions' },
+      { label: 'reports' },
 		];
     this.stateMap = {
 		  groups: new groupStates.GroupChooseActionState(),
@@ -29,6 +31,7 @@ class ChooseModeState extends baseStates.ChooseState {
       items: new itemStates.ItemChooseActionState(),
       vendors: new vendorStates.VendorChooseActionState(),
       transactions: new transactionStates.TransactionChooseActionState(),
+      reports: new reportStates.ReportChooseActionState(), 
     };
 	}
 }
