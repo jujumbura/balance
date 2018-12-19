@@ -409,6 +409,23 @@ class Project {
     }
     return filteredProxys;
   }
+
+  getItemCount(product) {
+    let productId;
+    let locationId;
+    if (product) {
+      productId = this.productTable.findIdByName(product);
+    }
+    let count = 0;
+    for (let i = 0; i < itemProxys.length; ++i) {
+      let itemProxy = itemProxys[i];
+      if (product && (itemProxy.productId !== productId)) {
+        continue
+      }
+      ++count;
+    }
+    return count;
+  }
   
   
   addVendor(vendorProxy) {
