@@ -11,6 +11,16 @@ var PurchaseTable = require('./purchase_table');
 var GroupGraph = require('./group_graph');
 var DependencyError = require('./errors').DependencyError;
 
+function compareDates(a, b) {
+  let value = 0;
+  if (a < b) {
+    value = -1;
+  } else if (a > b) {
+    value = 1;
+  }
+  return value;
+}
+
 function removeFromRefArray(proxy, arrayName, element) {
   let array = proxy[arrayName];
   let index = array.indexOf(element);
@@ -149,7 +159,13 @@ class Project {
         groupProxy.parents = null;
       }
 		}
-		return groupProxys;
+    
+    groupProxys.sort((a, b) => {
+      let value = a.name.localeCompare(b.name);
+      return value;
+    });
+		
+    return groupProxys;
 	}
   
   filterGroups(group) {
@@ -253,6 +269,12 @@ class Project {
         productProxy.groups = null;
       }
 		}
+    
+    productProxys.sort((a, b) => {
+      let value = a.name.localeCompare(b.name);
+      return value;
+    });
+
 		return productProxys;
 	}
 
@@ -303,7 +325,13 @@ class Project {
 
 	getAllLocations() {
 		let locationProxys = this.locationTable.getAll();
-		return locationProxys;
+    
+    locationProxys.sort((a, b) => {
+      let value = a.name.localeCompare(b.name);
+      return value;
+    });
+		
+    return locationProxys;
 	}
   
   filterLocations(name) {
@@ -384,7 +412,16 @@ class Project {
         itemProxy.disposed = null;
       }
 		}
-		return itemProxys;
+    
+    itemProxys.sort((a, b) => {
+      let value = a.product.localeCompare(b.product);
+      if (value === 0) {
+        value = compareDates(a.acquired, b.acquired);
+      }
+      return value;
+    });
+		
+    return itemProxys;
 	}
   
   filterItems(product, location, disposed) {
@@ -430,7 +467,7 @@ class Project {
       if (!productIdSet[itemProxy.productId]) {
         continue
       }
-      ++count;
+      count += itemProxy.remain;
     }
     return count;
   }
@@ -445,7 +482,7 @@ class Project {
       if (product && (itemProxy.productId !== productId)) {
         continue
       }
-      ++count;
+      count += itemProxy.remain;
     }
     return count;
   }

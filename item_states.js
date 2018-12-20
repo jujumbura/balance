@@ -173,8 +173,8 @@ class ItemUseState extends baseStates.BaseState {
     while (true) {
       try {
         dialogHelper.printFields('? use', this.useFields);
-        let attrMap = await dialogHelper.submitFields(this.useFields);
-		    let newProxy = this.useProxy(proxy, attrMap);
+        let results = await dialogHelper.submitFields(this.useFields);
+		    let newProxy = this.useProxy(proxy, results.attrMap);
         dialogHelper.printProxy('- change', this.changeFields, newProxy);
         if (!await this.checkConfirm()) { continue; }
         this.handleChange(newProxy);
@@ -197,7 +197,7 @@ class ItemUseState extends baseStates.BaseState {
 
   useProxy(proxy, attrMap) {
     let usedProxy = Object.assign({}, proxy);
-    if (attrMap.count) {
+     if (attrMap.count !== null) {
       let remain = usedProxy.remain - attrMap.count;
       if (remain <= 0) {
         usedProxy.remain = 0;
@@ -205,6 +205,9 @@ class ItemUseState extends baseStates.BaseState {
       } else {
         usedProxy.remain = remain;
       }
+    } else {
+      usedProxy.remain = 0;
+      usedProxy.disposed = new Date();
     }
     return usedProxy;
   }

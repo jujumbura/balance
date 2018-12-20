@@ -40,20 +40,20 @@ class ReportRestockState extends baseStates.BaseState {
 	
     this.writeInfo('products to restock:');
     let productProxys = this.context.project.getAllProducts();
-    this.displayRestocks(productProxys);
+    this.displayRestocks(productProxys, 'getItemCountWithProduct');
 
     this.writeInfo('groups to restock:');
     let groupProxys = this.context.project.getAllGroups();
-    this.displayRestocks(groupProxys);
+    this.displayRestocks(groupProxys, 'getItemCountWithGroup');
 
 		return new StateCommand(StateCommand.Type.BACK);
 	}
 
-  displayRestocks(proxys) {
+  displayRestocks(proxys, countFuncName) {
     let restockProxys = [];
     proxys.forEach(proxy => {
       if (proxy.desiredCount !== null) {
-        let itemCount = this.context.project.getItemCount(proxy.name);
+        let itemCount = this.context.project[countFuncName](proxy.name);
         if (itemCount < proxy.desired) {
           let restockProxy = {
             name: proxy.name,
