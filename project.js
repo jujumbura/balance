@@ -416,18 +416,29 @@ class Project {
     return filteredProxys;
   }
  
-  // GORUP
   getItemCountWithGroup(group) {
+    let itemProxys = this.getAllItems();
+
+    let productProxys = this.findProductsByGroup(group);
+    let productIdSet = {};
+    productProxys.forEach(proxy => {
+      productIdSet[proxy.id] = true;
+    });
+    let count = 0;
+    for (let i = 0; i < itemProxys.length; ++i) {
+      let itemProxy = itemProxys[i];
+      if (!productIdSet[itemProxy.productId]) {
+        continue
+      }
+      ++count;
+    }
+    return count;
   }
 
   getItemCountWithProduct(product) {
     let itemProxys = this.getAllItems();
     
-    let productId;
-    let locationId;
-    if (product) {
-      productId = this.productTable.findIdByName(product);
-    }
+    let productId = this.productTable.findIdByName(product);
     let count = 0;
     for (let i = 0; i < itemProxys.length; ++i) {
       let itemProxy = itemProxys[i];
