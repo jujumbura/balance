@@ -165,9 +165,6 @@ class GroupGraph {
       if (!this.vertexMap[parentId]) {
         throw new GraphError('Parent does not exist in graph');
       }
-      if (this.isChild(parentId, childId)) {
-        throw new GraphError('Desired parent already has child');
-      }
       if (this.isDescendent(childId, parentId)) {
         throw new GraphError('Desired parent is a descendent of child');
       }
