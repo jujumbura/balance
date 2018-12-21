@@ -11,7 +11,7 @@ const ALL_FIELDS = [
 ];
 
 const FIND_FIELDS = [
-  { label: 'name',    usage: Usage.REQUIRED, type: Type.STRING },
+  { label: 'name',    usage: Usage.OPTIONAL, type: Type.STRING },
 ];
 
 const FILTER_FIELDS = [
@@ -70,9 +70,9 @@ class ProductEditState extends baseStates.EditState {
 	}
 	
   filterProxys(attrMap) {
-		let proxy = this.context.project.findProduct(attrMap.name);
-		return [ proxy ];
-	}
+		let proxys = this.context.project.filterProducts(attrMap.name);
+	  return proxys;
+  }
 
   formProxy(proxy, attrMap, skipMap) {
     let newProxy = Object.assign({}, proxy);
@@ -117,7 +117,7 @@ class ProductListState extends baseStates.ListState {
 	}
 	
 	filterProxys(attrMap) {
-		let proxys = this.context.project.filterProducts(attrMap.group);
+		let proxys = this.context.project.filterProducts(null, attrMap.group);
 		return proxys;
 	}
 }

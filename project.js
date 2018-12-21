@@ -278,13 +278,23 @@ class Project {
 		return productProxys;
 	}
 
-  filterProducts(group) {
-    let filteredProxys;
+  filterProducts(name, group) {
+    let initialProxys;
     if (group) {
-      filteredProxys = this.findProductsByGroup(group);
+      initialProxys = this.findProductsByGroup(group);
     } else {
-      filteredProxys = this.getAllProducts();
+      initialProxys = this.getAllProducts();
     }
+
+    let filteredProxys = [];
+    for(let i = 0; i < initialProxys.length; ++i) {
+      let proxy = initialProxys[i];
+      if (name && proxy.name !== name) {
+        continue;
+      }
+      filteredProxys.push(proxy);
+    }
+
     return filteredProxys;
   }
 	
