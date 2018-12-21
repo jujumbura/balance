@@ -157,8 +157,8 @@ class PurchaseConvertItemState extends baseStates.BaseState {
       try {
 		    dialogHelper.printProxy('- from', this.fromFields, proxy);
         dialogHelper.printFields('? convert', this.convertFields);
-        let attrMap = await dialogHelper.submitFields(this.convertFields);
-		    let convertedProxy = this.convertProxy(proxy, attrMap);
+        let results = await dialogHelper.submitFields(this.convertFields);
+		    let convertedProxy = this.convertProxy(proxy, results.attrMap);
         dialogHelper.printProxy('- to', this.toFields, convertedProxy);
         if (!await this.checkConfirm()) { continue; }
         this.handleConvert(proxy, convertedProxy);
@@ -192,6 +192,7 @@ class PurchaseConvertItemState extends baseStates.BaseState {
       size: proxy.size,
 			remain: proxy.quantity,
 			acquired: transactionProxy.entered,
+      disposed: null,
 		};
     return convertedProxy;
   }
