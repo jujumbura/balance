@@ -34,6 +34,14 @@ const CHANGE_FIELDS = [
   { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
 ];
 
+function makeCorrectionSpecs(project) {
+  let specs = [
+    { label: 'product', allowed: project.getAllProductNames() },
+    { label: 'location', allowed: project.getAllLocationNames() },
+  ];
+  return specs;
+}
+
 class ItemChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
@@ -63,13 +71,6 @@ class ItemAddState extends baseStates.AddState {
     this.displayFields = ALL_FIELDS;
 	}
 
-  formCorrectionSpecs() {
-    let specs = [
-      { label: 'product', allowed: this.context.project.getAllProductNames() },
-    ];
-    return specs;
-  }
-
   formProxy(attrMap) {
     let proxy = {
 			product: attrMap.product,
@@ -85,6 +86,10 @@ class ItemAddState extends baseStates.AddState {
     if (proxy.remain === null) { proxy.remain = proxy.quantity; }
     if (proxy.acquired === null) { proxy.acquired = new Date(); }
     return proxy;
+  }
+
+  makeCorrectionSpecs() {
+    return makeCorrectionSpecs(this.context.project);
   }
 
 	handleAdd(proxy) {
@@ -118,6 +123,10 @@ class ItemEditState extends baseStates.EditState {
     if (!skipMap.acquired) { newProxy.acquired = attrMap.acquired; }
     if (!skipMap.disposed) { newProxy.disposed = attrMap.disposed; }
     return newProxy;
+  }
+  
+  makeCorrectionSpecs() {
+    return makeCorrectionSpecs(this.context.project);
   }
 
 	handleModify(proxy) {

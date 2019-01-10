@@ -14,6 +14,13 @@ const FILTER_FIELDS = [
   { label: 'vendor',   usage: Usage.OPTIONAL, type: Type.STRING },
 ];
 
+function makeCorrectionSpecs(project) {
+  let specs = [
+    { label: 'vendor', allowed: project.getAllVendorNames() },
+  ];
+  return specs;
+}
+
 class TransactionChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
@@ -51,6 +58,10 @@ class TransactionAddState extends baseStates.AddState {
     if (!proxy.entered) { proxy.entered = new Date(); }
     return proxy;
   }
+  
+  makeCorrectionSpecs() {
+    return makeCorrectionSpecs(this.context.project);
+  }
 
 	handleAdd(proxy) {
 		this.context.project.addTransaction(proxy);
@@ -77,6 +88,10 @@ class TransactionEditState extends baseStates.EditState {
     if (!skipMap.vendor) { newProxy.vendor = attrMap.vendor; }
     if (!skipMap.entered) { newProxy.entered = attrMap.entered; }
     return newProxy;
+  }
+  
+  makeCorrectionSpecs() {
+    return makeCorrectionSpecs(this.context.project);
   }
 
 	handleModify(proxy) {

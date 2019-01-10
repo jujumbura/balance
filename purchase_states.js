@@ -24,6 +24,20 @@ const CONVERT_FIELDS = [
   { label: 'location',  usage: Usage.REQUIRED, type: Type.STRING },
 ];
 
+function makeCorrectionSpecs(project) {
+  let specs = [
+    { label: 'product', allowed: project.getAllProductNames() },
+  ];
+  return specs;
+}
+
+function makeConvertCorrectionSpecs(project) {
+  let specs = [
+    { label: 'location', allowed: project.getAllLocationNames() },
+  ];
+  return specs;
+}
+
 class PurchaseChooseActionState extends baseStates.ChooseState {
 	constructor() {
 		super();
@@ -65,6 +79,10 @@ class PurchaseAddState extends baseStates.AddState {
     if (proxy.size === null) { proxy.size = 1; }
     return proxy;
   }
+  
+  makeCorrectionSpecs() {
+    return makeCorrectionSpecs(this.context.project);
+  }
 
 	handleAdd(proxy) {
 		this.context.project.addPurchase(proxy);
@@ -94,6 +112,10 @@ class PurchaseEditState extends baseStates.EditState {
     if (!skipMap.quantity) { newProxy.quantity = attrMap.quantity; }
     if (!skipMap.size) { newProxy.size = attrMap.size; }
     return newProxy;
+  }
+  
+  makeCorrectionSpecs() {
+    return makeCorrectionSpecs(this.context.project);
   }
 
 	handleModify(proxy) {
@@ -159,6 +181,10 @@ class PurchaseConvertItemState extends baseStates.BaseState {
         dialogHelper.printFields('? convert', this.convertFields);
         let results = await dialogHelper.submitFields(this.convertFields);
 		    let convertedProxy = this.convertProxy(proxy, results.attrMap);
+        if (this.makeCorrectionSpecs) {
+          let specs = this.makeCorrectionSpecs();
+          convertedProxy = await this.correctProxy(convertedProxy, specs);
+        }
         dialogHelper.printProxy('- to', this.toFields, convertedProxy);
         if (!await this.checkConfirm()) { continue; }
         this.handleConvert(proxy, convertedProxy);
@@ -195,6 +221,10 @@ class PurchaseConvertItemState extends baseStates.BaseState {
       disposed: null,
 		};
     return convertedProxy;
+  }
+  
+  makeCorrectionSpecs() {
+    return makeConvertCorrectionSpecs(this.context.project);
   }
 	
   handleConvert(proxy, convertedProxy) {

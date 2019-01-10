@@ -11,6 +11,9 @@ function findBestMatches(input, options, count) {
   let matches = [];
   for (let i = 0; i < sorted.length && i < count; ++i) {
     let rating = sorted[i];
+    if (rating.rating <= 0) {
+      break;
+    }
     matches.push(rating.target);
   }
   return matches;

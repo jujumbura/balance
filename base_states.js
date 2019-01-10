@@ -103,10 +103,21 @@ class BaseState {
 
     for (let i = 0; i < specs.length; ++i) {
       let spec = specs[i];
+      let value = corrected[spec.label];
+      if (spec.allowed.includes(value)) {
+        continue;
+      }
+          
+      let matches = match.findBestMatches(value, spec.allowed, 5);
+      if (matches.length <= 0) {
+        throw new InputError(spec.label + ' has no matches');
+      } else if (matches.length === 1) {
+        corrected[spec.label] = matches[0];
+        continue;
+      }
+
       while (true) {
         try {
-          let value = corrected[spec.label];
-          let matches = match.findBestMatches(value, spec.allowed, 3);
           io.writeMessage('- clarify ' + spec.label);
           dialogHelper.listValues(matches);
           dialogHelper.printFields('? select', SELECT_FIELDS);
@@ -158,8 +169,8 @@ class AddState extends BaseState {
         dialogHelper.printFields('? add', this.addFields);
         let results = await dialogHelper.submitFields(this.addFields);
 		    let proxy = this.formProxy(results.attrMap);
-        if (this.formCorrectionSpecs) {
-          let specs = this.formCorrectionSpecs();
+        if (this.makeCorrectionSpecs) {
+          let specs = this.makeCorrectionSpecs();
           proxy = await this.correctProxy(proxy, specs);
         }
         dialogHelper.printProxy('- new', this.displayFields, proxy);
@@ -189,6 +200,10 @@ class EditState extends BaseState {
         dialogHelper.printFields('? modify', this.modifyFields, true);
         let results = await dialogHelper.submitFields(this.modifyFields, true);
 		    let newProxy = this.formProxy(proxy, results.attrMap, results.skipMap);
+        if (this.makeCorrectionSpecs) {
+          let specs = this.makeCorrectionSpecs();
+          newProxy = await this.correctProxy(newProxy, specs);
+        }
         dialogHelper.printProxy('- new', this.displayFields, newProxy);
         if (!await this.checkConfirm()) { continue; }
         this.handleModify(newProxy);

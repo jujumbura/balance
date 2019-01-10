@@ -348,6 +348,10 @@ class Project {
     return locationProxys;
 	}
   
+  getAllLocationNames() {
+    return this.locationTable.getAllNames();
+  }
+  
   filterLocations(name) {
     let locationProxys = this.getAllLocations();
     
@@ -540,6 +544,10 @@ class Project {
 		let vendorProxys = this.vendorTable.getAll();
 		return vendorProxys;
 	}
+  
+  getAllVendorNames() {
+    return this.vendorTable.getAllNames();
+  }
   
   filterVendors(name) {
     let vendorProxys = this.getAllVendors();
