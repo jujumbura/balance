@@ -63,6 +63,13 @@ class ItemAddState extends baseStates.AddState {
     this.displayFields = ALL_FIELDS;
 	}
 
+  formCorrectionSpecs() {
+    let specs = [
+      { label: 'product', allowed: this.context.project.getAllProductNames() },
+    ];
+    return specs;
+  }
+
   formProxy(attrMap) {
     let proxy = {
 			product: attrMap.product,

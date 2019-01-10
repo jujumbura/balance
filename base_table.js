@@ -108,6 +108,19 @@ class BaseTable {
     return ids;
   }
 
+  getAllNames() {
+    if (!this.named) {
+      throw new TableError('Table: ' + this.getName() + ' is not named');
+    }
+
+    let names = [];
+		for (let i = 0; i < this.entries.length; ++i) {
+			let entry = this.entries[i];
+			names.push(entry.name);
+		}
+    return names;
+  }
+
   findIdByName(name) {
     if (!this.nameEntryMap[name]) {
       throw new TableError('Name: ' + name + ' not present in table: ' + 

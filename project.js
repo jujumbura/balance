@@ -278,6 +278,10 @@ class Project {
 		return productProxys;
 	}
 
+  getAllProductNames() {
+    return this.productTable.getAllNames();
+  }
+
   filterProducts(name, group) {
     let initialProxys;
     if (group) {

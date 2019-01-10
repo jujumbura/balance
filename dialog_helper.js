@@ -286,6 +286,20 @@ function listProxys(fields, proxys) {
   }
 }
 
+function listValues(values) {
+	let header = '    ';
+  header += '#   ';
+	io.writeMessage(header);
+
+  for (let j = 0; j < values.length; ++j) {
+    let line = '    ';
+    let value = values[j];
+    line += (j + 1).toString().padEnd(4, ' ');
+    line += value;
+    io.writeMessage(line);
+  }
+}
+
 module.exports = {};
 module.exports.printOptions = printOptions;
 module.exports.chooseOption = chooseOption;
@@ -294,5 +308,6 @@ module.exports.submit = submit;
 module.exports.submitFields = submitFields;
 module.exports.printProxy = printProxy;
 module.exports.listProxys = listProxys;
+module.exports.listValues = listValues;
 module.exports.Usage = Usage;
 module.exports.Type = Type;

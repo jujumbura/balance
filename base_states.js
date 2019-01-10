@@ -1,6 +1,7 @@
 var io = require('./console_io');
 var dialogHelper = require('./dialog_helper');
 var logger = require('./logger');
+var match = require('./match');
 var Usage = require('./dialog_helper').Usage;
 var Type = require('./dialog_helper').Type;
 var InputError = require('./errors').InputError;
@@ -96,6 +97,33 @@ class BaseState {
     }
     return proxy;
   }
+
+  async correctProxy(proxy, specs) {
+    let corrected = Object.assign({}, proxy);
+
+    for (let i = 0; i < specs.length; ++i) {
+      let spec = specs[i];
+      while (true) {
+        try {
+          let value = corrected[spec.label];
+          let matches = match.findBestMatches(value, spec.allowed, 3);
+          io.writeMessage('- clarify ' + spec.label);
+          dialogHelper.listValues(matches);
+          dialogHelper.printFields('? select', SELECT_FIELDS);
+          let results = await dialogHelper.submitFields(SELECT_FIELDS);
+          let index = results.attrMap.number - 1;
+          if (!this.checkIndex(index, matches)) { continue }
+          corrected[spec.label] = matches[index];
+          break;
+        } catch (e) {
+          if (e instanceof InputError || e instanceof DataError) {
+            this.writeError(e.message);
+          } else { throw e; }
+        }
+      }
+    }
+    return corrected;
+  }
 }
 
 class ChooseState extends BaseState {
@@ -130,6 +158,10 @@ class AddState extends BaseState {
         dialogHelper.printFields('? add', this.addFields);
         let results = await dialogHelper.submitFields(this.addFields);
 		    let proxy = this.formProxy(results.attrMap);
+        if (this.formCorrectionSpecs) {
+          let specs = this.formCorrectionSpecs();
+          proxy = await this.correctProxy(proxy, specs);
+        }
         dialogHelper.printProxy('- new', this.displayFields, proxy);
         if (!await this.checkConfirm()) { continue; }
         this.handleAdd(proxy);
