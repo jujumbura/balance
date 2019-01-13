@@ -100,10 +100,19 @@ class BaseState {
 
   async correctProxy(proxy, specs) {
     let corrected = Object.assign({}, proxy);
+    console.log(JSON.stringify(corrected, null, 2));
+    console.log(JSON.stringify(specs, null, 2));
 
     for (let i = 0; i < specs.length; ++i) {
       let spec = specs[i];
+      if (spec.allowed.length <= 0) {
+        throw new InputError(spec.label + ' has no allowed values');
+      }
+      
       let value = corrected[spec.label];
+      if (value === null) {
+        continue;
+      }
       if (spec.allowed.includes(value)) {
         continue;
       }
@@ -254,6 +263,10 @@ class ListState extends BaseState {
 				  dialogHelper.printFields('? filter', this.filterFields);
 					let results = await dialogHelper.submitFields(this.filterFields);
           attrMap = results.attrMap;
+          if (this.makeCorrectionSpecs) {
+            let specs = this.makeCorrectionSpecs();
+            attrMap = await this.correctProxy(attrMap, specs);
+          }
 				}
 		  	proxys = this.filterProxys(attrMap);
 				break;

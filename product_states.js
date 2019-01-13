@@ -5,7 +5,7 @@ var Usage = require('./dialog_helper').Usage;
 var Type = require('./dialog_helper').Type;
 		
 const ALL_FIELDS = [
-  { label: 'name',    usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
+  { label: 'name',    usage: Usage.REQUIRED, type: Type.STRING, width: 40 },
   { label: 'groups',  usage: Usage.MULTIPLE, type: Type.STRING, width: 40 },
   { label: 'desired', usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
 ];
@@ -15,8 +15,16 @@ const FIND_FIELDS = [
 ];
 
 const FILTER_FIELDS = [
+  { label: 'name',    usage: Usage.OPTIONAL, type: Type.STRING },
   { label: 'group',   usage: Usage.OPTIONAL, type: Type.STRING },
 ];
+
+function makeFilterCorrectionSpecs(project) {
+  let specs = [
+    { label: 'name', allowed: project.getAllProductNames() },
+  ];
+  return specs;
+}
 
 class ProductChooseActionState extends baseStates.ChooseState {
 	constructor() {
@@ -117,9 +125,13 @@ class ProductListState extends baseStates.ListState {
 	}
 	
 	filterProxys(attrMap) {
-		let proxys = this.context.project.filterProducts(null, attrMap.group);
+		let proxys = this.context.project.filterProducts(attrMap.name, attrMap.group);
 		return proxys;
 	}
+  
+  makeCorrectionSpecs() {
+    return makeFilterCorrectionSpecs(this.context.project);
+  }
 }
 
 module.exports = {};

@@ -9,7 +9,7 @@ var DataError = require('./errors').DataError;
 var StateCommand = require('./state_command');
 
 const ALL_FIELDS = [
-  { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
+  { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 40 },
   { label: 'location',  usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
   { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'size',      usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
@@ -29,7 +29,7 @@ const USE_FIELDS = [
 ];
 
 const CHANGE_FIELDS = [
-  { label: 'product',   usage: Usage.OPTIONAL, type: Type.STRING, width: 20 },
+  { label: 'product',   usage: Usage.OPTIONAL, type: Type.STRING, width: 40 },
   { label: 'remain',    usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.DATE,   width: 20 },
 ];
