@@ -76,12 +76,16 @@ class ProductEditState extends baseStates.EditState {
     this.modifyFields = ALL_FIELDS;
     this.displayFields = ALL_FIELDS;
 	}
+  
+  makeFilterCorrectionSpecs() {
+    return makeFilterCorrectionSpecs(this.context.project);
+  }
 	
   filterProxys(attrMap) {
 		let proxys = this.context.project.filterProducts(attrMap.name);
 	  return proxys;
   }
-
+  
   formProxy(proxy, attrMap, skipMap) {
     let newProxy = Object.assign({}, proxy);
     if (!skipMap.name) { newProxy.name = attrMap.name; }
@@ -89,7 +93,7 @@ class ProductEditState extends baseStates.EditState {
     if (!skipMap.desired) { newProxy.desired = attrMap.desired; }
     return newProxy;
   }
-
+  
 	handleModify(proxy) {
 		this.context.project.updateProduct(proxy);
 		this.context.dirty = true;
@@ -124,7 +128,7 @@ class ProductListState extends baseStates.ListState {
 		this.displayFields = ALL_FIELDS;
 	}
   
-  makeCorrectionSpecs() {
+  makeFilterCorrectionSpecs() {
     return makeFilterCorrectionSpecs(this.context.project);
   }
 	

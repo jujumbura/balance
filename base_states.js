@@ -65,6 +65,10 @@ class BaseState {
 				  dialogHelper.printFields('? filter', this.filterFields);
 					let results = await dialogHelper.submitFields(this.filterFields);
           attrMap = results.attrMap;
+          if (this.makeFilterCorrectionSpecs) {
+            let specs = this.makeFilterCorrectionSpecs();
+            attrMap = await this.correctProxy(attrMap, specs);
+          }
 				}
         proxys = this.filterProxys(attrMap);
         break;
@@ -261,8 +265,8 @@ class ListState extends BaseState {
 				  dialogHelper.printFields('? filter', this.filterFields);
 					let results = await dialogHelper.submitFields(this.filterFields);
           attrMap = results.attrMap;
-          if (this.makeCorrectionSpecs) {
-            let specs = this.makeCorrectionSpecs();
+          if (this.makeFilterCorrectionSpecs) {
+            let specs = this.makeFilterCorrectionSpecs();
             attrMap = await this.correctProxy(attrMap, specs);
           }
 				}
