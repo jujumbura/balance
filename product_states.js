@@ -123,15 +123,15 @@ class ProductListState extends baseStates.ListState {
 		this.filterFields = FILTER_FIELDS;
 		this.displayFields = ALL_FIELDS;
 	}
+  
+  makeCorrectionSpecs() {
+    return makeFilterCorrectionSpecs(this.context.project);
+  }
 	
 	filterProxys(attrMap) {
 		let proxys = this.context.project.filterProducts(attrMap.name, attrMap.group);
 		return proxys;
 	}
-  
-  makeCorrectionSpecs() {
-    return makeFilterCorrectionSpecs(this.context.project);
-  }
 }
 
 module.exports = {};

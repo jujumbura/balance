@@ -36,8 +36,15 @@ const CHANGE_FIELDS = [
 
 function makeCorrectionSpecs(project) {
   let specs = [
-    { label: 'product', allowed: project.getAllProductNames() },
-    { label: 'location', allowed: project.getAllLocationNames() },
+    { label: 'product',   allowed: project.getAllProductNames() },
+    { label: 'location',  allowed: project.getAllLocationNames() },
+  ];
+  return specs;
+}
+
+function makeFilterCorrectionSpecs(project) {
+  let specs = [
+    { label: 'product',   allowed: project.getAllProductNames() },
   ];
   return specs;
 }
@@ -163,6 +170,10 @@ class ItemListState extends baseStates.ListState {
 		this.filterFields = FILTER_FIELDS;
 		this.displayFields = ALL_FIELDS;
 	}
+  
+  makeCorrectionSpecs() {
+    return makeFilterCorrectionSpecs(this.context.project);
+  }
 	
 	filterProxys(attrMap) {
 		let proxys = this.context.project.filterItems(attrMap.product, 

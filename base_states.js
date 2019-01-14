@@ -100,8 +100,6 @@ class BaseState {
 
   async correctProxy(proxy, specs) {
     let corrected = Object.assign({}, proxy);
-    console.log(JSON.stringify(corrected, null, 2));
-    console.log(JSON.stringify(specs, null, 2));
 
     for (let i = 0; i < specs.length; ++i) {
       let spec = specs[i];
@@ -272,7 +270,6 @@ class ListState extends BaseState {
 				break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
-					throw e;
           this.writeError(e.message);
 				} else { throw e; }
 			}
