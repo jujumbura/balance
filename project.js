@@ -168,6 +168,10 @@ class Project {
     return groupProxys;
 	}
   
+  getAllGroupNames() {
+    return this.groupTable.getAllNames();
+  }
+  
   filterGroups(group) {
     let groupProxys = this.getAllGroups();
 

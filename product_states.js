@@ -21,7 +21,8 @@ const FILTER_FIELDS = [
 
 function makeFilterCorrectionSpecs(project) {
   let specs = [
-    { label: 'name', allowed: project.getAllProductNames() },
+    { label: 'name',  allowed: project.getAllProductNames() },
+    { label: 'group', allowed: project.getAllGroupNames() },
   ];
   return specs;
 }

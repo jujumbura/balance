@@ -102,6 +102,39 @@ class BaseState {
     return proxy;
   }
 
+  async correctValue(value, spec) {
+    console.log('value: ' + value);
+    console.log('spec: ' + JSON.stringify(spec, null, 2));
+    
+    if (spec.allowed.includes(value)) {
+      return value;
+    }
+    
+    let matches = match.findBestMatches(value, spec.allowed, 5);
+    if (matches.length <= 0) {
+      throw new InputError(spec.label + ' has no matches');
+    } else if (matches.length === 1) {
+      return matches[0];
+    }
+
+    while (true) {
+      try {
+        io.writeMessage('- clarify ' + spec.label);
+        dialogHelper.listValues(matches);
+        dialogHelper.printFields('? select', SELECT_FIELDS);
+        let results = await dialogHelper.submitFields(SELECT_FIELDS);
+        let index = results.attrMap.number - 1;
+        if (!this.checkIndex(index, matches)) { continue }
+        return matches[index];
+        break;
+      } catch (e) {
+        if (e instanceof InputError || e instanceof DataError) {
+          this.writeError(e.message);
+        } else { throw e; }
+      }
+    }
+  }
+
   async correctProxy(proxy, specs) {
     let corrected = Object.assign({}, proxy);
 
@@ -115,10 +148,9 @@ class BaseState {
       if (value === null) {
         continue;
       }
-      if (spec.allowed.includes(value)) {
-        continue;
-      }
-          
+
+      corrected[spec.label] = await this.correctValue(value, spec);
+         /* 
       let matches = match.findBestMatches(value, spec.allowed, 5);
       if (matches.length <= 0) {
         throw new InputError(spec.label + ' has no matches');
@@ -143,6 +175,7 @@ class BaseState {
           } else { throw e; }
         }
       }
+      */
     }
     return corrected;
   }
