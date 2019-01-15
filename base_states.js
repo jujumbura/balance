@@ -103,9 +103,6 @@ class BaseState {
   }
 
   async correctValue(value, spec) {
-    console.log('value: ' + value);
-    console.log('spec: ' + JSON.stringify(spec, null, 2));
-    
     if (spec.allowed.includes(value)) {
       return value;
     }
@@ -147,9 +144,15 @@ class BaseState {
       let value = corrected[spec.label];
       if (value === null) {
         continue;
+      } else if (Array.isArray(value)) {
+        for (let j = 0; j < value.length; ++j) {
+          let subValue = value[j];
+          value[j] = await this.correctValue(subValue, spec);
+        }
+      } else {
+        corrected[spec.label] = await this.correctValue(value, spec);
       }
 
-      corrected[spec.label] = await this.correctValue(value, spec);
          /* 
       let matches = match.findBestMatches(value, spec.allowed, 5);
       if (matches.length <= 0) {

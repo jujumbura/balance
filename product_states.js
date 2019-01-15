@@ -10,19 +10,23 @@ const ALL_FIELDS = [
   { label: 'desired', usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
 ];
 
-const FIND_FIELDS = [
-  { label: 'name',    usage: Usage.OPTIONAL, type: Type.STRING },
-];
-
 const FILTER_FIELDS = [
   { label: 'name',    usage: Usage.OPTIONAL, type: Type.STRING },
   { label: 'group',   usage: Usage.OPTIONAL, type: Type.STRING },
 ];
 
+function makeCorrectionSpecs(project) {
+  let specs = [
+    { label: 'name',    allowed: project.getAllProductNames() },
+    { label: 'groups',  allowed: project.getAllGroupNames() },
+  ];
+  return specs;
+}
+
 function makeFilterCorrectionSpecs(project) {
   let specs = [
-    { label: 'name',  allowed: project.getAllProductNames() },
-    { label: 'group', allowed: project.getAllGroupNames() },
+    { label: 'name',    allowed: project.getAllProductNames() },
+    { label: 'group',   allowed: project.getAllGroupNames() },
   ];
   return specs;
 }
@@ -73,7 +77,7 @@ class ProductEditState extends baseStates.EditState {
 	constructor() {
 		super();
 		this.header = 'Products-Edit';
-		this.filterFields = FIND_FIELDS;
+		this.filterFields = FILTER_FIELDS;
     this.modifyFields = ALL_FIELDS;
     this.displayFields = ALL_FIELDS;
 	}
@@ -95,6 +99,10 @@ class ProductEditState extends baseStates.EditState {
     return newProxy;
   }
   
+  makeCorrectionSpecs() {
+    return makeCorrectionSpecs(this.context.project);
+  }
+  
 	handleModify(proxy) {
 		this.context.project.updateProduct(proxy);
 		this.context.dirty = true;
@@ -105,7 +113,7 @@ class ProductRemoveState extends baseStates.RemoveState {
 	constructor() {
 		super();
 		this.header = 'Products-Remove';
-		this.filterFields = FIND_FIELDS;
+		this.filterFields = FILTER_FIELDS;
     this.displayFields = ALL_FIELDS;
     this.removeFields = ALL_FIELDS;
 	}

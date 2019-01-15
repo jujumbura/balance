@@ -171,7 +171,7 @@ class ItemListState extends baseStates.ListState {
 		this.displayFields = ALL_FIELDS;
 	}
   
-  makeCorrectionSpecs() {
+  makeFilterCorrectionSpecs() {
     return makeFilterCorrectionSpecs(this.context.project);
   }
 	
