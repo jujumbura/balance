@@ -12,7 +12,7 @@ const ALL_FIELDS = [
 
 const FILTER_FIELDS = [
   { label: 'name',    usage: Usage.OPTIONAL, type: Type.STRING },
-  { label: 'group',   usage: Usage.OPTIONAL, type: Type.STRING },
+  { label: 'groups',  usage: Usage.MULTIPLE, type: Type.STRING },
 ];
 
 function makeCorrectionSpecs(project) {
@@ -26,7 +26,7 @@ function makeCorrectionSpecs(project) {
 function makeFilterCorrectionSpecs(project) {
   let specs = [
     { label: 'name',    allowed: project.getAllProductNames() },
-    { label: 'group',   allowed: project.getAllGroupNames() },
+    { label: 'groups',  allowed: project.getAllGroupNames() },
   ];
   return specs;
 }

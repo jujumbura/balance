@@ -242,12 +242,18 @@ class Project {
 		return productProxy;
 	}
 
-  findProductsByGroup(group) {
+  findProductsByGroups(groups) {
     let productProxys = this.getAllProducts();
 
+    let groupIdSet = {}; 
+    for(let i = 0; i < groups.length; ++i) {
+      let group = groups[i];
+      let groupId = this.groupTable.findIdByName(group);
+      let descSet = this.groupGraph.getDescendentSet(groupId);
+      groupIdSet = Object.assign(groupIdSet, descSet);
+    }
+    
     let foundProxys;
-    let groupId = this.groupTable.findIdByName(group);
-    let groupIdSet = this.groupGraph.getDescendentSet(groupId);
     foundProxys = [];
     for (let i = 0; i < productProxys.length; ++i) {
       let productProxy = productProxys[i];
@@ -288,13 +294,13 @@ class Project {
 
   filterProducts(attrMap, skipMap) {
     let initialProxys;
-    let groupNull = false;
-    if (!skipMap.group) {
-      if (attrMap.group !== null) {
-        initialProxys = this.findProductsByGroup(attrMap.group);
+    let groupsNull = false;
+    if (!skipMap.groups) {
+      if (attrMap.groups !== null) {
+        initialProxys = this.findProductsByGroups(attrMap.groups);
       } else {
         initialProxys = this.getAllProducts();
-        groupNull = true;
+        groupsNull = true;
       }
     } else {
       initialProxys = this.getAllProducts();
@@ -306,7 +312,7 @@ class Project {
       if (!skipMap.name && (proxy.name !== attrMap.name)) {
         continue;
       }
-      if (groupNull && (proxy.group !== null)) {
+      if (groupsNull && (proxy.groups !== null)) {
         continue;
       }
       filteredProxys.push(proxy);
@@ -487,7 +493,7 @@ class Project {
   getItemCountWithGroup(group) {
     let itemProxys = this.getAllItems();
 
-    let productProxys = this.findProductsByGroup(group);
+    let productProxys = this.findProductsByGroups([group]);
     let productIdSet = {};
     productProxys.forEach(proxy => {
       productIdSet[proxy.id] = true;
