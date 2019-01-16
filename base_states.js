@@ -67,7 +67,7 @@ class BaseState {
           attrMap = results.attrMap;
           if (this.makeFilterCorrectionSpecs) {
             let specs = this.makeFilterCorrectionSpecs();
-            attrMap = await this.correctProxy(attrMap, specs);
+            attrMap = await this.correctFields(attrMap, results.skipMap, specs);
           }
 				}
         proxys = this.filterProxys(attrMap);
@@ -132,8 +132,8 @@ class BaseState {
     }
   }
 
-  async correctProxy(proxy, specs) {
-    let corrected = Object.assign({}, proxy);
+  async correctFields(attrMap, skipMap, specs) {
+    let corrected = Object.assign({}, attrMap);
 
     for (let i = 0; i < specs.length; ++i) {
       let spec = specs[i];
@@ -141,6 +141,9 @@ class BaseState {
         throw new InputError(spec.label + ' has no allowed values');
       }
       
+      if (skipMap[spec.label]) {
+        continue;
+      }
       let value = corrected[spec.label];
       if (value === null) {
         continue;
@@ -218,7 +221,7 @@ class AddState extends BaseState {
 		    let proxy = this.formProxy(results.attrMap);
         if (this.makeCorrectionSpecs) {
           let specs = this.makeCorrectionSpecs();
-          proxy = await this.correctProxy(proxy, specs);
+          proxy = await this.correctFields(proxy, specs);
         }
         dialogHelper.printProxy('- new', this.displayFields, proxy);
         if (!await this.checkConfirm()) { continue; }
@@ -249,7 +252,7 @@ class EditState extends BaseState {
 		    let newProxy = this.formProxy(proxy, results.attrMap, results.skipMap);
         if (this.makeCorrectionSpecs) {
           let specs = this.makeCorrectionSpecs();
-          newProxy = await this.correctProxy(newProxy, specs);
+          newProxy = await this.correctFields(newProxy, specs);
         }
         dialogHelper.printProxy('- new', this.displayFields, newProxy);
         if (!await this.checkConfirm()) { continue; }
@@ -297,16 +300,18 @@ class ListState extends BaseState {
 		while (true) {
 			try {
 				let attrMap = null;
+        let skipMap = null;
 				if (this.filterFields) {
 				  dialogHelper.printFields('? filter', this.filterFields);
-					let results = await dialogHelper.submitFields(this.filterFields);
+					let results = await dialogHelper.submitFields(this.filterFields, true);
           attrMap = results.attrMap;
+          skipMap = results.skipMap;
           if (this.makeFilterCorrectionSpecs) {
             let specs = this.makeFilterCorrectionSpecs();
-            attrMap = await this.correctProxy(attrMap, specs);
+            attrMap = await this.correctFields(attrMap, skipMap, specs);
           }
 				}
-		  	proxys = this.filterProxys(attrMap);
+		  	proxys = this.filterProxys(attrMap, skipMap);
 				break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {

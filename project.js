@@ -286,10 +286,16 @@ class Project {
     return this.productTable.getAllNames();
   }
 
-  filterProducts(name, group) {
+  filterProducts(attrMap, skipMap) {
     let initialProxys;
-    if (group) {
-      initialProxys = this.findProductsByGroup(group);
+    let groupNull = false;
+    if (!skipMap.group) {
+      if (attrMap.group !== null) {
+        initialProxys = this.findProductsByGroup(attrMap.group);
+      } else {
+        initialProxys = this.getAllProducts();
+        groupNull = true;
+      }
     } else {
       initialProxys = this.getAllProducts();
     }
@@ -297,7 +303,10 @@ class Project {
     let filteredProxys = [];
     for(let i = 0; i < initialProxys.length; ++i) {
       let proxy = initialProxys[i];
-      if (name && proxy.name !== name) {
+      if (!skipMap.name && (proxy.name !== attrMap.name)) {
+        continue;
+      }
+      if (groupNull && (proxy.group !== null)) {
         continue;
       }
       filteredProxys.push(proxy);

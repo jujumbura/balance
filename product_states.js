@@ -141,8 +141,8 @@ class ProductListState extends baseStates.ListState {
     return makeFilterCorrectionSpecs(this.context.project);
   }
 	
-	filterProxys(attrMap) {
-		let proxys = this.context.project.filterProducts(attrMap.name, attrMap.group);
+	filterProxys(attrMap, skipMap) {
+		let proxys = this.context.project.filterProducts(attrMap, skipMap);
 		return proxys;
 	}
 }
