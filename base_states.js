@@ -157,33 +157,6 @@ class BaseState {
       } else {
         corrected[spec.label] = await this.correctValue(value, spec);
       }
-
-         /* 
-      let matches = match.findBestMatches(value, spec.allowed, 5);
-      if (matches.length <= 0) {
-        throw new InputError(spec.label + ' has no matches');
-      } else if (matches.length === 1) {
-        corrected[spec.label] = matches[0];
-        continue;
-      }
-
-      while (true) {
-        try {
-          io.writeMessage('- clarify ' + spec.label);
-          dialogHelper.listValues(matches);
-          dialogHelper.printFields('? select', SELECT_FIELDS);
-          let results = await dialogHelper.submitFields(SELECT_FIELDS);
-          let index = results.attrMap.number - 1;
-          if (!this.checkIndex(index, matches)) { continue }
-          corrected[spec.label] = matches[index];
-          break;
-        } catch (e) {
-          if (e instanceof InputError || e instanceof DataError) {
-            this.writeError(e.message);
-          } else { throw e; }
-        }
-      }
-      */
     }
     return corrected;
   }

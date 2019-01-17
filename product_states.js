@@ -17,7 +17,6 @@ const FILTER_FIELDS = [
 
 function makeCorrectionSpecs(project) {
   let specs = [
-    { label: 'name',    allowed: project.getAllProductNames() },
     { label: 'groups',  allowed: project.getAllGroupNames() },
   ];
   return specs;
@@ -65,6 +64,10 @@ class ProductAddState extends baseStates.AddState {
       desired: attrMap.desired,
 		};
     return proxy;
+  }
+  
+  makeCorrectionSpecs() {
+    return makeCorrectionSpecs(this.context.project);
   }
 
 	handleAdd(proxy) {
