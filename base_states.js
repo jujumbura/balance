@@ -61,16 +61,18 @@ class BaseState {
     while (true) {
       try {
 				let attrMap = null;
+        let skipMap = null;
 				if (this.filterFields) {
 				  dialogHelper.printFields('? filter', this.filterFields);
-					let results = await dialogHelper.submitFields(this.filterFields);
+					let results = await dialogHelper.submitFields(this.filterFields, true);
           attrMap = results.attrMap;
+          skipMap = results.skipMap;
           if (this.makeFilterCorrectionSpecs) {
             let specs = this.makeFilterCorrectionSpecs();
             attrMap = await this.correctFields(attrMap, results.skipMap, specs);
           }
 				}
-        proxys = this.filterProxys(attrMap);
+        proxys = this.filterProxys(attrMap, skipMap);
         break;
 			} catch (e) {
 				if (e instanceof InputError || e instanceof DataError) {
@@ -141,7 +143,7 @@ class BaseState {
         throw new InputError(spec.label + ' has no allowed values');
       }
       
-      if (skipMap[spec.label]) {
+      if (skipMap && skipMap[spec.label]) {
         continue;
       }
       let value = corrected[spec.label];
@@ -221,7 +223,7 @@ class AddState extends BaseState {
 		    let proxy = this.formProxy(results.attrMap);
         if (this.makeCorrectionSpecs) {
           let specs = this.makeCorrectionSpecs();
-          proxy = await this.correctFields(proxy, specs);
+          proxy = await this.correctFields(proxy, null, specs);
         }
         dialogHelper.printProxy('- new', this.displayFields, proxy);
         if (!await this.checkConfirm()) { continue; }
@@ -252,7 +254,7 @@ class EditState extends BaseState {
 		    let newProxy = this.formProxy(proxy, results.attrMap, results.skipMap);
         if (this.makeCorrectionSpecs) {
           let specs = this.makeCorrectionSpecs();
-          newProxy = await this.correctFields(newProxy, specs);
+          newProxy = await this.correctFields(newProxy, results.skipMap, specs);
         }
         dialogHelper.printProxy('- new', this.displayFields, newProxy);
         if (!await this.checkConfirm()) { continue; }
