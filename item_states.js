@@ -21,6 +21,7 @@ const ALL_FIELDS = [
 const FILTER_FIELDS = [
   { label: 'product',   usage: Usage.OPTIONAL, type: Type.STRING },
   { label: 'location',  usage: Usage.OPTIONAL, type: Type.STRING },
+  { label: 'groups',    usage: Usage.MULTIPLE, type: Type.STRING },
   { label: 'disposed',  usage: Usage.OPTIONAL, type: Type.BOOL },
 ];
 
@@ -45,6 +46,8 @@ function makeCorrectionSpecs(project) {
 function makeFilterCorrectionSpecs(project) {
   let specs = [
     { label: 'product',   allowed: project.getAllProductNames() },
+    { label: 'location',  allowed: project.getAllLocationNames() },
+    { label: 'groups',    allowed: project.getAllGroupNames() },
   ];
   return specs;
 }
@@ -114,9 +117,8 @@ class ItemEditState extends baseStates.EditState {
     this.displayFields = ALL_FIELDS;
 	}
 
-	filterProxys(attrMap) {
-		let proxys = this.context.project.filterItems(attrMap.product, 
-        attrMap.location, attrMap.disposed);
+	filterProxys(attrMap, skipMap) {
+		let proxys = this.context.project.filterItems(attrMap, skipMap);
 		return proxys;
 	}
 
@@ -151,9 +153,8 @@ class ItemRemoveState extends baseStates.RemoveState {
     this.removeFields = ALL_FIELDS;
 	}
 
-	filterProxys(attrMap) {
-		let proxys = this.context.project.filterItems(attrMap.product, 
-        attrMap.location, attrMap.disposed);
+	filterProxys(attrMap, skipMap) {
+		let proxys = this.context.project.filterItems(attrMap, skipMap);
 		return proxys;
 	}
 
@@ -175,9 +176,8 @@ class ItemListState extends baseStates.ListState {
     return makeFilterCorrectionSpecs(this.context.project);
   }
 	
-	filterProxys(attrMap) {
-		let proxys = this.context.project.filterItems(attrMap.product, 
-        attrMap.location, attrMap.disposed);
+	filterProxys(attrMap, skipMap) {
+		let proxys = this.context.project.filterItems(attrMap, skipMap);
 		return proxys;
 	}
 }
@@ -216,9 +216,8 @@ class ItemUseState extends baseStates.BaseState {
 		return new StateCommand(StateCommand.Type.BACK);
 	}
 
-	filterProxys(attrMap) {
-		let proxys = this.context.project.filterItems(attrMap.product, 
-        attrMap.location, attrMap.disposed);
+	filterProxys(attrMap, skipMap) {
+		let proxys = this.context.project.filterItems(attrMap, skipMap);
 		return proxys;
 	}
 

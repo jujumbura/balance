@@ -244,25 +244,32 @@ class Project {
 
   findProductsByGroups(groups) {
     let productProxys = this.getAllProducts();
-
-    let groupIdSet = {}; 
-    for(let i = 0; i < groups.length; ++i) {
-      let group = groups[i];
-      let groupId = this.groupTable.findIdByName(group);
-      let descSet = this.groupGraph.getDescendentSet(groupId);
-      groupIdSet = Object.assign(groupIdSet, descSet);
-    }
-    
-    let foundProxys;
-    foundProxys = [];
-    for (let i = 0; i < productProxys.length; ++i) {
-      let productProxy = productProxys[i];
-      if (productProxy.groupIds) {
-        for (let j = 0; j < productProxy.groupIds.length; ++j) {
-          let groupId = productProxy.groupIds[j];
-          if (groupIdSet[groupId]) {
-            foundProxys.push(productProxy);
+    let foundProxys = [];
+    if (groups) {
+      let groupIdSet = {}; 
+      for(let i = 0; i < groups.length; ++i) {
+        let group = groups[i];
+        let groupId = this.groupTable.findIdByName(group);
+        let descSet = this.groupGraph.getDescendentSet(groupId);
+        groupIdSet = Object.assign(groupIdSet, descSet);
+      }
+      
+      for (let i = 0; i < productProxys.length; ++i) {
+        let productProxy = productProxys[i];
+        if (productProxy.groupIds) {
+          for (let j = 0; j < productProxy.groupIds.length; ++j) {
+            let groupId = productProxy.groupIds[j];
+            if (groupIdSet[groupId]) {
+              foundProxys.push(productProxy);
+            }
           }
+        }
+      }
+    } else {
+      for (let i = 0; i < productProxys.length; ++i) {
+        let productProxy = productProxys[i];
+        if (!productProxy.groupIds) {
+          foundProxys.push(productProxy);
         }
       }
     }
@@ -294,14 +301,8 @@ class Project {
 
   filterProducts(attrMap, skipMap) {
     let initialProxys;
-    let groupsNull = false;
     if (!skipMap.groups) {
-      if (attrMap.groups !== null) {
-        initialProxys = this.findProductsByGroups(attrMap.groups);
-      } else {
-        initialProxys = this.getAllProducts();
-        groupsNull = true;
-      }
+      initialProxys = this.findProductsByGroups(attrMap.groups);
     } else {
       initialProxys = this.getAllProducts();
     }
@@ -310,9 +311,6 @@ class Project {
     for(let i = 0; i < initialProxys.length; ++i) {
       let proxy = initialProxys[i];
       if (!skipMap.name && (proxy.name !== attrMap.name)) {
-        continue;
-      }
-      if (groupsNull && (proxy.groups !== null)) {
         continue;
       }
       filteredProxys.push(proxy);
@@ -461,29 +459,40 @@ class Project {
     return itemProxys;
 	}
   
-  filterItems(product, location, disposed) {
+  filterItems(attrMap, skipMap) {
+    let groupProductIdSet = {};
+    if (!skipMap.groups) {
+      let productProxys = this.findProductsByGroups(attrMap.groups);
+      productProxys.forEach(proxy => {
+        groupProductIdSet[proxy.id] = true;
+      });
+    }
+
     let itemProxys = this.getAllItems();
     
     let filteredProxys;
     let productId;
     let locationId;
-    if (product) {
-      productId = this.productTable.findIdByName(product);
+    if (!skipMap.product) {
+      productId = this.productTable.findIdByName(attrMap.product);
     }
-    if (location) {
-      locationId = this.locationTable.findIdByName(location);
+    if (!skipMap.location) {
+      locationId = this.locationTable.findIdByName(attrMap.location);
     }
     filteredProxys = [];
     for (let i = 0; i < itemProxys.length; ++i) {
       let itemProxy = itemProxys[i];
-      if (!disposed && itemProxy.disposed) {
+      if (!skipMap.product && (itemProxy.productId !== productId)) {
         continue;
       }
-      if (product && (itemProxy.productId !== productId)) {
-        continue
+      if (!skipMap.location && (itemProxy.locationId !== locationId)) {
+        continue;
       }
-      if (location && (itemProxy.locationId !== locationId)) {
-        continue
+      if (!skipMap.groups && (!groupProductIdSet[itemProxy.productId])) {
+        continue;
+      }
+      if (!skipMap.disposed && (attrMap.disposed !== (itemProxy.disposed !== null))) {
+        continue;
       }
       filteredProxys.push(itemProxy);
     }
