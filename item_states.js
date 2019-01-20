@@ -116,6 +116,10 @@ class ItemEditState extends baseStates.EditState {
     this.modifyFields = ALL_FIELDS;
     this.displayFields = ALL_FIELDS;
 	}
+  
+  makeFilterCorrectionSpecs() {
+    return makeFilterCorrectionSpecs(this.context.project);
+  }
 
 	filterProxys(attrMap, skipMap) {
 		let proxys = this.context.project.filterItems(attrMap, skipMap);
