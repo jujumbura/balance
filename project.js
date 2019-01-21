@@ -479,6 +479,7 @@ class Project {
     if (!skipMap.location) {
       locationId = this.locationTable.findIdByName(attrMap.location);
     }
+    let keepDisposed = !skipMap.disposed && attrMap.disposed; 
     filteredProxys = [];
     for (let i = 0; i < itemProxys.length; ++i) {
       let itemProxy = itemProxys[i];
@@ -491,7 +492,7 @@ class Project {
       if (!skipMap.groups && (!groupProductIdSet[itemProxy.productId])) {
         continue;
       }
-      if (!skipMap.disposed && (attrMap.disposed !== (itemProxy.disposed !== null))) {
+      if (!keepDisposed && (itemProxy.disposed !== null)) {
         continue;
       }
       filteredProxys.push(itemProxy);

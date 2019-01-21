@@ -156,6 +156,10 @@ class ItemRemoveState extends baseStates.RemoveState {
     this.displayFields = ALL_FIELDS;
     this.removeFields = ALL_FIELDS;
 	}
+  
+  makeFilterCorrectionSpecs() {
+    return makeFilterCorrectionSpecs(this.context.project);
+  }
 
 	filterProxys(attrMap, skipMap) {
 		let proxys = this.context.project.filterItems(attrMap, skipMap);
@@ -219,6 +223,10 @@ class ItemUseState extends baseStates.BaseState {
 
 		return new StateCommand(StateCommand.Type.BACK);
 	}
+  
+  makeFilterCorrectionSpecs() {
+    return makeFilterCorrectionSpecs(this.context.project);
+  }
 
 	filterProxys(attrMap, skipMap) {
 		let proxys = this.context.project.filterItems(attrMap, skipMap);
