@@ -183,7 +183,7 @@ class PurchaseConvertItemState extends baseStates.BaseState {
 		    let convertedProxy = this.convertProxy(proxy, results.attrMap);
         if (this.makeCorrectionSpecs) {
           let specs = this.makeCorrectionSpecs();
-          convertedProxy = await this.correctProxy(convertedProxy, specs);
+          convertedProxy = await this.correctFields(convertedProxy, results.skipMap, specs);
         }
         dialogHelper.printProxy('- to', this.toFields, convertedProxy);
         if (!await this.checkConfirm()) { continue; }
