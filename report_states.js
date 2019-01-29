@@ -9,7 +9,7 @@ var DataError = require('./errors').DataError;
 var StateCommand = require('./state_command');
 
 const RESTOCK_FIELDS = [
-  { label: 'name',      usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
+  { label: 'name',      usage: Usage.REQUIRED, type: Type.STRING, width: 40 },
   { label: 'have',      usage: Usage.REQUIRED, type: Type.NUMBER, width: 10 },
   { label: 'desired',   usage: Usage.REQUIRED, type: Type.NUMBER, width: 10 },
   { label: 'need',      usage: Usage.REQUIRED, type: Type.NUMBER, width: 10 },
