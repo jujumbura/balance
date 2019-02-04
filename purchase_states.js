@@ -10,7 +10,7 @@ var DataError = require('./errors').DataError;
 var StateCommand = require('./state_command');
 
 const ALL_FIELDS = [
-  { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 20 },
+  { label: 'product',   usage: Usage.REQUIRED, type: Type.STRING, width: 40 },
   { label: 'price',     usage: Usage.REQUIRED, type: Type.MONEY,  width: 10 },
   { label: 'quantity',  usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
   { label: 'size',      usage: Usage.OPTIONAL, type: Type.NUMBER, width: 10 },
